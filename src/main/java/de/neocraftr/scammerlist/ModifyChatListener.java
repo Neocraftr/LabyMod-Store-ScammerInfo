@@ -1,7 +1,6 @@
 package de.neocraftr.scammerlist;
 
 import net.labymod.api.events.MessageModifyChatEvent;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 
 import java.util.regex.Matcher;

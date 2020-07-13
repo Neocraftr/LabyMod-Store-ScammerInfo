@@ -22,7 +22,11 @@ public class ChatSendListener implements MessageSendEvent {
                                 if (!sc.getScammerListUUID().contains(uuid)) {
                                     sc.getScammerListUUID().add(uuid);
                                     sc.getScammerListName().add(name);
-                                    sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde zur Scammer Liste hinzugefügt.");
+                                    if(uuid.equals(name)) {
+                                        sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDer Spieler §e" + name + " (UUID nicht verfügbar) §awurde zur Scammer Liste hinzugefügt.");
+                                    } else {
+                                        sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde zur Scammer Liste hinzugefügt.");
+                                    }
                                     sc.saveSettings();
                                 } else {
                                     sc.getApi().displayMessageInChat(sc.getPrefix() + "§cDer Spieler §e" + name + " §cbefindet sich bereits auf der Scammer Liste.");
@@ -43,7 +47,11 @@ public class ChatSendListener implements MessageSendEvent {
                                 if (sc.getScammerListUUID().contains(uuid)) {
                                     sc.getScammerListUUID().remove(uuid);
                                     sc.getScammerListName().remove(name);
-                                    sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde von der Scammer Liste entfernt.");
+                                    if(uuid.equals(name)) {
+                                        sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDer Spieler §e" + name + " (UUID nicht verfügbar) §awurde von der Scammer Liste entfernt.");
+                                    } else {
+                                        sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde von der Scammer Liste entfernt.");
+                                    }
                                     sc.saveSettings();
                                 } else {
                                     sc.getApi().displayMessageInChat(sc.getPrefix() + "§cDer Spieler §e" + name + " §cbefindet sich nicht auf der Scammer Liste.");

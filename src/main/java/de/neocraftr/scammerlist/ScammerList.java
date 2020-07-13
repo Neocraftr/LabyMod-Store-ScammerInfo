@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -37,9 +38,9 @@ public class ScammerList extends LabyModAddon {
     public void onEnable() {
         setScammerList(this);
         setGson(new Gson());
-        setChatRegex(Pattern.compile("^(?:.\\w+. \\w+|\\w+) ┃ (\\w{1,16}) »"));
-        setMsgRegex(Pattern.compile("^\\[\\w+ ┃ (\\w{1,16}) -> mir]"));
-        setMsg2Regex(Pattern.compile("^\\[mir -> \\w+ ┃ (\\w{1,16})]"));
+        setChatRegex(Pattern.compile("^(?:.\\w+. \\w+|\\w+) ┃ (\\!?\\w{1,16}) »"));
+        setMsgRegex(Pattern.compile("^\\[\\w+ ┃ (\\!?\\w{1,16}) -> mir]"));
+        setMsg2Regex(Pattern.compile("^\\[mir -> \\w+ ┃ (\\!?\\w{1,16})]"));
 
         ChatComponentText scammerMessage = new ChatComponentText("§c§l[§4§l!§c§l] §r");
         scammerMessage.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer")));
@@ -75,6 +76,12 @@ public class ScammerList extends LabyModAddon {
 
     public ArrayList<String> getNamesFromUUID(String uuid) {
         ArrayList<String> names = new ArrayList<>();
+
+        if(uuid.startsWith("!")) {
+            names.add(uuid);
+            return names;
+        }
+
         try {
             uuid = CharMatcher.is('-').removeFrom(uuid);
             try (BufferedReader reader = Resources.asCharSource(new URL(String.format("https://api.mojang.com/user/profiles/%s/names", uuid)), StandardCharsets.UTF_8).openBufferedStream()) {
@@ -110,6 +117,10 @@ public class ScammerList extends LabyModAddon {
     }
 
     public String getUUIDFromName(String name) {
+        if(name.startsWith("!")) {
+            return name;
+        }
+
         try {
             try (BufferedReader reader = Resources.asCharSource(new URL(String.format("https://api.mojang.com/users/profiles/minecraft/%s", name)), StandardCharsets.UTF_8).openBufferedStream()) {
                 JsonObject json = getGson().fromJson(reader, JsonObject.class);
