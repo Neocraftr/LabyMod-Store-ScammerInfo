@@ -1,8 +1,11 @@
 package de.neocraftr.scammerlist;
 
 import net.labymod.api.events.MessageSendEvent;
+import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ChatSendListener implements MessageSendEvent {
 
@@ -38,6 +41,23 @@ public class ChatSendListener implements MessageSendEvent {
                     } else {
                         sc.getApi().displayMessageInChat(sc.getPrefix() + "§cVerwendung: " + sc.getCommandPrefix() + "scammer add <name>");
                     }
+                } else if(args[1].equalsIgnoreCase("addclan")) {
+                    if (args.length == 3) {
+                        sc.setAddClan(true);
+                        Minecraft.getMinecraft().thePlayer.sendChatMessage("/clan info "+args[2]);
+
+                        new Timer().schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                if(sc.isAddClan()) {
+                                    sc.setAddClan(false);
+                                    sc.getApi().displayMessageInChat(sc.getPrefix()+"§cBeim hinzufügen des Clans ist ein Fehler aufgetreten.");
+                                }
+                            }
+                        }, 3000);
+                    } else {
+                        sc.getApi().displayMessageInChat(sc.getPrefix() + "§cVerwendung: " + sc.getCommandPrefix() + "scammer addclan <name|clantag>");
+                    }
                 } else if (args[1].equalsIgnoreCase("remove")) {
                     if (args.length == 3) {
                         new Thread(() -> {
@@ -62,6 +82,23 @@ public class ChatSendListener implements MessageSendEvent {
                         }).start();
                     } else {
                         sc.getApi().displayMessageInChat(sc.getPrefix() + "§cVerwendung: " + sc.getCommandPrefix() + "scammer remove <name>");
+                    }
+                } else if(args[1].equalsIgnoreCase("removeclan")) {
+                    if (args.length == 3) {
+                        sc.setRemoveClan(true);
+                        Minecraft.getMinecraft().thePlayer.sendChatMessage("/clan info "+args[2]);
+
+                        new Timer().schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                if(sc.isRemoveClan()) {
+                                    sc.setRemoveClan(false);
+                                    sc.getApi().displayMessageInChat(sc.getPrefix()+"§cBeim entfernen des Clans ist ein Fehler aufgetreten.");
+                                }
+                            }
+                        }, 3000);
+                    } else {
+                        sc.getApi().displayMessageInChat(sc.getPrefix() + "§cVerwendung: " + sc.getCommandPrefix() + "scammer removeclan <name|clantag>");
                     }
                 } else if (args[1].equalsIgnoreCase("check")) {
                     if (args.length == 3) {
@@ -96,7 +133,7 @@ public class ChatSendListener implements MessageSendEvent {
                         text.append("\n§7-----------------------------------------------------");
                         sc.getApi().displayMessageInChat(text.toString());
                     } else {
-                        sc.getApi().displayMessageInChat(sc.getPrefix() + "§cDie Scammer Liste ist leer. Falls sich Spieler auf der Liste befinden sollten, aktualisiere sie mit §e" + sc.getCommandPrefix() + "scammer update§c.");
+                        sc.getApi().displayMessageInChat(sc.getPrefix() + "§cDie Scammer Liste ist leer.");
                     }
                 } else if (args[1].equalsIgnoreCase("update")) {
                     sc.getScammerListName().clear();
@@ -113,6 +150,33 @@ public class ChatSendListener implements MessageSendEvent {
                         }).start();
                     } else {
                         sc.getApi().displayMessageInChat(sc.getPrefix() + "§cDie Scammer Liste ist leer.");
+                    }
+                } else if (args[1].equalsIgnoreCase("clear")) {
+                    if(args.length >= 3 && args[2].equalsIgnoreCase("confirm")) {
+                        if(sc.isConfirmClear()) {
+                            sc.setConfirmClear(false);
+                            sc.getScammerListUUID().clear();
+                            sc.getScammerListName().clear();
+                            sc.saveSettings();
+                            sc.getApi().displayMessageInChat(sc.getPrefix()+"§aAlle Einträge der Scammer Liste wurden gelöscht.");
+                        } else {
+                            sc.getApi().displayMessageInChat(sc.getPrefix()+"§cBitte gib zuerst §e"+sc.getCommandPrefix()+"scammer clear §cein.");
+                        }
+                    } else {
+                        if(!sc.isConfirmClear()) {
+                            sc.setConfirmClear(true);
+                            sc.getApi().displayMessageInChat(sc.getPrefix() + "§c§lAchtung: §cUm alle Einträge der Scammer Liste zu löschen bestätige dies in den nächsten 15 Sekunden mit §e"
+                                    +sc.getCommandPrefix()+"scammer clear confirm§c.");
+                            new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    sc.setConfirmClear(false);
+                                }
+                            }, 15000);
+                        } else {
+                            sc.getApi().displayMessageInChat(sc.getPrefix() + "§cBitte bestätige das Löschen aller Einträge mit §e"
+                                    +sc.getCommandPrefix()+"scammer clear confirm§c.");
+                        }
                     }
                 } else {
                     sc.getApi().displayMessageInChat(sc.getPrefix() + "§cVerwendung: " + sc.getCommandPrefix() + "scammer <add|remove|list|update> [name]");
