@@ -151,6 +151,18 @@ public class ScammerList extends LabyModAddon {
         return null;
     }
 
+    public void printHelp() {
+        getApi().displayMessageInChat(getPrefix() + "§aVerfügbare Befehle:");
+        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer add <Name> §8- §aFügt einen Spieler zur Scammerliste hinzu.");
+        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer remove <Name> §8- §aEntfernt einen Spieler von der Scammerliste.");
+        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer addclan <Name|ClanTag §8- §aFügt die Spieler eines Clans zur Scammerliste hinzu.");
+        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer removeclan <Name|ClanTag> §8- §aEntfernt die Spieler eines Clans von der Scammerliste.");
+        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer check <Name> §8- §aÜberprüft ob sich ein Spieler auf der Scammerliste befindet.");
+        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
+        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
+        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
+    }
+
     public static void setScammerList(ScammerList scammerList) {
         ScammerList.scammerList = scammerList;
     }

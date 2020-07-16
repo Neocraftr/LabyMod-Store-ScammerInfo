@@ -50,8 +50,8 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                         });
 
                         sc.saveSettings();
-                        if(addClan) sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDie Spieler des Clans §e"+clanName+" §awurden zur Scammer Liste hinzugefügt.");
-                        if(removeClan) sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDie Spieler des Clans §e"+clanName+" §awurden von der Scammer Liste entfernt.");
+                        if(addClan) sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDie Spieler des Clans §e"+clanName+" §awurden zur Scammerliste hinzugefügt.");
+                        if(removeClan) sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDie Spieler des Clans §e"+clanName+" §awurden von der Scammerliste entfernt.");
                     }).start();
 
                     sc.setClanMessage(false);
