@@ -2,6 +2,8 @@ package de.neocraftr.scammerlist;
 
 import net.labymod.api.events.MessageSendEvent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.util.ChatComponentText;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -10,6 +12,7 @@ import java.util.TimerTask;
 public class ChatSendListener implements MessageSendEvent {
 
     private ScammerList sc = ScammerList.getScammerList();
+    private final int playersPerPage = 15;
 
     @Override
     public boolean onSend(String msg) {
@@ -129,33 +132,59 @@ public class ChatSendListener implements MessageSendEvent {
                         sc.getApi().displayMessageInChat(sc.getPrefix() + "§cVerwendung: " + sc.getCommandPrefix() + "scammer check <Name>");
                     }
                 } else if (args[1].equalsIgnoreCase("list")) {
-                    if (!sc.getScammerListName().isEmpty()|| (sc.getSettingsManager().isShowOnlineScammer() && !sc.getOnlineScammerListName().isEmpty())) {
-                        StringBuilder text = new StringBuilder();
-                        int totalScammer = 0;
+                    if (!sc.getScammerListName().isEmpty()) {
+                        try {
+                            int page = 0;
+                            if(args.length >= 3) page = Integer.parseInt(args[2]) - 1;
+                            if(page < 0) throw new NumberFormatException();
 
-                        text.append("\n§7-------------------- §eScammerliste §7--------------------");
-                        for(int i=0; i<sc.getScammerListName().size(); i++) {
-                            text.append("\n§8- §c").append(sc.getScammerListName().get(i)).append(" §8(§ePrivat§8)");
-                            totalScammer++;
-                        }
-                        if(sc.getSettingsManager().isShowOnlineScammer()) {
-                            for(int i=0; i<sc.getOnlineScammerListName().size(); i++) {
-                                text.append("\n§8- §c").append(sc.getOnlineScammerListName().get(i)).append(" §8(§bOnline§8)");
-                                totalScammer++;
+                            if(page < Math.ceil(sc.getScammerListName().size() / (double)playersPerPage)) {
+                                int from = page * playersPerPage;
+                                int to = page * playersPerPage + playersPerPage;
+                                if(to > sc.getScammerListName().size() - 1)
+                                    to = (sc.getScammerListName().size() - 1 % playersPerPage) + 1;
+
+                                ChatComponentText text = new ChatComponentText("");
+                                text.appendText("\n§7-------------------- §eScammerliste §7--------------------");
+                                for(int i=from; i<to; i++) {
+                                    text.appendText("\n§8- §c"+sc.getScammerListName().get(i));
+                                }
+                                //text.appendText("\n§4Einträge insgesamt: §c"+sc.getScammerListName().size());
+                                if(page > 0) {
+                                    ChatComponentText previousPage = new ChatComponentText("\n§a§l§n<<<");
+                                    previousPage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ".scammer list "+page));
+                                    text.appendSibling(previousPage);
+                                } else {
+                                    text.appendText("\n§7§l<<<");
+                                }
+                                text.appendText(" §8§l[§e§l"+(page + 1)+"§8§l/§e§l"+((int)Math.ceil(sc.getScammerListName().size() / (double)playersPerPage))+"§8§l] ");
+                                if(page < Math.ceil(sc.getScammerListName().size() / (double)playersPerPage) - 1) {
+                                    ChatComponentText nextPage = new ChatComponentText("§a§l§n>>>");
+                                    nextPage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ".scammer list "+(page + 2)));
+                                    text.appendSibling(nextPage);
+                                } else {
+                                    text.appendText("§7§l>>>");
+                                }
+
+                                text.appendText("\n§7-----------------------------------------------------");
+                                Minecraft.getMinecraft().thePlayer.addChatComponentMessage(text);
+                            } else {
+                                sc.getApi().displayMessageInChat(sc.getPrefix() + "§cSeite §e"+(page + 1)+" §cexistiert nicht.");
                             }
+                        } catch(NumberFormatException e) {
+                            sc.getApi().displayMessageInChat(sc.getPrefix() + "§cVerwendung: " + sc.getCommandPrefix() + "scammer list [Seite]");
                         }
-                        text.append("\n§4Einträge insgesamt: §c"+totalScammer);
-                        text.append("\n§7-----------------------------------------------------");
-                        sc.getApi().displayMessageInChat(text.toString());
                     } else {
                         sc.getApi().displayMessageInChat(sc.getPrefix() + "§cDeine Scammerliste ist leer.");
                     }
                 } else if (args[1].equalsIgnoreCase("update")) {
-                    sc.getScammerListName().clear();
                     if (!sc.getScammerListUUID().isEmpty() || sc.getSettingsManager().isShowOnlineScammer()) {
                         sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDie Namen der Scammerlisten werden aktualisiert...");
+                        sc.getScammerListName().clear();
                         new Thread(() -> {
                             sc.updateLists();
+                            sc.setNextUpdate(System.currentTimeMillis()+604800000); // 1 week
+                            sc.saveSettings();
                             sc.getApi().displayMessageInChat(sc.getPrefix() + "§aAktualisieung abgeschlossen.");
                         }).start();
                     } else {
