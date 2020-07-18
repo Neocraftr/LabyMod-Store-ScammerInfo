@@ -7,8 +7,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import net.labymod.api.LabyModAddon;
 import net.labymod.settings.elements.SettingsElement;
-import net.minecraft.event.HoverEvent;
-import net.minecraft.util.ChatComponentText;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,11 +21,15 @@ public class ScammerList extends LabyModAddon {
 
     private static ScammerList scammerList;
     private Gson gson;
-    private final String prefix = "§8[§4Scammerliste§8] §r", commandPrefix = ".";
-    private ChatComponentText scammerMessage;
+    private SettingsManager settingsManager;
+    private final String prefix = "§8[§4Scammerliste§8] §r", commandPrefix = ".", onlineScammerURL = "https://coolertyp.scammer-radar.de/onlineScammer.json";
 
-    private long nextUpdate;
-    private ArrayList<String> scammerListName, scammerListUUID, clanMemberList;
+    private long nextUpdate = 0;
+    private ArrayList<String> scammerListName = new ArrayList<>();
+    private ArrayList<String> scammerListUUID = new ArrayList<>();
+    private ArrayList<String> onlineScammerListName = new ArrayList<>();
+    private ArrayList<String> onlineScammerListUUID = new ArrayList<>();
+    private ArrayList<String> clanMemberList = new ArrayList<>();
     private Pattern chatRegex, msgRegex, msg2Regex, clanMemberRegex;
     private boolean addClan, removeClan, clanMessage, confirmClear;
     private String clanName;
@@ -36,15 +38,11 @@ public class ScammerList extends LabyModAddon {
     public void onEnable() {
         setScammerList(this);
         setGson(new Gson());
+        setSettingsManager(new SettingsManager());
         setChatRegex(Pattern.compile("^(?:.\\w+. \\w+|\\w+) ┃ (\\!?\\w{1,16}) »"));
         setMsgRegex(Pattern.compile("^\\[\\w+ ┃ (\\!?\\w{1,16}) -> mir]"));
         setMsg2Regex(Pattern.compile("^\\[mir -> \\w+ ┃ (\\!?\\w{1,16})]"));
         setClanMemberRegex(Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)"));
-        setClanMemberList(new ArrayList<>());
-
-        ChatComponentText scammerMessage = new ChatComponentText("§c§l[§4§l!§c§l] §r");
-        scammerMessage.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer")));
-        setScammerMessage(scammerMessage);
 
         getApi().getEventManager().register(new ChatSendListener());
         getApi().getEventManager().register(new ChatReceiveListener());
@@ -53,44 +51,47 @@ public class ScammerList extends LabyModAddon {
 
     @Override
     public void loadConfig() {
-        if(!getConfig().has("scammerListName")) {
-            getConfig().add("scammerListName", getGson().toJsonTree(new ArrayList<String>()));
-            saveConfig();
-        }
-        if(!getConfig().has("scammerListUUID")) {
-            getConfig().add("scammerListUUID", getGson().toJsonTree(new ArrayList<String>()));
-            saveConfig();
-        }
-        if(!getConfig().has("nextUpdate")) {
-            getConfig().addProperty("nextUpdate", 0);
-        }
+        getSettingsManager().loadSettings();
 
-        setScammerListName(getGson().fromJson(getConfig().get("scammerListName"), ArrayList.class));
-        setScammerListUUID(getGson().fromJson(getConfig().get("scammerListUUID"), ArrayList.class));
-        setNextUpdate(getConfig().get("nextUpdate").getAsLong());
+        if(getConfig().has("scammerListName")) {
+            setScammerListName(getGson().fromJson(getConfig().get("scammerListName"), ArrayList.class));
+        }
+        if(getConfig().has("scammerListUUID")) {
+            setScammerListUUID(getGson().fromJson(getConfig().get("scammerListUUID"), ArrayList.class));
+        }
+        if(getConfig().has("onlineScammerListName")) {
+            setOnlineScammerListName(getGson().fromJson(getConfig().get("onlineScammerListName"), ArrayList.class));
+        }
+        if(getConfig().has("onlineScammerListUUID")) {
+            setOnlineScammerListUUID(getGson().fromJson(getConfig().get("onlineScammerListUUID"), ArrayList.class));
+        }
+        if(getConfig().has("nextUpdate")) {
+            setNextUpdate(getConfig().get("nextUpdate").getAsLong());
+        }
 
         if(getNextUpdate() < System.currentTimeMillis()) {
             setNextUpdate(System.currentTimeMillis()+604800000); // 1 week
 
             new Thread(() -> {
-                for (int i = 0; i < getScammerListUUID().size(); i++) {
-                    String name = getNamesFromUUID(getScammerListUUID().get(i)).get(0);
-                    if (name == null) continue;
-                    getScammerListName().add(name);
-                }
-                saveSettings();
+                updateLists();
                 System.out.println("[ScammerList] Updated playernames.");
             }).start();
         }
     }
 
     @Override
-    protected void fillSettings(List<SettingsElement> list) {}
+    protected void fillSettings(List<SettingsElement> settings) {
+        getSettingsManager().fillSettings(settings);
+    }
 
     public void saveSettings() {
         getConfig().add("scammerListName", getGson().toJsonTree(getScammerListName()));
         getConfig().add("scammerListUUID", getGson().toJsonTree(getScammerListUUID()));
+        getConfig().add("onlineScammerListName", getGson().toJsonTree(getOnlineScammerListName()));
+        getConfig().add("onlineScammerListUUID", getGson().toJsonTree(getOnlineScammerListUUID()));
         getConfig().addProperty("nextUpdate", getNextUpdate());
+        getConfig().addProperty("showOnlineScammer", getSettingsManager().isShowOnlineScammer());
+        getConfig().addProperty("highlightInChat", getSettingsManager().isHighlightInChat());
         saveConfig();
     }
 
@@ -127,7 +128,7 @@ public class ScammerList extends LabyModAddon {
                 json.endArray();
             }
         } catch(IOException e) {
-            e.printStackTrace();
+            System.out.println("[ScammerList] Could not get name from mojang api: "+e.getLocalizedMessage());
         }
         Collections.reverse(names);
         return names;
@@ -146,7 +147,7 @@ public class ScammerList extends LabyModAddon {
                 return Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})").matcher(uuid).replaceAll("$1-$2-$3-$4-$5");
             }
         } catch(IOException e) {
-            e.printStackTrace();
+            System.out.println("[ScammerList] Could not get uuid from mojang api: "+e.getLocalizedMessage());
         }
         return null;
     }
@@ -163,6 +164,52 @@ public class ScammerList extends LabyModAddon {
         getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
     }
 
+    public void loadOnlineScammerList() {
+        try {
+            try(BufferedReader reader = Resources.asCharSource(new URL(onlineScammerURL), StandardCharsets.UTF_8).openBufferedStream()) {
+
+                JsonReader json = new JsonReader(reader);
+                json.beginArray();
+
+                getOnlineScammerListName().clear();
+                getOnlineScammerListUUID().clear();
+
+                while (json.hasNext()) {
+                    json.beginObject();
+                    while (json.hasNext()) {
+                        switch(json.nextName()) {
+                            case "name":
+                                String name = json.nextString();
+                                getOnlineScammerListName().add(name);
+                                break;
+                            case "uuid":
+                                String uuid = json.nextString();
+                                getOnlineScammerListUUID().add(uuid);
+                                break;
+                        }
+                    }
+                    json.endObject();
+                }
+
+                json.endArray();
+
+                saveSettings();
+            }
+        } catch (IOException e) {
+            System.out.println("[ScammerList] Could not load online scammer list: "+e.getLocalizedMessage());
+        }
+    }
+
+    public void updateLists() {
+        loadOnlineScammerList();
+
+        getScammerListUUID().forEach(uuid -> {
+            String name = getNamesFromUUID(uuid).get(0);
+            if (name != null) getScammerListName().add(name);
+        });
+        saveSettings();
+    }
+
     public static void setScammerList(ScammerList scammerList) {
         ScammerList.scammerList = scammerList;
     }
@@ -177,6 +224,13 @@ public class ScammerList extends LabyModAddon {
         this.gson = gson;
     }
 
+    public void setSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
+    public SettingsManager getSettingsManager() {
+        return settingsManager;
+    }
+
     public ArrayList<String> getScammerListName() {
         return scammerListName;
     }
@@ -189,6 +243,20 @@ public class ScammerList extends LabyModAddon {
     }
     public void setScammerListUUID(ArrayList<String> scammerListUUID) {
         this.scammerListUUID = scammerListUUID;
+    }
+
+    public ArrayList<String> getOnlineScammerListName() {
+        return onlineScammerListName;
+    }
+    public void setOnlineScammerListName(ArrayList<String> onlineScammerListName) {
+        this.onlineScammerListName = onlineScammerListName;
+    }
+
+    public ArrayList<String> getOnlineScammerListUUID() {
+        return onlineScammerListUUID;
+    }
+    public void setOnlineScammerListUUID(ArrayList<String> onlineScammerListUUID) {
+        this.onlineScammerListUUID = onlineScammerListUUID;
     }
 
     public ArrayList<String> getClanMemberList() {
@@ -274,13 +342,6 @@ public class ScammerList extends LabyModAddon {
     }
     public void setNextUpdate(long nextUpdate) {
         this.nextUpdate = nextUpdate;
-    }
-
-    public ChatComponentText getScammerMessage() {
-        return scammerMessage;
-    }
-    public void setScammerMessage(ChatComponentText scammerMessage) {
-        this.scammerMessage = scammerMessage;
     }
 }
 
