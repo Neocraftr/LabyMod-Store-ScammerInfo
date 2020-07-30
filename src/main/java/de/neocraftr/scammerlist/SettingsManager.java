@@ -11,7 +11,9 @@ public class SettingsManager {
 
     private ScammerList sc = ScammerList.getScammerList();
 
-    private boolean showOnlineScammer = true, highlightInChat = true;
+    private boolean showOnlineScammer = true,
+                    highlightInChat = true,
+                    highlightInTablist = true;
 
     public void loadSettings() {
         if(sc.getConfig().has("showOnlineScammer")) {
@@ -20,20 +22,29 @@ public class SettingsManager {
         if(sc.getConfig().has("highlightInChat")) {
             setHighlightInChat(sc.getConfig().get("highlightInChat").getAsBoolean());
         }
+        if(sc.getConfig().has("highlightInTablist")) {
+            setHighlightInTablist(sc.getConfig().get("highlightInTablist").getAsBoolean());
+        }
     }
 
     public void fillSettings(final List<SettingsElement> settings) {
         final BooleanElement showOnlineScammerBtn = new BooleanElement("[SCAMMER] Radar Integration", new ControlElement.IconData(Material.COMPASS), value -> {
             setShowOnlineScammer(value);
-            sc.saveSettings();
+            sc.saveConfig();
         }, isShowOnlineScammer());
         settings.add(showOnlineScammerBtn);
 
-        final BooleanElement highlightInChatBtn = new BooleanElement("Im Chat Markieren", new ControlElement.IconData(Material.LEVER), value -> {
+        final BooleanElement highlightInChatBtn = new BooleanElement("Im Chat markieren", new ControlElement.IconData(Material.LEVER), value -> {
             setHighlightInChat(value);
-            sc.saveSettings();
+            sc.saveConfig();
         }, isHighlightInChat());
         settings.add(highlightInChatBtn);
+
+        final BooleanElement highlightInTablistBtn = new BooleanElement("In Tabliste markieren", new ControlElement.IconData(Material.LEVER), value -> {
+            setHighlightInTablist(value);
+            sc.saveConfig();
+        }, isHighlightInTablist());
+        settings.add(highlightInTablistBtn);
     }
 
     public boolean isShowOnlineScammer() {
@@ -48,5 +59,12 @@ public class SettingsManager {
     }
     public void setHighlightInChat(boolean highlightInChat) {
         this.highlightInChat = highlightInChat;
+    }
+
+    public boolean isHighlightInTablist() {
+        return highlightInTablist;
+    }
+    public void setHighlightInTablist(boolean highlightInTablist) {
+        this.highlightInTablist = highlightInTablist;
     }
 }

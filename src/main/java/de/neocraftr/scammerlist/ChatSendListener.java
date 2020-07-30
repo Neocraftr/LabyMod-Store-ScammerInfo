@@ -12,7 +12,6 @@ import java.util.TimerTask;
 public class ChatSendListener implements MessageSendEvent {
 
     private ScammerList sc = ScammerList.getScammerList();
-    private final int playersPerPage = 15;
 
     @Override
     public boolean onSend(String msg) {
@@ -33,7 +32,7 @@ public class ChatSendListener implements MessageSendEvent {
                                     } else {
                                         sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde zu deiner Scammerliste hinzugefügt.");
                                     }
-                                    sc.saveSettings();
+                                    sc.saveConfig();
                                 } else {
                                     sc.getApi().displayMessageInChat(sc.getPrefix() + "§cDer Spieler §e" + name + " §cbefindet sich bereits auf deiner Scammerliste.");
                                 }
@@ -75,7 +74,7 @@ public class ChatSendListener implements MessageSendEvent {
                                     } else {
                                         sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde von deiner Scammerliste entfernt.");
                                     }
-                                    sc.saveSettings();
+                                    sc.saveConfig();
                                 } else {
                                     sc.getApi().displayMessageInChat(sc.getPrefix() + "§cDer Spieler §e" + name + " §cbefindet sich nicht auf deiner Scammerliste.");
                                 }
@@ -138,11 +137,11 @@ public class ChatSendListener implements MessageSendEvent {
                             if(args.length >= 3) page = Integer.parseInt(args[2]) - 1;
                             if(page < 0) throw new NumberFormatException();
 
-                            if(page < Math.ceil(sc.getScammerListName().size() / (double)playersPerPage)) {
-                                int from = page * playersPerPage;
-                                int to = page * playersPerPage + playersPerPage;
+                            if(page < Math.ceil(sc.getScammerListName().size() / (double)sc.getPlayersPerListPage())) {
+                                int from = page * sc.getPlayersPerListPage();
+                                int to = page * sc.getPlayersPerListPage() + sc.getPlayersPerListPage();
                                 if(to > sc.getScammerListName().size() - 1)
-                                    to = (sc.getScammerListName().size() - 1 % playersPerPage) + 1;
+                                    to = (sc.getScammerListName().size() - 1 % sc.getPlayersPerListPage()) + 1;
 
                                 ChatComponentText text = new ChatComponentText("");
                                 text.appendText("\n§7-------------------- §eScammerliste §7--------------------");
@@ -157,8 +156,8 @@ public class ChatSendListener implements MessageSendEvent {
                                 } else {
                                     text.appendText("\n§7§l<<<");
                                 }
-                                text.appendText(" §8§l[§e§l"+(page + 1)+"§8§l/§e§l"+((int)Math.ceil(sc.getScammerListName().size() / (double)playersPerPage))+"§8§l] ");
-                                if(page < Math.ceil(sc.getScammerListName().size() / (double)playersPerPage) - 1) {
+                                text.appendText(" §8§l[§e§l"+(page + 1)+"§8§l/§e§l"+((int)Math.ceil(sc.getScammerListName().size() / (double)sc.getPlayersPerListPage()))+"§8§l] ");
+                                if(page < Math.ceil(sc.getScammerListName().size() / (double)sc.getPlayersPerListPage()) - 1) {
                                     ChatComponentText nextPage = new ChatComponentText("§a§l§n>>>");
                                     nextPage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ".scammer list "+(page + 2)));
                                     text.appendSibling(nextPage);
@@ -184,7 +183,7 @@ public class ChatSendListener implements MessageSendEvent {
                         new Thread(() -> {
                             sc.updateLists();
                             sc.setNextUpdate(System.currentTimeMillis()+604800000); // 1 week
-                            sc.saveSettings();
+                            sc.saveConfig();
                             sc.getApi().displayMessageInChat(sc.getPrefix() + "§aAktualisieung abgeschlossen.");
                         }).start();
                     } else {
@@ -196,7 +195,7 @@ public class ChatSendListener implements MessageSendEvent {
                             sc.setConfirmClear(false);
                             sc.getScammerListUUID().clear();
                             sc.getScammerListName().clear();
-                            sc.saveSettings();
+                            sc.saveConfig();
                             sc.getApi().displayMessageInChat(sc.getPrefix()+"§aAlle Einträge deiner Scammerliste wurden gelöscht.");
                         } else {
                             sc.getApi().displayMessageInChat(sc.getPrefix()+"§cBitte gib zuerst §e"+sc.getCommandPrefix()+"scammer clear §cein.");
@@ -218,13 +217,25 @@ public class ChatSendListener implements MessageSendEvent {
                         }
                     }
                 } else {
-                    sc.printHelp();
+                    printHelp();
                 }
             } else {
-                sc.printHelp();
+                printHelp();
             }
             return true;
         }
         return false;
+    }
+
+    private void printHelp() {
+        sc.getApi().displayMessageInChat(sc.getPrefix() + "§aVerfügbare Befehle:");
+        sc.getApi().displayMessageInChat(sc.getPrefix()+"§e"+sc.getCommandPrefix()+"scammer add <Name> §8- §aFügt einen Spieler zur Scammerliste hinzu.");
+        sc.getApi().displayMessageInChat(sc.getPrefix()+"§e"+sc.getCommandPrefix()+"scammer remove <Name> §8- §aEntfernt einen Spieler von der Scammerliste.");
+        sc.getApi().displayMessageInChat(sc.getPrefix()+"§e"+sc.getCommandPrefix()+"scammer addclan <Name|ClanTag §8- §aFügt die Spieler eines Clans zur Scammerliste hinzu.");
+        sc.getApi().displayMessageInChat(sc.getPrefix()+"§e"+sc.getCommandPrefix()+"scammer removeclan <Name|ClanTag> §8- §aEntfernt die Spieler eines Clans von der Scammerliste.");
+        sc.getApi().displayMessageInChat(sc.getPrefix()+"§e"+sc.getCommandPrefix()+"scammer check <Name> §8- §aÜberprüft ob sich ein Spieler auf der Scammerliste befindet.");
+        sc.getApi().displayMessageInChat(sc.getPrefix()+"§e"+sc.getCommandPrefix()+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
+        sc.getApi().displayMessageInChat(sc.getPrefix()+"§e"+sc.getCommandPrefix()+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
+        sc.getApi().displayMessageInChat(sc.getPrefix()+"§e"+sc.getCommandPrefix()+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
     }
 }

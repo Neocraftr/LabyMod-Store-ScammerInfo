@@ -4,10 +4,12 @@ import net.labymod.api.events.MessageReceiveEvent;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatReceiveListener implements MessageReceiveEvent {
 
     private ScammerList sc = ScammerList.getScammerList();
+    private Pattern clanMemberRegex = Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)");
 
     @Override
     public boolean onReceive(String msgRaw, String msg) {
@@ -49,7 +51,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             }
                         });
 
-                        sc.saveSettings();
+                        sc.saveConfig();
                         if(addClan) sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDie Spieler des Clans §e"+clanName+" §awurden zur Scammerliste hinzugefügt.");
                         if(removeClan) sc.getApi().displayMessageInChat(sc.getPrefix() + "§aDie Spieler des Clans §e"+clanName+" §awurden von der Scammerliste entfernt.");
                     }).start();
@@ -76,7 +78,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                     sc.setClanName(msg.split(":")[1].trim());
                 }
 
-                Matcher m = sc.getClanMemberRegex().matcher(msg);
+                Matcher m = clanMemberRegex.matcher(msg);
                 if(m.matches()) {
                     sc.getClanMemberList().add(m.group(1));
                 }

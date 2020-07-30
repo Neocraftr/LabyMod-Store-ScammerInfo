@@ -19,18 +19,19 @@ import java.util.regex.Pattern;
 
 public class ScammerList extends LabyModAddon {
 
+    private static final String PREFIX = "§8[§4Scammerliste§8] §r",
+                                COMMAND_PREFIX = ".",
+                                ONLINE_SCAMMER_URL = "https://coolertyp.scammer-radar.de/onlineScammer.json";
+    private final int PLAYERS_PER_LIST_PAGE = 15;
     private static ScammerList scammerList;
     private Gson gson;
     private SettingsManager settingsManager;
-    private final String prefix = "§8[§4Scammerliste§8] §r", commandPrefix = ".", onlineScammerURL = "https://coolertyp.scammer-radar.de/onlineScammer.json";
-
     private long nextUpdate = 0;
     private ArrayList<String> scammerListName = new ArrayList<>();
     private ArrayList<String> scammerListUUID = new ArrayList<>();
     private ArrayList<String> onlineScammerListName = new ArrayList<>();
     private ArrayList<String> onlineScammerListUUID = new ArrayList<>();
     private ArrayList<String> clanMemberList = new ArrayList<>();
-    private Pattern chatRegex, msgRegex, msg2Regex, clanMemberRegex;
     private boolean addClan, removeClan, clanMessage, confirmClear;
     private String clanName;
 
@@ -39,14 +40,11 @@ public class ScammerList extends LabyModAddon {
         setScammerList(this);
         setGson(new Gson());
         setSettingsManager(new SettingsManager());
-        setChatRegex(Pattern.compile("^(?:.\\w+. \\w+|\\w+) ┃ (\\!?\\w{1,16}) »"));
-        setMsgRegex(Pattern.compile("^\\[\\w+ ┃ (\\!?\\w{1,16}) -> mir]"));
-        setMsg2Regex(Pattern.compile("^\\[mir -> \\w+ ┃ (\\!?\\w{1,16})]"));
-        setClanMemberRegex(Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)"));
 
         getApi().getEventManager().register(new ChatSendListener());
         getApi().getEventManager().register(new ChatReceiveListener());
         getApi().getEventManager().register(new ModifyChatListener());
+        getApi().registerForgeListener(new PreRenderListener());
     }
 
     @Override
@@ -84,7 +82,7 @@ public class ScammerList extends LabyModAddon {
         getSettingsManager().fillSettings(settings);
     }
 
-    public void saveSettings() {
+    public void saveConfig() {
         getConfig().add("scammerListName", getGson().toJsonTree(getScammerListName()));
         getConfig().add("scammerListUUID", getGson().toJsonTree(getScammerListUUID()));
         getConfig().add("onlineScammerListName", getGson().toJsonTree(getOnlineScammerListName()));
@@ -92,7 +90,8 @@ public class ScammerList extends LabyModAddon {
         getConfig().addProperty("nextUpdate", getNextUpdate());
         getConfig().addProperty("showOnlineScammer", getSettingsManager().isShowOnlineScammer());
         getConfig().addProperty("highlightInChat", getSettingsManager().isHighlightInChat());
-        saveConfig();
+        getConfig().addProperty("highlightInTablist", getSettingsManager().isHighlightInTablist());
+        super.saveConfig();
     }
 
     public ArrayList<String> getNamesFromUUID(String uuid) {
@@ -152,21 +151,9 @@ public class ScammerList extends LabyModAddon {
         return null;
     }
 
-    public void printHelp() {
-        getApi().displayMessageInChat(getPrefix() + "§aVerfügbare Befehle:");
-        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer add <Name> §8- §aFügt einen Spieler zur Scammerliste hinzu.");
-        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer remove <Name> §8- §aEntfernt einen Spieler von der Scammerliste.");
-        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer addclan <Name|ClanTag §8- §aFügt die Spieler eines Clans zur Scammerliste hinzu.");
-        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer removeclan <Name|ClanTag> §8- §aEntfernt die Spieler eines Clans von der Scammerliste.");
-        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer check <Name> §8- §aÜberprüft ob sich ein Spieler auf der Scammerliste befindet.");
-        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
-        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
-        getApi().displayMessageInChat(getPrefix()+"§e"+getCommandPrefix()+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
-    }
-
     public void loadOnlineScammerList() {
         try {
-            try(BufferedReader reader = Resources.asCharSource(new URL(onlineScammerURL), StandardCharsets.UTF_8).openBufferedStream()) {
+            try(BufferedReader reader = Resources.asCharSource(new URL(getOnlineScammerURL()), StandardCharsets.UTF_8).openBufferedStream()) {
 
                 JsonReader json = new JsonReader(reader);
                 json.beginArray();
@@ -193,7 +180,7 @@ public class ScammerList extends LabyModAddon {
 
                 json.endArray();
 
-                saveSettings();
+                saveConfig();
             }
         } catch (IOException e) {
             System.out.println("[ScammerList] Could not load online scammer list: "+e.getLocalizedMessage());
@@ -207,7 +194,20 @@ public class ScammerList extends LabyModAddon {
             String name = getNamesFromUUID(uuid).get(0);
             if (name != null) getScammerListName().add(name);
         });
-        saveSettings();
+        saveConfig();
+    }
+
+    public String getPrefix() {
+        return PREFIX;
+    }
+    public String getCommandPrefix() {
+        return COMMAND_PREFIX;
+    }
+    public String getOnlineScammerURL() {
+        return ONLINE_SCAMMER_URL;
+    }
+    public int getPlayersPerListPage() {
+        return PLAYERS_PER_LIST_PAGE;
     }
 
     public static void setScammerList(ScammerList scammerList) {
@@ -264,42 +264,6 @@ public class ScammerList extends LabyModAddon {
     }
     public void setClanMemberList(ArrayList<String> clanMemberList) {
         this.clanMemberList = clanMemberList;
-    }
-
-    public String getPrefix() {
-        return this.prefix;
-    }
-
-    public String getCommandPrefix() {
-        return this.commandPrefix;
-    }
-
-    public Pattern getChatRegex() {
-        return chatRegex;
-    }
-    public void setChatRegex(Pattern chatRegex) {
-        this.chatRegex = chatRegex;
-    }
-
-    public Pattern getMsgRegex() {
-        return msgRegex;
-    }
-    public void setMsgRegex(Pattern msgRegex) {
-        this.msgRegex = msgRegex;
-    }
-
-    public Pattern getMsg2Regex() {
-        return msg2Regex;
-    }
-    public void setMsg2Regex(Pattern msg2Regex) {
-        this.msg2Regex = msg2Regex;
-    }
-
-    public Pattern getClanMemberRegex() {
-        return clanMemberRegex;
-    }
-    public void setClanMemberRegex(Pattern clanMemberRegex) {
-        this.clanMemberRegex = clanMemberRegex;
     }
 
     public boolean isAddClan() {

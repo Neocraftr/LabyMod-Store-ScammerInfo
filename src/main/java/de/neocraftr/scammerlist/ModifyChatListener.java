@@ -6,17 +6,21 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ModifyChatListener implements MessageModifyChatEvent {
 
     private ScammerList sc = ScammerList.getScammerList();
+    private Pattern chatRegex = Pattern.compile("^(?:\\[[^\\]]+\\] )?[A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16}) \\u00BB");
+    private Pattern msgReceiveRegex = Pattern.compile("^\\[[A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16}) -> mir\\]");
+    private Pattern msgSendRegex = Pattern.compile("^\\[mir -> [A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16})\\]");
     private ChatComponentText privateScammerMessage, onlineScammerMessage;
 
     public ModifyChatListener() {
-        setPrivateScammerMessage(new ChatComponentText("§c§l[§4§l!§c§l] §r"));
-        getPrivateScammerMessage().getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§e§lPrivat§8§l)")));
-        setOnlineScammerMessage(new ChatComponentText("§c§l[§4§l!§c§l] §r"));
-        getOnlineScammerMessage().getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§b§lOnline§8§l)")));
+        privateScammerMessage = new ChatComponentText("§c§l[§4§l!§c§l] §r");
+        privateScammerMessage.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§e§lPrivat§8§l)")));
+        onlineScammerMessage = new ChatComponentText("§c§l[§4§l!§c§l] §r");
+        onlineScammerMessage.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§b§lOnline§8§l)")));
     }
 
     @Override
@@ -24,32 +28,20 @@ public class ModifyChatListener implements MessageModifyChatEvent {
         IChatComponent msg = (IChatComponent) o;
 
         if(sc.getSettingsManager().isHighlightInChat()) {
-            Matcher m = sc.getChatRegex().matcher(msg.getUnformattedText());
+            Matcher m = chatRegex.matcher(msg.getUnformattedText());
             // Chat message
             if(m.find()) {
-                if(sc.getScammerListName().contains(m.group(1))) {
-                    msg.getSiblings().add(0, getPrivateScammerMessage());
-                } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(m.group(1))) {
-                    msg.getSiblings().add(0, getOnlineScammerMessage());
-                }
+                modifyMessage(msg, m.group(1));
             } else {
-                m = sc.getMsgRegex().matcher(msg.getUnformattedText());
+                m = msgSendRegex.matcher(msg.getUnformattedText());
                 // Msg receive
                 if(m.find()) {
-                    if(sc.getScammerListName().contains(m.group(1))) {
-                        msg.getSiblings().add(0, getPrivateScammerMessage());
-                    } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(m.group(1))) {
-                        msg.getSiblings().add(0, getOnlineScammerMessage());
-                    }
+                    modifyMessage(msg, m.group(1));
                 } else {
-                    m = sc.getMsg2Regex().matcher(msg.getUnformattedText());
+                    m = msgReceiveRegex.matcher(msg.getUnformattedText());
                     // Msg send
                     if(m.find()) {
-                        if(sc.getScammerListName().contains(m.group(1))) {
-                            msg.getSiblings().add(0, getPrivateScammerMessage());
-                        } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(m.group(1))) {
-                            msg.getSiblings().add(0, getOnlineScammerMessage());
-                        }
+                        modifyMessage(msg, m.group(1));
                     }
                 }
             }
@@ -58,17 +50,11 @@ public class ModifyChatListener implements MessageModifyChatEvent {
         return o;
     }
 
-    public ChatComponentText getPrivateScammerMessage() {
-        return privateScammerMessage;
-    }
-    public void setPrivateScammerMessage(ChatComponentText privateScammerMessage) {
-        this.privateScammerMessage = privateScammerMessage;
-    }
-
-    public ChatComponentText getOnlineScammerMessage() {
-        return onlineScammerMessage;
-    }
-    public void setOnlineScammerMessage(ChatComponentText onlineScammerMessage) {
-        this.onlineScammerMessage = onlineScammerMessage;
+    private void modifyMessage(IChatComponent msg, String playerName) {
+        if(sc.getScammerListName().contains(playerName)) {
+            msg.getSiblings().add(0, privateScammerMessage);
+        } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(playerName)) {
+            msg.getSiblings().add(0, onlineScammerMessage);
+        }
     }
 }
