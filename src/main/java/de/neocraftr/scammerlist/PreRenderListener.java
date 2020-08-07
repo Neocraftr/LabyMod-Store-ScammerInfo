@@ -25,8 +25,8 @@ public class PreRenderListener {
     public void onPreRender(RenderGameOverlayEvent e) {
         if(Minecraft.getMinecraft().gameSettings.keyBindPlayerList.isKeyDown()
                 && !Minecraft.getMinecraft().isIntegratedServerRunning()) {
-            if(!tablistUpdated) {
-                tablistUpdated = true;
+            if(!isTablistUpdated()) {
+                setTablistUpdated(true);
                 ScoreObjective scoreobjective = LabyModCore.getMinecraft().getWorld().getScoreboard().getObjectiveInDisplaySlot(0);
                 NetHandlerPlayClient handler = LabyModCore.getMinecraft().getPlayer().sendQueue;
 
@@ -57,7 +57,14 @@ public class PreRenderListener {
                 }
             }
         } else {
-            tablistUpdated = false;
+            setTablistUpdated(false);
         }
+    }
+
+    public boolean isTablistUpdated() {
+        return tablistUpdated;
+    }
+    public void setTablistUpdated(boolean tablistUpdated) {
+        this.tablistUpdated = tablistUpdated;
     }
 }
