@@ -13,7 +13,8 @@ public class SettingsManager {
 
     private boolean showOnlineScammer = true,
                     highlightInChat = true,
-                    highlightInTablist = true;
+                    highlightInTablist = true,
+                    autoUpdate = true;
 
     public void loadSettings() {
         if(sc.getConfig().has("showOnlineScammer")) {
@@ -25,6 +26,9 @@ public class SettingsManager {
         if(sc.getConfig().has("highlightInTablist")) {
             setHighlightInTablist(sc.getConfig().get("highlightInTablist").getAsBoolean());
         }
+        if(sc.getConfig().has("autoUpdate")) {
+            setAutoUpdate(sc.getConfig().get("autoUpdate").getAsBoolean());
+        }
     }
 
     public void fillSettings(final List<SettingsElement> settings) {
@@ -34,17 +38,23 @@ public class SettingsManager {
         }, isShowOnlineScammer());
         settings.add(showOnlineScammerBtn);
 
-        final BooleanElement highlightInChatBtn = new BooleanElement("Im Chat markieren", new ControlElement.IconData(Material.LEVER), value -> {
+        final BooleanElement highlightInChatBtn = new BooleanElement("Im Chat markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
             setHighlightInChat(value);
             sc.saveConfig();
         }, isHighlightInChat());
         settings.add(highlightInChatBtn);
 
-        final BooleanElement highlightInTablistBtn = new BooleanElement("In Tabliste markieren", new ControlElement.IconData(Material.LEVER), value -> {
+        final BooleanElement highlightInTablistBtn = new BooleanElement("In Tabliste markieren", new ControlElement.IconData("labymod/textures/settings/settings/oldtablist.png"), value -> {
             setHighlightInTablist(value);
             sc.saveConfig();
         }, isHighlightInTablist());
         settings.add(highlightInTablistBtn);
+
+        final BooleanElement autoUpdateBtn = new BooleanElement("Automatisch aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
+            setAutoUpdate(value);
+            sc.saveConfig();
+        }, isAutoUpdate());
+        settings.add(autoUpdateBtn);
     }
 
     public boolean isShowOnlineScammer() {
@@ -66,5 +76,12 @@ public class SettingsManager {
     }
     public void setHighlightInTablist(boolean highlightInTablist) {
         this.highlightInTablist = highlightInTablist;
+    }
+
+    public boolean isAutoUpdate() {
+        return autoUpdate;
+    }
+    public void setAutoUpdate(boolean autoUpdate) {
+        this.autoUpdate = autoUpdate;
     }
 }

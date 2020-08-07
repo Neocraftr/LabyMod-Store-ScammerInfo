@@ -138,7 +138,9 @@ public class ChatSendListener implements MessageSendEvent {
                             if(args.length >= 3) page = Integer.parseInt(args[2]) - 1;
                             if(page < 0) throw new NumberFormatException();
 
-                            if(page < Math.ceil(sc.getScammerListName().size() / (double)ScammerList.PLAYERS_PER_LIST_PAGE)) {
+                            int numPages = (int) Math.ceil(sc.getScammerListName().size() / (double)ScammerList.PLAYERS_PER_LIST_PAGE);
+
+                            if(page < numPages) {
                                 int from = page * ScammerList.PLAYERS_PER_LIST_PAGE;
                                 int to = page * ScammerList.PLAYERS_PER_LIST_PAGE + ScammerList.PLAYERS_PER_LIST_PAGE;
                                 if(to > sc.getScammerListName().size() - 1)
@@ -149,7 +151,9 @@ public class ChatSendListener implements MessageSendEvent {
                                 for(int i=from; i<to; i++) {
                                     text.appendText("\n§8- §c"+sc.getScammerListName().get(i));
                                 }
-                                //text.appendText("\n§4Einträge insgesamt: §c"+sc.getScammerListName().size());
+                                if(page >= numPages - 1) {
+                                    text.appendText("\n§4Einträge insgesamt: §c"+sc.getScammerListName().size());
+                                }
                                 if(page > 0) {
                                     ChatComponentText previousPage = new ChatComponentText("\n§a§l§n<<<");
                                     previousPage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ".scammer list "+page));
@@ -157,8 +161,8 @@ public class ChatSendListener implements MessageSendEvent {
                                 } else {
                                     text.appendText("\n§7§l<<<");
                                 }
-                                text.appendText(" §8§l[§e§l"+(page + 1)+"§8§l/§e§l"+((int)Math.ceil(sc.getScammerListName().size() / (double)ScammerList.PLAYERS_PER_LIST_PAGE))+"§8§l] ");
-                                if(page < Math.ceil(sc.getScammerListName().size() / (double)ScammerList.PLAYERS_PER_LIST_PAGE) - 1) {
+                                text.appendText(" §8§l[§e§l"+(page + 1)+"§8§l/§e§l"+numPages+"§8§l] ");
+                                if(page < numPages - 1) {
                                     ChatComponentText nextPage = new ChatComponentText("§a§l§n>>>");
                                     nextPage.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ".scammer list "+(page + 2)));
                                     text.appendSibling(nextPage);
@@ -177,14 +181,23 @@ public class ChatSendListener implements MessageSendEvent {
                     } else {
                         sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDeine Scammerliste ist leer.");
                     }
+                } else if (args[1].equalsIgnoreCase("namechanges")) {
+                    if (!sc.getNameChangedPlayers().isEmpty()) {
+                        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§aLetzte Namensänderungen:");
+                        sc.getNameChangedPlayers().forEach(name -> {
+                            sc.getApi().displayMessageInChat("§8- §e"+name);
+                        });
+                    } else {
+                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cBei der letzten Aktualisierung wurden keine Namensänderungen festgestellt.");
+                    }
                 } else if (args[1].equalsIgnoreCase("update")) {
                     if (!sc.getScammerListUUID().isEmpty() || sc.getSettingsManager().isShowOnlineScammer()) {
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert...");
+                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
                         new Thread(() -> {
                             sc.getHelper().updateLists();
                             sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
                             sc.saveConfig();
-                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aAktualisieung abgeschlossen.");
+                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
                         }).start();
                     } else {
                         sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDeine Scammerliste ist leer.");
@@ -237,6 +250,7 @@ public class ChatSendListener implements MessageSendEvent {
         sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
         sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
         sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
+        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.)");
     }
 
     public boolean isConfirmClear() {

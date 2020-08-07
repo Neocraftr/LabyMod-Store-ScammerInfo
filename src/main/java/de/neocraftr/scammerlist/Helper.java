@@ -101,20 +101,44 @@ public class Helper {
                 sc.saveConfig();
             }
         } catch (IOException e) {
-            System.out.println("[ScammerList] Could not load online scammer list: "+e.getLocalizedMessage());
+            System.out.println("[ScammerList] Could not load online scammer list: "+e.getMessage());
         }
     }
 
     public void updateLists() {
+        sc.getNameChangedPlayers().clear();
+
+        // Update online list
         downloadOnlineScammerList();
-
-        // TODO: get names for online scammer list
-
-        sc.getScammerListName().clear();
-        sc.getScammerListUUID().forEach(uuid -> {
-            String name = getNamesFromUUID(uuid).get(0);
-            if (name != null) sc.getScammerListName().add(name);
+        ArrayList<String> newOnlineScammerListName = new ArrayList<>();
+        sc.getOnlineScammerListUUID().forEach(uuid -> {
+            ArrayList<String> names = getNamesFromUUID(uuid);
+            if(!sc.getOnlineScammerListName().contains(names.get(0))) {
+                if(names.size() == 1) {
+                    sc.getNameChangedPlayers().add(names.get(0));
+                } else {
+                    sc.getNameChangedPlayers().add(names.get(0)+" ["+names.get(1)+"]");
+                }
+            }
+            newOnlineScammerListName.add(names.get(0));
         });
+        sc.setOnlineScammerListName(newOnlineScammerListName);
+
+        // Update private list
+        ArrayList<String> newScammerListName = new ArrayList<>();
+        sc.getScammerListUUID().forEach(uuid -> {
+            ArrayList<String> names = getNamesFromUUID(uuid);
+            if(!sc.getScammerListName().contains(names.get(0))) {
+                if(names.size() == 1) {
+                    sc.getNameChangedPlayers().add(names.get(0));
+                } else {
+                    sc.getNameChangedPlayers().add(names.get(0)+" ["+names.get(1)+"]");
+                }
+            }
+            newScammerListName.add(names.get(0));
+        });
+        sc.setScammerListName(newScammerListName);
+
         sc.saveConfig();
     }
 }

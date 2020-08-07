@@ -11,6 +11,7 @@ Scammerliste für GrieferGames und ähnliche Server.
 - **.scammer clear** - Entfernt alle Spieler von der Scammerliste.
 - **.scammer list** - Zeige alle Spieler auf der Scammerliste.
 - **.scammer update** - Aktualisiert die Namen der Spieler.
+- **.scammer namechanges** - Zeigt die Namensänderungen der letzten Aktualisierung an.
 
 Anstatt **.scammer** kann auch der Befehl **.sc** verwendet werden.
 
