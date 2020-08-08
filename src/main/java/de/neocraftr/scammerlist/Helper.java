@@ -106,6 +106,7 @@ public class Helper {
     }
 
     public void updateLists() {
+        sc.setUpdatingList(true);
         sc.getNameChangedPlayers().clear();
 
         // Update online list
@@ -140,5 +141,6 @@ public class Helper {
         sc.setScammerListName(newScammerListName);
 
         sc.saveConfig();
+        sc.setUpdatingList(false);
     }
 }

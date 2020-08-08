@@ -46,18 +46,25 @@ public class ChatSendListener implements MessageSendEvent {
                     }
                 } else if(args[1].equalsIgnoreCase("addclan")) {
                     if (args.length == 3) {
-                        sc.setAddClan(true);
-                        Minecraft.getMinecraft().thePlayer.sendChatMessage("/clan info "+args[2]);
+                        if(!sc.isClanInProcess()) {
+                            sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§aBitte warten...");
+                            sc.setAddClan(true);
+                            sc.setClanInProcess(true);
+                            Minecraft.getMinecraft().thePlayer.sendChatMessage("/clan info "+args[2]);
 
-                        new Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                if(sc.isAddClan()) {
-                                    sc.setAddClan(false);
-                                    sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§cBeim hinzufügen des Clans ist ein Fehler aufgetreten.");
+                            new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if(sc.isAddClan()) {
+                                        sc.setAddClan(false);
+                                        sc.setClanInProcess(false);
+                                        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§cBeim hinzufügen des Clans ist ein Fehler aufgetreten.");
+                                    }
                                 }
-                            }
-                        }, 3000);
+                            }, 3000);
+                        } else {
+                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cEs wird bereits ein Clan hinzugefügt oder entfernt. Bitte warten!");
+                        }
                     } else {
                         sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + "scammer addclan <Name|ClanTag>");
                     }
@@ -88,18 +95,25 @@ public class ChatSendListener implements MessageSendEvent {
                     }
                 } else if(args[1].equalsIgnoreCase("removeclan")) {
                     if (args.length == 3) {
-                        sc.setRemoveClan(true);
-                        Minecraft.getMinecraft().thePlayer.sendChatMessage("/clan info "+args[2]);
+                        if(!sc.isClanInProcess()) {
+                            sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§aBitte warten...");
+                            sc.setRemoveClan(true);
+                            sc.setClanInProcess(true);
+                            Minecraft.getMinecraft().thePlayer.sendChatMessage("/clan info "+args[2]);
 
-                        new Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                if(sc.isRemoveClan()) {
-                                    sc.setRemoveClan(false);
-                                    sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§cBeim entfernen des Clans ist ein Fehler aufgetreten.");
+                            new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if(sc.isRemoveClan()) {
+                                        sc.setRemoveClan(false);
+                                        sc.setClanInProcess(false);
+                                        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§cBeim entfernen des Clans ist ein Fehler aufgetreten.");
+                                    }
                                 }
-                            }
-                        }, 3000);
+                            }, 3000);
+                        } else {
+                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cEs wird bereits ein Clan hinzugefügt oder entfernt. Bitte warten!");
+                        }
                     } else {
                         sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + "scammer removeclan <Name|ClanTag>");
                     }
@@ -192,13 +206,17 @@ public class ChatSendListener implements MessageSendEvent {
                     }
                 } else if (args[1].equalsIgnoreCase("update")) {
                     if (!sc.getScammerListUUID().isEmpty() || sc.getSettingsManager().isShowOnlineScammer()) {
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
-                        new Thread(() -> {
-                            sc.getHelper().updateLists();
-                            sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
-                            sc.saveConfig();
-                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
-                        }).start();
+                        if(!sc.isUpdatingList()) {
+                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
+                            new Thread(() -> {
+                                sc.getHelper().updateLists();
+                                sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
+                                sc.saveConfig();
+                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
+                            }).start();
+                        } else {
+                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDie Scammerliste wird bereits aktualisiert. Bite warten!");
+                        }
                     } else {
                         sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDeine Scammerliste ist leer.");
                     }

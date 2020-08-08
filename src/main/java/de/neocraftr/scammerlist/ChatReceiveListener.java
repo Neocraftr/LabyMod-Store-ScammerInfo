@@ -19,9 +19,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
         if(sc.isAddClan() || sc.isRemoveClan()) {
             if(msg.equals("----------- Clan-Mitglieder -----------")) {
                 if(isClanMessage()) {
-                    final boolean addClan = sc.isAddClan(), removeClan = sc.isRemoveClan();
-                    final ArrayList<String> clanMember = new ArrayList<>(getClanMemberList());
-                    final String clanName = getClanName();
+                    boolean addClan = sc.isAddClan(), removeClan = sc.isRemoveClan();
                     new Thread(() -> {
                         try {
                             Thread.sleep(100);
@@ -29,7 +27,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             e.printStackTrace();
                         }
                         sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aBitte warten...");
-                        clanMember.forEach(name -> {
+                        getClanMemberList().forEach(name -> {
                             if(addClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
@@ -55,13 +53,15 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                         });
 
                         sc.saveConfig();
-                        if(addClan) sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Spieler des Clans §e"+clanName+" §awurden zur Scammerliste hinzugefügt.");
-                        if(removeClan) sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Spieler des Clans §e"+clanName+" §awurden von der Scammerliste entfernt.");
+                        if(addClan) sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Spieler des Clans §e"+getClanName()+" §awurden zur Scammerliste hinzugefügt.");
+                        if(removeClan) sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Spieler des Clans §e"+getClanName()+" §awurden von der Scammerliste entfernt.");
+
+                        setClanMessage(false);
+                        getClanMemberList().clear();
+                        setClanName("");
+                        sc.setClanInProcess(false);
                     }).start();
 
-                    setClanMessage(false);
-                    getClanMemberList().clear();
-                    setClanName("");
                     sc.setAddClan(false);
                     sc.setRemoveClan(false);
                 } else {
@@ -72,8 +72,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
             if(msg.startsWith("[Clans]")) {
                 sc.setAddClan(false);
                 sc.setRemoveClan(false);
-                if(sc.isAddClan()) sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§cBeim hinzufügen des Clans ist ein Fehler aufgetreten.");
-                if(sc.isRemoveClan()) sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§cBeim entfernen des Clans ist ein Fehler aufgetreten.");
+                sc.setClanInProcess(false);
             }
 
             if(isClanMessage()) {

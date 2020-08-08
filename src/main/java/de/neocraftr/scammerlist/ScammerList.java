@@ -25,8 +25,7 @@ public class ScammerList extends LabyModAddon {
     private ArrayList<String> onlineScammerListName = new ArrayList<>();
     private ArrayList<String> onlineScammerListUUID = new ArrayList<>();
     private ArrayList<String> nameChangedPlayers = new ArrayList<>();
-    private boolean addClan, removeClan;
-
+    private boolean addClan, removeClan, clanInProcess, updatingList;
 
     @Override
     public void onEnable() {
@@ -170,6 +169,20 @@ public class ScammerList extends LabyModAddon {
     }
     public void setRemoveClan(boolean removeClan) {
         this.removeClan = removeClan;
+    }
+
+    public boolean isClanInProcess() {
+        return clanInProcess;
+    }
+    public void setClanInProcess(boolean clanInProcess) {
+        this.clanInProcess = clanInProcess;
+    }
+
+    public boolean isUpdatingList() {
+        return updatingList;
+    }
+    public void setUpdatingList(boolean updatingList) {
+        this.updatingList = updatingList;
     }
 
     public long getNextUpdate() {
