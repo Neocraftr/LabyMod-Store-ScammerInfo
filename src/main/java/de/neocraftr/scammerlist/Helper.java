@@ -4,6 +4,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.io.Resources;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import de.neocraftr.scammerlist.utils.ScammerList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -115,11 +116,7 @@ public class Helper {
         sc.getOnlineScammerListUUID().forEach(uuid -> {
             ArrayList<String> names = getNamesFromUUID(uuid);
             if(!sc.getOnlineScammerListName().contains(names.get(0))) {
-                if(names.size() == 1) {
-                    sc.getNameChangedPlayers().add(names.get(0));
-                } else {
-                    sc.getNameChangedPlayers().add(names.get(0)+" ["+names.get(1)+"]");
-                }
+                addNameChange(names);
             }
             newOnlineScammerListName.add(names.get(0));
         });
@@ -130,11 +127,7 @@ public class Helper {
         sc.getScammerListUUID().forEach(uuid -> {
             ArrayList<String> names = getNamesFromUUID(uuid);
             if(!sc.getScammerListName().contains(names.get(0))) {
-                if(names.size() == 1) {
-                    sc.getNameChangedPlayers().add(names.get(0));
-                } else {
-                    sc.getNameChangedPlayers().add(names.get(0)+" ["+names.get(1)+"]");
-                }
+                addNameChange(names);
             }
             newScammerListName.add(names.get(0));
         });
@@ -142,5 +135,17 @@ public class Helper {
 
         sc.saveConfig();
         sc.setUpdatingList(false);
+    }
+
+    private void addNameChange(ArrayList<String> names) {
+        if(names.size() == 1) {
+            if(!sc.getNameChangedPlayers().contains(names.get(0))) {
+                sc.getNameChangedPlayers().add(names.get(0));
+            }
+        } else {
+            if(!sc.getNameChangedPlayers().contains(names.get(0)+" ["+names.get(1)+"]")) {
+                sc.getNameChangedPlayers().add(names.get(0)+" ["+names.get(1)+"]");
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-package de.neocraftr.scammerlist;
+package de.neocraftr.scammerlist.utils;
 
 import net.labymod.settings.elements.BooleanElement;
 import net.labymod.settings.elements.ControlElement;

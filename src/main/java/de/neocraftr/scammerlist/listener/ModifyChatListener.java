@@ -1,5 +1,6 @@
-package de.neocraftr.scammerlist;
+package de.neocraftr.scammerlist.listener;
 
+import de.neocraftr.scammerlist.utils.ScammerList;
 import net.labymod.api.events.MessageModifyChatEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;

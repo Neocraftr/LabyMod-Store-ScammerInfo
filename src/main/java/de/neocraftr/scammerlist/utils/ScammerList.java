@@ -1,6 +1,11 @@
-package de.neocraftr.scammerlist;
+package de.neocraftr.scammerlist.utils;
 
 import com.google.gson.Gson;
+import de.neocraftr.scammerlist.Helper;
+import de.neocraftr.scammerlist.listener.ChatReceiveListener;
+import de.neocraftr.scammerlist.listener.ChatSendListener;
+import de.neocraftr.scammerlist.listener.ModifyChatListener;
+import de.neocraftr.scammerlist.listener.PreRenderListener;
 import net.labymod.api.LabyModAddon;
 import net.labymod.settings.elements.SettingsElement;
 

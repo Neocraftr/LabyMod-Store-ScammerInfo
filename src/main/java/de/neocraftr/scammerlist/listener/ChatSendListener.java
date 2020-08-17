@@ -1,11 +1,13 @@
-package de.neocraftr.scammerlist;
+package de.neocraftr.scammerlist.listener;
 
+import de.neocraftr.scammerlist.utils.ScammerList;
 import net.labymod.api.events.MessageSendEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.util.ChatComponentText;
 
 import java.util.ArrayList;
+import java.util.StringJoiner;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -197,10 +199,12 @@ public class ChatSendListener implements MessageSendEvent {
                     }
                 } else if (args[1].equalsIgnoreCase("namechanges")) {
                     if (!sc.getNameChangedPlayers().isEmpty()) {
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§aLetzte Namensänderungen:");
+                        StringJoiner joiner = new StringJoiner("\n");
+                        joiner.add(ScammerList.PREFIX+"§aLetzte Namensänderungen:");
                         sc.getNameChangedPlayers().forEach(name -> {
-                            sc.getApi().displayMessageInChat("§8- §e"+name);
+                            joiner.add("§8- §e"+name);
                         });
+                        sc.getApi().displayMessageInChat(joiner.toString());
                     } else {
                         sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cBei der letzten Aktualisierung wurden keine Namensänderungen festgestellt.");
                     }
@@ -259,16 +263,18 @@ public class ChatSendListener implements MessageSendEvent {
     }
 
     private void printHelp() {
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aVerfügbare Befehle:");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer add <Name> §8- §aFügt einen Spieler zur Scammerliste hinzu.");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer remove <Name> §8- §aEntfernt einen Spieler von der Scammerliste.");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer addclan <Name|ClanTag §8- §aFügt die Spieler eines Clans zur Scammerliste hinzu.");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer removeclan <Name|ClanTag> §8- §aEntfernt die Spieler eines Clans von der Scammerliste.");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer check <Name> §8- §aÜberprüft ob sich ein Spieler auf der Scammerliste befindet.");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
-        sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.)");
+        StringJoiner joiner = new StringJoiner("\n");
+        joiner.add(ScammerList.PREFIX + "§aVerfügbare Befehle:");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer add <Name> §8- §aFügt einen Spieler zur Scammerliste hinzu.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer remove <Name> §8- §aEntfernt einen Spieler von der Scammerliste.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer addclan <Name|ClanTag §8- §aFügt die Spieler eines Clans zur Scammerliste hinzu.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer removeclan <Name|ClanTag> §8- §aEntfernt die Spieler eines Clans von der Scammerliste.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer check <Name> §8- §aÜberprüft ob sich ein Spieler auf der Scammerliste befindet.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.)");
+        sc.getApi().displayMessageInChat(joiner.toString());
     }
 
     public boolean isConfirmClear() {

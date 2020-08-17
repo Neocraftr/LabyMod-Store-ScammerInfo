@@ -1,5 +1,6 @@
-package de.neocraftr.scammerlist;
+package de.neocraftr.scammerlist.listener;
 
+import de.neocraftr.scammerlist.utils.ScammerList;
 import net.labymod.api.events.MessageReceiveEvent;
 
 import java.util.ArrayList;
@@ -26,7 +27,6 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aBitte warten...");
                         getClanMemberList().forEach(name -> {
                             if(addClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
