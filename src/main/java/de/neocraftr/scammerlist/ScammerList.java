@@ -1,16 +1,16 @@
-package de.neocraftr.scammerlist.utils;
+package de.neocraftr.scammerlist;
 
 import com.google.gson.Gson;
-import de.neocraftr.scammerlist.Helper;
-import de.neocraftr.scammerlist.listener.ChatReceiveListener;
-import de.neocraftr.scammerlist.listener.ChatSendListener;
-import de.neocraftr.scammerlist.listener.ModifyChatListener;
-import de.neocraftr.scammerlist.listener.PreRenderListener;
+import de.neocraftr.scammerlist.listener.*;
+import de.neocraftr.scammerlist.utils.Helper;
+import de.neocraftr.scammerlist.utils.SettingsManager;
 import net.labymod.api.LabyModAddon;
 import net.labymod.settings.elements.SettingsElement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ScammerList extends LabyModAddon {
 
@@ -31,6 +31,7 @@ public class ScammerList extends LabyModAddon {
     private ArrayList<String> onlineScammerListUUID = new ArrayList<>();
     private ArrayList<String> nameChangedPlayers = new ArrayList<>();
     private boolean addClan, removeClan, clanInProcess, updatingList;
+    private Set<ClientCommandEvent> commandListeners = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -43,6 +44,7 @@ public class ScammerList extends LabyModAddon {
         getApi().getEventManager().register(new ChatReceiveListener());
         getApi().getEventManager().register(new ModifyChatListener());
         getApi().registerForgeListener(new PreRenderListener());
+        registerEvent(new CommandListener());
     }
 
     @Override
@@ -97,6 +99,10 @@ public class ScammerList extends LabyModAddon {
         getConfig().addProperty("highlightInTablist", getSettingsManager().isHighlightInTablist());
         getConfig().addProperty("autoUpdate", getSettingsManager().isAutoUpdate());
         super.saveConfig();
+    }
+
+    public void registerEvent(ClientCommandEvent listener) {
+        getCommandListeners().add(listener);
     }
 
     public static void setScammerList(ScammerList scammerList) {
@@ -195,6 +201,13 @@ public class ScammerList extends LabyModAddon {
     }
     public void setNextUpdate(long nextUpdate) {
         this.nextUpdate = nextUpdate;
+    }
+
+    public void setCommandListeners(Set<ClientCommandEvent> commandListeners) {
+        this.commandListeners = commandListeners;
+    }
+    public Set<ClientCommandEvent> getCommandListeners() {
+        return commandListeners;
     }
 }
 

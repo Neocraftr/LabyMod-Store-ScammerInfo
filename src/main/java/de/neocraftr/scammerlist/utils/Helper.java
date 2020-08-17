@@ -1,10 +1,10 @@
-package de.neocraftr.scammerlist;
+package de.neocraftr.scammerlist.utils;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.io.Resources;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
-import de.neocraftr.scammerlist.utils.ScammerList;
+import de.neocraftr.scammerlist.ScammerList;
 
 import java.io.BufferedReader;
 import java.io.IOException;

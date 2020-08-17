@@ -1,6 +1,6 @@
 package de.neocraftr.scammerlist.listener;
 
-import de.neocraftr.scammerlist.utils.ScammerList;
+import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.api.events.MessageReceiveEvent;
 
 import java.util.ArrayList;

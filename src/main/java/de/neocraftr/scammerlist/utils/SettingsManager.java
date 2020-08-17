@@ -1,5 +1,6 @@
 package de.neocraftr.scammerlist.utils;
 
+import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.settings.elements.BooleanElement;
 import net.labymod.settings.elements.ControlElement;
 import net.labymod.settings.elements.SettingsElement;
