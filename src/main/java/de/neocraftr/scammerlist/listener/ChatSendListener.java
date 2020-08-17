@@ -13,6 +13,10 @@ public class ChatSendListener implements MessageSendEvent {
 
     @Override
     public boolean onSend(String msg) {
+        if(!msg.toLowerCase().startsWith(ScammerList.COMMAND_PREFIX)) {
+            return false;
+        }
+
         List<String> msg_split = new ArrayList<>(Arrays.asList(msg.split(" ")));
         String cmd = msg_split.get(0).replaceFirst(ScammerList.COMMAND_PREFIX, "");
         msg_split.remove(0);
