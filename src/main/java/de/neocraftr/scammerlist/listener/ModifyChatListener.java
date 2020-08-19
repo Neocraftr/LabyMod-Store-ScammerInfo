@@ -15,6 +15,7 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     private Pattern chatRegex = Pattern.compile("^(?:\\[[^\\]]+\\] )?[A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16}) \\u00BB");
     private Pattern msgReceiveRegex = Pattern.compile("^\\[[A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16}) -> mir\\]");
     private Pattern msgSendRegex = Pattern.compile("^\\[mir -> [A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16})\\]");
+    private Pattern clanMemberRegex = Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)");
     private ChatComponentText privateScammerMessage, onlineScammerMessage;
 
     public ModifyChatListener() {
@@ -32,18 +33,29 @@ public class ModifyChatListener implements MessageModifyChatEvent {
             Matcher m = chatRegex.matcher(msg.getUnformattedText());
             // Chat message
             if(m.find()) {
-                modifyMessage(msg, m.group(1));
+                modifyChatMessage(msg, m.group(1));
             } else {
                 m = msgSendRegex.matcher(msg.getUnformattedText());
                 // Msg receive
                 if(m.find()) {
-                    modifyMessage(msg, m.group(1));
+                    modifyChatMessage(msg, m.group(1));
                 } else {
                     m = msgReceiveRegex.matcher(msg.getUnformattedText());
                     // Msg send
                     if(m.find()) {
-                        modifyMessage(msg, m.group(1));
+                        modifyChatMessage(msg, m.group(1));
                     }
+                }
+            }
+        }
+
+        if(sc.getSettingsManager().isHighlightInClanInfo()) {
+            Matcher m = clanMemberRegex.matcher(msg.getUnformattedText());
+            if(m.find()) {
+                if(sc.getScammerListName().contains(m.group(1))) {
+                    msg.getSiblings().add(1, privateScammerMessage);
+                } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(m.group(1))) {
+                    msg.getSiblings().add(1, onlineScammerMessage);
                 }
             }
         }
@@ -51,7 +63,7 @@ public class ModifyChatListener implements MessageModifyChatEvent {
         return o;
     }
 
-    private void modifyMessage(IChatComponent msg, String playerName) {
+    private void modifyChatMessage(IChatComponent msg, String playerName) {
         if(sc.getScammerListName().contains(playerName)) {
             msg.getSiblings().add(0, privateScammerMessage);
         } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(playerName)) {

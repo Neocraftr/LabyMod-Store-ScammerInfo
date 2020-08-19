@@ -14,6 +14,7 @@ public class SettingsManager {
 
     private boolean showOnlineScammer = true,
                     highlightInChat = true,
+                    highlightInClanInfo = true,
                     highlightInTablist = true,
                     autoUpdate = true;
 
@@ -23,6 +24,9 @@ public class SettingsManager {
         }
         if(sc.getConfig().has("highlightInChat")) {
             setHighlightInChat(sc.getConfig().get("highlightInChat").getAsBoolean());
+        }
+        if(sc.getConfig().has("highlightInClanInfo")) {
+            setHighlightInClanInfo(sc.getConfig().get("highlightInClanInfo").getAsBoolean());
         }
         if(sc.getConfig().has("highlightInTablist")) {
             setHighlightInTablist(sc.getConfig().get("highlightInTablist").getAsBoolean());
@@ -44,6 +48,12 @@ public class SettingsManager {
             sc.saveConfig();
         }, isHighlightInChat());
         settings.add(highlightInChatBtn);
+
+        final BooleanElement highlightInClanInfoBtn = new BooleanElement("In Clan Info markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
+            setHighlightInClanInfo(value);
+            sc.saveConfig();
+        }, isHighlightInClanInfo());
+        settings.add(highlightInClanInfoBtn);
 
         final BooleanElement highlightInTablistBtn = new BooleanElement("In Tabliste markieren", new ControlElement.IconData("labymod/textures/settings/settings/oldtablist.png"), value -> {
             setHighlightInTablist(value);
@@ -70,6 +80,13 @@ public class SettingsManager {
     }
     public void setHighlightInChat(boolean highlightInChat) {
         this.highlightInChat = highlightInChat;
+    }
+
+    public boolean isHighlightInClanInfo() {
+        return highlightInClanInfo;
+    }
+    public void setHighlightInClanInfo(boolean highlightInClanInfo) {
+        this.highlightInClanInfo = highlightInClanInfo;
     }
 
     public boolean isHighlightInTablist() {
