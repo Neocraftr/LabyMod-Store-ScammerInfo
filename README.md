@@ -2,6 +2,14 @@
 
 Scammerliste für GrieferGames und ähnliche Server.
 
+### Funktionen
+- Speicherung der UUID von Spielern (Scammer beliben auch nach Nemansänderung auf der Liste)
+- Automatische Aktualisierung der Spielernamen
+- Markierung von Scammern im Chat, in Clans und per MSg
+- Befehl zum hinzufügen / entfernen ganzer Clans
+- Befehl um Namensänderungen seit der letzten Aktualisierung aufzulisten.
+- Integration der öffentlichen Scammerliste des [\[SCAMMER\] Radar](https://scammer-radar.de/) Projekts
+
 ### Verfügbare Befehle:
 - **.scammer add \<Name\>** - Fügt einen Spieler zur Scammerliste hinzu.
 - **.scammer remove \<Name\>** - Entfernt einen Spieler von der Scammerliste.
@@ -16,8 +24,8 @@ Scammerliste für GrieferGames und ähnliche Server.
 Anstatt **.scammer** kann auch der Befehl **.sc** verwendet werden.
 
 ### Andere Server als GrieferGames
-Folgende Funktionen sind ausschließlich auf GrieferGames nutzbar:
-- Markierung von Scammern im Chat und per MSG
+Folgende Funktionen sind ausschließlich auf GrieferGames (oder Servern mit gleicher Chatformatierung) nutzbar:
+- Markierung von Scammern im Chat, in Clans und per MSG
 - Hinzufügen und Entfernen von Clans
 
 ### Installation
