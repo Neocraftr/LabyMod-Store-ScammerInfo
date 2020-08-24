@@ -16,6 +16,8 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     private Pattern msgReceiveRegex = Pattern.compile("^\\[[A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16}) -> mir\\]");
     private Pattern msgSendRegex = Pattern.compile("^\\[mir -> [A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16})\\]");
     private Pattern clanMemberRegex = Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)");
+    private Pattern startkickTargetRegex = Pattern.compile("^\\[GrieferGames\\] Soll der Spieler (\\!?\\w{1,16}) rausgeworfen werden\\? \\/ja \\/nein");
+    private Pattern startkickCreatorRegex = Pattern.compile("^\\[GrieferGames\\] Ersteller: (\\!?\\w{1,16})");
     private ChatComponentText privateScammerMessage, onlineScammerMessage;
 
     public ModifyChatListener() {
@@ -33,17 +35,17 @@ public class ModifyChatListener implements MessageModifyChatEvent {
             Matcher m = chatRegex.matcher(msg.getUnformattedText());
             // Chat message
             if(m.find()) {
-                modifyChatMessage(msg, m.group(1));
+                checkAndModify(msg, 0, m.group(1));
             } else {
                 m = msgSendRegex.matcher(msg.getUnformattedText());
                 // Msg receive
                 if(m.find()) {
-                    modifyChatMessage(msg, m.group(1));
+                    checkAndModify(msg, 0, m.group(1));
                 } else {
                     m = msgReceiveRegex.matcher(msg.getUnformattedText());
                     // Msg send
                     if(m.find()) {
-                        modifyChatMessage(msg, m.group(1));
+                        checkAndModify(msg, 0, m.group(1));
                     }
                 }
             }
@@ -52,22 +54,30 @@ public class ModifyChatListener implements MessageModifyChatEvent {
         if(sc.getSettingsManager().isHighlightInClanInfo()) {
             Matcher m = clanMemberRegex.matcher(msg.getUnformattedText());
             if(m.find()) {
-                if(sc.getScammerListName().contains(m.group(1))) {
-                    msg.getSiblings().add(1, privateScammerMessage);
-                } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(m.group(1))) {
-                    msg.getSiblings().add(1, onlineScammerMessage);
-                }
+                checkAndModify(msg, 1, m.group(1));
+            }
+        }
+
+        if(sc.getSettingsManager().isHighlightInStartkick()) {
+            Matcher m = startkickTargetRegex.matcher(msg.getUnformattedText());
+            if(m.find()) {
+                checkAndModify(msg, 3, m.group(1));
+            }
+
+            m = startkickCreatorRegex.matcher(msg.getUnformattedText());
+            if(m.find()) {
+                checkAndModify(msg, 3, m.group(1));
             }
         }
 
         return o;
     }
 
-    private void modifyChatMessage(IChatComponent msg, String playerName) {
-        if(sc.getScammerListName().contains(playerName)) {
-            msg.getSiblings().add(0, privateScammerMessage);
+    private void checkAndModify(IChatComponent msg, int after, String playerName) {
+        if(sc.getScammerListName().contains(playerName) || sc.getScammerListName().contains("*")) {
+            msg.getSiblings().add(after, privateScammerMessage);
         } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(playerName)) {
-            msg.getSiblings().add(0, onlineScammerMessage);
+            msg.getSiblings().add(after, onlineScammerMessage);
         }
     }
 }

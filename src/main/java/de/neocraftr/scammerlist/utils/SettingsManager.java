@@ -16,6 +16,7 @@ public class SettingsManager {
                     highlightInChat = true,
                     highlightInClanInfo = true,
                     highlightInTablist = true,
+                    highlightInStartkick = true,
                     autoUpdate = true;
 
     public void loadSettings() {
@@ -30,6 +31,9 @@ public class SettingsManager {
         }
         if(sc.getConfig().has("highlightInTablist")) {
             setHighlightInTablist(sc.getConfig().get("highlightInTablist").getAsBoolean());
+        }
+        if(sc.getConfig().has("highlightInStartkick")) {
+            setHighlightInStartkick(sc.getConfig().get("highlightInStartkick").getAsBoolean());
         }
         if(sc.getConfig().has("autoUpdate")) {
             setAutoUpdate(sc.getConfig().get("autoUpdate").getAsBoolean());
@@ -54,6 +58,12 @@ public class SettingsManager {
             sc.saveConfig();
         }, isHighlightInClanInfo());
         settings.add(highlightInClanInfoBtn);
+
+        final BooleanElement highlightInStartkickBtn = new BooleanElement("Bei Startkicks markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
+            setHighlightInStartkick(value);
+            sc.saveConfig();
+        }, isHighlightInStartkick());
+        settings.add(highlightInStartkickBtn);
 
         final BooleanElement highlightInTablistBtn = new BooleanElement("In Tabliste markieren", new ControlElement.IconData("labymod/textures/settings/settings/oldtablist.png"), value -> {
             setHighlightInTablist(value);
@@ -94,6 +104,14 @@ public class SettingsManager {
     }
     public void setHighlightInTablist(boolean highlightInTablist) {
         this.highlightInTablist = highlightInTablist;
+    }
+
+
+    public boolean isHighlightInStartkick() {
+        return highlightInStartkick;
+    }
+    public void setHighlightInStartkick(boolean highlightInStartkick) {
+        this.highlightInStartkick = highlightInStartkick;
     }
 
     public boolean isAutoUpdate() {

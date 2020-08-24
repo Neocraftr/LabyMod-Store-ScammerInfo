@@ -21,7 +21,7 @@ public class Helper {
     public ArrayList<String> getNamesFromUUID(String uuid) {
         ArrayList<String> names = new ArrayList<>();
 
-        if(uuid.startsWith("!")) {
+        if(uuid.startsWith("!") || uuid.equals("*")) {
             names.add(uuid);
             return names;
         }
@@ -58,7 +58,7 @@ public class Helper {
     }
 
     public String getUUIDFromName(String name) {
-        if(name.startsWith("!")) {
+        if(name.startsWith("!") || name.equals("*")) {
             return name;
         }
 

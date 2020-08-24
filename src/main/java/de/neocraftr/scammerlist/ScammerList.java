@@ -97,6 +97,7 @@ public class ScammerList extends LabyModAddon {
         getConfig().addProperty("showOnlineScammer", getSettingsManager().isShowOnlineScammer());
         getConfig().addProperty("highlightInChat", getSettingsManager().isHighlightInChat());
         getConfig().addProperty("highlightInTablist", getSettingsManager().isHighlightInTablist());
+        getConfig().addProperty("highlightInStartkick", getSettingsManager().isHighlightInStartkick());
         getConfig().addProperty("autoUpdate", getSettingsManager().isAutoUpdate());
         super.saveConfig();
     }

@@ -45,7 +45,7 @@ public class PreRenderListener {
                             if(sc.getSettingsManager().isHighlightInTablist()) {
                                 Matcher m = tablistRegex.matcher(playerName.getUnformattedText());
                                 if(m.find()) {
-                                    if(sc.getScammerListName().contains(m.group(1))
+                                    if(sc.getScammerListName().contains(m.group(1)) || sc.getScammerListName().contains("*")
                                             || (sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(m.group(1)))) {
                                         playerName.getSiblings().add(0, scammerMessage);
                                     }
