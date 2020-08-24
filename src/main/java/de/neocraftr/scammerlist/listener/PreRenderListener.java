@@ -42,11 +42,11 @@ public class PreRenderListener {
                                 playerName.getSiblings().remove(0);
                             }
 
-                            if(sc.getSettingsManager().isHighlightInTablist()) {
+                            if(sc.getSettings().isHighlightInTablist()) {
                                 Matcher m = tablistRegex.matcher(playerName.getUnformattedText());
                                 if(m.find()) {
-                                    if(sc.getScammerListName().contains(m.group(1)) || sc.getScammerListName().contains("*")
-                                            || (sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(m.group(1)))) {
+                                    if(sc.getPrivateListName().contains(m.group(1)) || sc.getPrivateListName().contains("*")
+                                            || (sc.getSettings().isShowOnlineScammer() && sc.getOnlineListName().contains(m.group(1)))) {
                                         playerName.getSiblings().add(0, scammerMessage);
                                     }
                                 }

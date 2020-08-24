@@ -31,7 +31,7 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     public Object onModifyChatMessage(Object o) {
         IChatComponent msg = (IChatComponent) o;
 
-        if(sc.getSettingsManager().isHighlightInChat()) {
+        if(sc.getSettings().isHighlightInChat()) {
             Matcher m = chatRegex.matcher(msg.getUnformattedText());
             // Chat message
             if(m.find()) {
@@ -51,14 +51,14 @@ public class ModifyChatListener implements MessageModifyChatEvent {
             }
         }
 
-        if(sc.getSettingsManager().isHighlightInClanInfo()) {
+        if(sc.getSettings().isHighlightInClanInfo()) {
             Matcher m = clanMemberRegex.matcher(msg.getUnformattedText());
             if(m.find()) {
                 checkAndModify(msg, 1, m.group(1));
             }
         }
 
-        if(sc.getSettingsManager().isHighlightInStartkick()) {
+        if(sc.getSettings().isHighlightInStartkick()) {
             Matcher m = startkickTargetRegex.matcher(msg.getUnformattedText());
             if(m.find()) {
                 checkAndModify(msg, 3, m.group(1));
@@ -74,9 +74,9 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     }
 
     private void checkAndModify(IChatComponent msg, int after, String playerName) {
-        if(sc.getScammerListName().contains(playerName) || sc.getScammerListName().contains("*")) {
+        if(sc.getPrivateListName().contains(playerName) || sc.getPrivateListName().contains("*")) {
             msg.getSiblings().add(after, privateScammerMessage);
-        } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListName().contains(playerName)) {
+        } else if(sc.getSettings().isShowOnlineScammer() && sc.getOnlineListName().contains(playerName)) {
             msg.getSiblings().add(after, onlineScammerMessage);
         }
     }

@@ -30,24 +30,24 @@ public class CommandListener implements ClientCommandEvent {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
                         String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
-                        if (!sc.getScammerListUUID().contains(uuid)) {
-                            sc.getScammerListUUID().add(uuid);
-                            sc.getScammerListName().add(name);
+                        if (!sc.getPrivateListUUID().contains(uuid)) {
+                            sc.getPrivateListUUID().add(uuid);
+                            sc.getPrivateListName().add(name);
                             if(uuid.equals(name)) {
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (UUID nicht verfügbar) §awurde zu deiner Scammerliste hinzugefügt.");
+                                sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (UUID nicht verfügbar) §awurde zu deiner Scammerliste hinzugefügt.");
                             } else {
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde zu deiner Scammerliste hinzugefügt.");
+                                sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde zu deiner Scammerliste hinzugefügt.");
                             }
                             sc.saveConfig();
                         } else {
-                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDer Spieler §e" + name + " §cbefindet sich bereits auf deiner Scammerliste.");
+                            sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + name + " §cbefindet sich bereits auf deiner Scammerliste.");
                         }
                     } else {
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
+                        sc.displayMessage(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
                     }
                 }).start();
             } else {
-                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " add <Name>");
+                sc.displayMessage(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " add <Name>");
             }
         } else
 
@@ -55,7 +55,7 @@ public class CommandListener implements ClientCommandEvent {
         if(args[0].equalsIgnoreCase("addclan")) {
             if (args.length == 2) {
                 if(!sc.isClanInProcess()) {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§aBitte warten...");
+                    sc.displayMessage(ScammerList.PREFIX+"§aBitte warten...");
                     sc.setAddClan(true);
                     sc.setClanInProcess(true);
                     Minecraft.getMinecraft().thePlayer.sendChatMessage("/clan info "+args[1]);
@@ -66,15 +66,15 @@ public class CommandListener implements ClientCommandEvent {
                             if(sc.isAddClan()) {
                                 sc.setAddClan(false);
                                 sc.setClanInProcess(false);
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§cBeim hinzufügen des Clans ist ein Fehler aufgetreten.");
+                                sc.displayMessage(ScammerList.PREFIX+"§cDer Clan konnte nicht hinzugefügt werden!");
                             }
                         }
                     }, 3000);
                 } else {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cEs wird bereits ein Clan hinzugefügt oder entfernt. Bitte warten!");
+                    sc.displayMessage(ScammerList.PREFIX + "§cEs wird bereits ein Clan hinzugefügt oder entfernt. Bitte warten!");
                 }
             } else {
-                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " addclan <Name|ClanTag>");
+                sc.displayMessage(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " addclan <Name|ClanTag>");
             }
         } else
 
@@ -85,24 +85,24 @@ public class CommandListener implements ClientCommandEvent {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
                         String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
-                        if (sc.getScammerListUUID().contains(uuid)) {
-                            sc.getScammerListUUID().remove(uuid);
-                            sc.getScammerListName().remove(name);
+                        if (sc.getPrivateListUUID().contains(uuid)) {
+                            sc.getPrivateListUUID().remove(uuid);
+                            sc.getPrivateListName().remove(name);
                             if(uuid.equals(name)) {
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (UUID nicht verfügbar) §awurde von deiner Scammerliste entfernt.");
+                                sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (UUID nicht verfügbar) §awurde von deiner Scammerliste entfernt.");
                             } else {
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde von deiner Scammerliste entfernt.");
+                                sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde von deiner Scammerliste entfernt.");
                             }
                             sc.saveConfig();
                         } else {
-                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDer Spieler §e" + name + " §cbefindet sich nicht auf deiner Scammerliste.");
+                            sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + name + " §cbefindet sich nicht auf deiner Scammerliste.");
                         }
                     } else {
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
+                        sc.displayMessage(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
                     }
                 }).start();
             } else {
-                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " remove <Name>");
+                sc.displayMessage(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " remove <Name>");
             }
         } else
 
@@ -110,7 +110,7 @@ public class CommandListener implements ClientCommandEvent {
         if(args[0].equalsIgnoreCase("removeclan")) {
             if (args.length == 2) {
                 if(!sc.isClanInProcess()) {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§aBitte warten...");
+                    sc.displayMessage(ScammerList.PREFIX+"§aBitte warten...");
                     sc.setRemoveClan(true);
                     sc.setClanInProcess(true);
                     Minecraft.getMinecraft().thePlayer.sendChatMessage("/clan info "+args[1]);
@@ -121,15 +121,15 @@ public class CommandListener implements ClientCommandEvent {
                             if(sc.isRemoveClan()) {
                                 sc.setRemoveClan(false);
                                 sc.setClanInProcess(false);
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX+"§cBeim entfernen des Clans ist ein Fehler aufgetreten.");
+                                sc.displayMessage(ScammerList.PREFIX+"§cDer Clan konnte nicht entfernt werden!");
                             }
                         }
                     }, 3000);
                 } else {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cEs wird bereits ein Clan hinzugefügt oder entfernt. Bitte warten!");
+                    sc.displayMessage(ScammerList.PREFIX + "§cEs wird bereits ein Clan hinzugefügt oder entfernt. Bitte warten!");
                 }
             } else {
-                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " removeclan <Name|ClanTag>");
+                sc.displayMessage(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " removeclan <Name|ClanTag>");
             }
         } else
 
@@ -140,53 +140,53 @@ public class CommandListener implements ClientCommandEvent {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
                         ArrayList<String> nameHistory = sc.getHelper().getNamesFromUUID(uuid);
-                        if (sc.getScammerListUUID().contains(uuid)) {
+                        if (sc.getPrivateListUUID().contains(uuid)) {
                             if (nameHistory.size() == 1) {
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " §cbefindet sich auf deiner Scammerliste.");
+                                sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " §cbefindet sich auf deiner Scammerliste.");
                             } else {
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " [" + nameHistory.get(1) + "] §cbefindet sich auf deiner Scammerliste.");
+                                sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " [" + nameHistory.get(1) + "] §cbefindet sich auf deiner Scammerliste.");
                             }
-                        } else if(sc.getSettingsManager().isShowOnlineScammer() && sc.getOnlineScammerListUUID().contains(uuid)) {
+                        } else if(sc.getSettings().isShowOnlineScammer() && sc.getOnlineListUUID().contains(uuid)) {
                             if (nameHistory.size() == 1) {
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " §cbefindet sich auf der online Scammerliste.");
+                                sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " §cbefindet sich auf der online Scammerliste.");
                             } else {
-                                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " [" + nameHistory.get(1) + "] §cbefindet sich auf der online Scammerliste.");
+                                sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " [" + nameHistory.get(1) + "] §cbefindet sich auf der online Scammerliste.");
                             }
                         } else {
-                            sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDer Spieler §e" + nameHistory.get(0) + " §abefindet sich nicht auf der Scammerliste.");
+                            sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + nameHistory.get(0) + " §abefindet sich nicht auf der Scammerliste.");
                         }
                     } else {
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
+                        sc.displayMessage(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
                     }
                 }).start();
             } else {
-                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " check <Name>");
+                sc.displayMessage(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " check <Name>");
             }
         } else
 
         // List scammers
         if (args[0].equalsIgnoreCase("list")) {
-            if (!sc.getScammerListName().isEmpty()) {
+            if (!sc.getPrivateListName().isEmpty()) {
                 try {
                     int page = 0;
                     if(args.length >= 2) page = Integer.parseInt(args[1]) - 1;
                     if(page < 0) throw new NumberFormatException();
 
-                    int numPages = (int) Math.ceil(sc.getScammerListName().size() / (double)ScammerList.PLAYERS_PER_LIST_PAGE);
+                    int numPages = (int) Math.ceil(sc.getPrivateListName().size() / (double)ScammerList.PLAYERS_PER_LIST_PAGE);
 
                     if(page < numPages) {
                         int from = page * ScammerList.PLAYERS_PER_LIST_PAGE;
                         int to = page * ScammerList.PLAYERS_PER_LIST_PAGE + ScammerList.PLAYERS_PER_LIST_PAGE;
-                        if(to > sc.getScammerListName().size() - 1)
-                            to = (sc.getScammerListName().size() - 1 % ScammerList.PLAYERS_PER_LIST_PAGE) + 1;
+                        if(to > sc.getPrivateListName().size() - 1)
+                            to = (sc.getPrivateListName().size() - 1 % ScammerList.PLAYERS_PER_LIST_PAGE) + 1;
 
                         ChatComponentText text = new ChatComponentText("");
                         text.appendText("\n§7-------------------- §eScammerliste §7--------------------");
                         for(int i=from; i<to; i++) {
-                            text.appendText("\n§8- §c"+sc.getScammerListName().get(i));
+                            text.appendText("\n§8- §c"+sc.getPrivateListName().get(i));
                         }
                         if(page >= numPages - 1) {
-                            text.appendText("\n§4Einträge insgesamt: §c"+sc.getScammerListName().size());
+                            text.appendText("\n§4Einträge insgesamt: §c"+sc.getPrivateListName().size());
                         }
                         if(page > 0) {
                             ChatComponentText previousPage = new ChatComponentText("\n§a§l§n<<<");
@@ -207,13 +207,13 @@ public class CommandListener implements ClientCommandEvent {
                         text.appendText("\n§7-----------------------------------------------------");
                         Minecraft.getMinecraft().thePlayer.addChatComponentMessage(text);
                     } else {
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cSeite §e"+(page + 1)+" §cexistiert nicht.");
+                        sc.displayMessage(ScammerList.PREFIX + "§cSeite §e"+(page + 1)+" §cexistiert nicht.");
                     }
                 } catch(NumberFormatException e) {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " list [Seite]");
+                    sc.displayMessage(ScammerList.PREFIX + "§cVerwendung: " + ScammerList.COMMAND_PREFIX + cmd + " list [Seite]");
                 }
             } else {
-                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDeine Scammerliste ist leer.");
+                sc.displayMessage(ScammerList.PREFIX + "§cDeine Scammerliste ist leer.");
             }
         } else
 
@@ -225,28 +225,28 @@ public class CommandListener implements ClientCommandEvent {
                 sc.getNameChangedPlayers().forEach(name -> {
                     joiner.add("§8- §e"+name);
                 });
-                sc.getApi().displayMessageInChat(joiner.toString());
+                sc.displayMessage(joiner.toString());
             } else {
-                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cBei der letzten Aktualisierung wurden keine Namensänderungen festgestellt.");
+                sc.displayMessage(ScammerList.PREFIX + "§cBei der letzten Aktualisierung wurden keine Namensänderungen festgestellt.");
             }
         } else
 
         // Update lists
         if (args[0].equalsIgnoreCase("update")) {
-            if (!sc.getScammerListUUID().isEmpty() || sc.getSettingsManager().isShowOnlineScammer()) {
+            if (!sc.getPrivateListUUID().isEmpty() || sc.getSettings().isShowOnlineScammer()) {
                 if(!sc.isUpdatingList()) {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
+                    sc.displayMessage(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
                     new Thread(() -> {
                         sc.getHelper().updateLists();
                         sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
                         sc.saveConfig();
-                        sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
+                        sc.displayMessage(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
                     }).start();
                 } else {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDie Scammerliste wird bereits aktualisiert. Bite warten!");
+                    sc.displayMessage(ScammerList.PREFIX + "§cDie Scammerliste wird bereits aktualisiert. Bite warten!");
                 }
             } else {
-                sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDeine Scammerliste ist leer.");
+                sc.displayMessage(ScammerList.PREFIX + "§cDeine Scammerliste ist leer.");
             }
         } else
 
@@ -255,17 +255,17 @@ public class CommandListener implements ClientCommandEvent {
             if (args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
                 if (isConfirmClear()) {
                     setConfirmClear(false);
-                    sc.getScammerListUUID().clear();
-                    sc.getScammerListName().clear();
+                    sc.getPrivateListUUID().clear();
+                    sc.getPrivateListName().clear();
                     sc.saveConfig();
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aAlle Einträge deiner Scammerliste wurden gelöscht.");
+                    sc.displayMessage(ScammerList.PREFIX + "§aAlle Einträge deiner Scammerliste wurden gelöscht.");
                 } else {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cBitte gib zuerst §e" + ScammerList.COMMAND_PREFIX + cmd + " clear §cein.");
+                    sc.displayMessage(ScammerList.PREFIX + "§cBitte gib zuerst §e" + ScammerList.COMMAND_PREFIX + cmd + " clear §cein.");
                 }
             } else {
                 if (!isConfirmClear()) {
                     setConfirmClear(true);
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§c§lAchtung: §cUm alle Einträge deiner Scammerliste zu löschen bestätige dies in den nächsten 15 Sekunden mit §e"
+                    sc.displayMessage(ScammerList.PREFIX + "§c§lAchtung: §cUm alle Einträge deiner Scammerliste zu löschen bestätige dies in den nächsten 15 Sekunden mit §e"
                             + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
                     new Timer().schedule(new TimerTask() {
                         @Override
@@ -274,7 +274,7 @@ public class CommandListener implements ClientCommandEvent {
                         }
                     }, 15000);
                 } else {
-                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cBitte bestätige das Löschen aller Einträge mit §e"
+                    sc.displayMessage(ScammerList.PREFIX + "§cBitte bestätige das Löschen aller Einträge mit §e"
                             + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
                 }
             }
@@ -295,7 +295,7 @@ public class CommandListener implements ClientCommandEvent {
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.)");
-        sc.getApi().displayMessageInChat(joiner.toString());
+        sc.displayMessage(joiner.toString());
     }
 
         public boolean isConfirmClear() {

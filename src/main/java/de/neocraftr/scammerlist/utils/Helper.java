@@ -82,14 +82,14 @@ public class Helper {
                 JsonReader json = new JsonReader(reader);
                 json.beginArray();
 
-                sc.getOnlineScammerListUUID().clear();
+                sc.getOnlineListUUID().clear();
 
                 while (json.hasNext()) {
                     json.beginObject();
                     while (json.hasNext()) {
                         if(json.nextName().equals("uuid")) {
                             String uuid = json.nextString();
-                            sc.getOnlineScammerListUUID().add(uuid);
+                            sc.getOnlineListUUID().add(uuid);
                         } else {
                             json.nextString();
                         }
@@ -113,25 +113,25 @@ public class Helper {
         // Update online list
         downloadOnlineScammerList();
         ArrayList<String> newOnlineScammerListName = new ArrayList<>();
-        sc.getOnlineScammerListUUID().forEach(uuid -> {
+        sc.getOnlineListUUID().forEach(uuid -> {
             ArrayList<String> names = getNamesFromUUID(uuid);
-            if(!sc.getOnlineScammerListName().contains(names.get(0))) {
+            if(!sc.getOnlineListName().contains(names.get(0))) {
                 addNameChange(names);
             }
             newOnlineScammerListName.add(names.get(0));
         });
-        sc.setOnlineScammerListName(newOnlineScammerListName);
+        sc.setOnlineListName(newOnlineScammerListName);
 
         // Update private list
         ArrayList<String> newScammerListName = new ArrayList<>();
-        sc.getScammerListUUID().forEach(uuid -> {
+        sc.getPrivateListUUID().forEach(uuid -> {
             ArrayList<String> names = getNamesFromUUID(uuid);
-            if(!sc.getScammerListName().contains(names.get(0))) {
+            if(!sc.getPrivateListName().contains(names.get(0))) {
                 addNameChange(names);
             }
             newScammerListName.add(names.get(0));
         });
-        sc.setScammerListName(newScammerListName);
+        sc.setPrivateListName(newScammerListName);
 
         sc.saveConfig();
         sc.setUpdatingList(false);

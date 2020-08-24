@@ -14,6 +14,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
     private ArrayList<String> clanMemberList = new ArrayList<>();
     private String clanName;
     private boolean clanMessage;
+    private int newPlayers;
 
     @Override
     public boolean onReceive(String msgRaw, String msg) {
@@ -31,34 +32,37 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             if(addClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
-                                    if (!sc.getScammerListUUID().contains(uuid)) {
-                                        sc.getScammerListUUID().add(uuid);
-                                        sc.getScammerListName().add(name);
+                                    if (!sc.getPrivateListUUID().contains(uuid)) {
+                                        sc.getPrivateListUUID().add(uuid);
+                                        sc.getPrivateListName().add(name);
+                                        addNewPlayer();
                                     }
                                 } else {
-                                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDer Spieler §e"+name+" §cwurde nicht gefunden.");
+                                    sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e"+name+" §cwurde nicht gefunden.");
                                 }
                             }
                             if(removeClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
-                                    if (sc.getScammerListUUID().contains(uuid)) {
-                                        sc.getScammerListUUID().remove(uuid);
-                                        sc.getScammerListName().remove(name);
+                                    if (sc.getPrivateListUUID().contains(uuid)) {
+                                        sc.getPrivateListUUID().remove(uuid);
+                                        sc.getPrivateListName().remove(name);
+                                        addNewPlayer();
                                     }
                                 } else {
-                                    sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§cDer Spieler §e"+name+" §cwurde nicht gefunden.");
+                                    sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e"+name+" §cwurde nicht gefunden.");
                                 }
                             }
                         });
 
                         sc.saveConfig();
-                        if(addClan) sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Spieler des Clans §e"+getClanName()+" §awurden zur Scammerliste hinzugefügt.");
-                        if(removeClan) sc.getApi().displayMessageInChat(ScammerList.PREFIX + "§aDie Spieler des Clans §e"+getClanName()+" §awurden von der Scammerliste entfernt.");
+                        if(addClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+getNewPlayers()+" §aSpieler des Clans §e"+getClanName()+" §azur Scammerliste hinzugefügt.");
+                        if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+getNewPlayers()+" §aSpieler des Clans §e"+getClanName()+" §avon der Scammerliste entfernt.");
 
                         setClanMessage(false);
                         getClanMemberList().clear();
                         setClanName("");
+                        setNewPlayers(0);
                         sc.setClanInProcess(false);
                     }).start();
 
@@ -70,6 +74,8 @@ public class ChatReceiveListener implements MessageReceiveEvent {
             }
 
             if(msg.startsWith("[Clans]")) {
+                if(sc.isAddClan()) sc.displayMessage(ScammerList.PREFIX+"§cDer Clan konnte nicht hinzugefügt werden!");
+                if(sc.isRemoveClan()) sc.displayMessage(ScammerList.PREFIX+"§cDer Clan konnte nicht entfernt werden!");
                 sc.setAddClan(false);
                 sc.setRemoveClan(false);
                 sc.setClanInProcess(false);
@@ -108,5 +114,15 @@ public class ChatReceiveListener implements MessageReceiveEvent {
     }
     public void setClanMessage(boolean clanMessage) {
         this.clanMessage = clanMessage;
+    }
+
+    public int getNewPlayers() {
+        return newPlayers;
+    }
+    public void setNewPlayers(int newPlayers) {
+        this.newPlayers = newPlayers;
+    }
+    public void addNewPlayer() {
+        this.newPlayers++;
     }
 }
