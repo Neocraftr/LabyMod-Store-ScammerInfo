@@ -4,6 +4,7 @@ import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.settings.elements.BooleanElement;
 import net.labymod.settings.elements.ControlElement;
 import net.labymod.settings.elements.SettingsElement;
+import net.labymod.settings.elements.StringElement;
 import net.labymod.utils.Material;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class SettingsManager {
                     highlightInTablist = true,
                     highlightInStartkick = true,
                     autoUpdate = true;
+    private String scammerPrefix = "&c&l[&4&l!&c&l]";
 
     public void loadSettings() {
         if(sc.getConfig().has("showOnlineScammer")) {
@@ -37,6 +39,9 @@ public class SettingsManager {
         }
         if(sc.getConfig().has("autoUpdate")) {
             setAutoUpdate(sc.getConfig().get("autoUpdate").getAsBoolean());
+        }
+        if(sc.getConfig().has("scammerPrefix")) {
+            setScammerPrefix(sc.getConfig().get("scammerPrefix").getAsString());
         }
     }
 
@@ -76,6 +81,12 @@ public class SettingsManager {
             sc.saveConfig();
         }, isAutoUpdate());
         settings.add(autoUpdateBtn);
+
+        final StringElement scammerPrefixSetting = new StringElement("Scammer Prefix", new ControlElement.IconData(Material.BOOK_AND_QUILL), getScammerPrefix(), value -> {
+            setScammerPrefix(value);
+            sc.saveConfig();
+        });
+        settings.add(scammerPrefixSetting);
     }
 
     public boolean isShowOnlineScammer() {
@@ -119,5 +130,12 @@ public class SettingsManager {
     }
     public void setAutoUpdate(boolean autoUpdate) {
         this.autoUpdate = autoUpdate;
+    }
+
+    public String getScammerPrefix() {
+        return scammerPrefix;
+    }
+    public void setScammerPrefix(String scammerPrefix) {
+        this.scammerPrefix = scammerPrefix;
     }
 }

@@ -148,4 +148,8 @@ public class Helper {
             }
         }
     }
+
+    public String colorize(String msg) {
+        return msg.replace("&", "§");
+    }
 }

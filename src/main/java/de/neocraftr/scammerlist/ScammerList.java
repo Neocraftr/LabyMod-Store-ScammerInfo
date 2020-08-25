@@ -99,6 +99,7 @@ public class ScammerList extends LabyModAddon {
         getConfig().addProperty("highlightInTablist", getSettings().isHighlightInTablist());
         getConfig().addProperty("highlightInStartkick", getSettings().isHighlightInStartkick());
         getConfig().addProperty("autoUpdate", getSettings().isAutoUpdate());
+        getConfig().addProperty("scammerPrefix", getSettings().getScammerPrefix());
         super.saveConfig();
     }
 

@@ -18,8 +18,6 @@ import java.util.regex.Pattern;
 public class PreRenderListener {
 
     private ScammerList sc = ScammerList.getScammerList();
-    private Pattern tablistRegex = Pattern.compile("^[A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16})");
-    private IChatComponent scammerMessage = new ChatComponentText("§c§l[§4§l!§c§l] ");
     private boolean tablistUpdated = false;
 
     @SubscribeEvent
@@ -37,18 +35,16 @@ public class PreRenderListener {
                     for(NetworkPlayerInfo player : players) {
                         if(player.getDisplayName() != null) {
                             IChatComponent playerName = player.getDisplayName();
+                            IChatComponent scammerMessage = new ChatComponentText(sc.getHelper().colorize("§a§a§r"+sc.getSettings().getScammerPrefix())+" §r");
 
-                            if(playerName.getSiblings().size() > 0 && playerName.getSiblings().get(0) == scammerMessage) {
+                            if(playerName.getSiblings().size() > 0 && playerName.getSiblings().get(0).getFormattedText().startsWith("§a§a§r")) {
                                 playerName.getSiblings().remove(0);
                             }
 
                             if(sc.getSettings().isHighlightInTablist()) {
-                                Matcher m = tablistRegex.matcher(playerName.getUnformattedText());
-                                if(m.find()) {
-                                    if(sc.getPrivateListName().contains(m.group(1)) || sc.getPrivateListName().contains("*")
-                                            || (sc.getSettings().isShowOnlineScammer() && sc.getOnlineListName().contains(m.group(1)))) {
-                                        playerName.getSiblings().add(0, scammerMessage);
-                                    }
+                                if(sc.getPrivateListName().contains(player.getGameProfile().getName()) || sc.getPrivateListName().contains("*")
+                                        || (sc.getSettings().isShowOnlineScammer() && sc.getOnlineListName().contains(player.getGameProfile().getName()))) {
+                                    playerName.getSiblings().add(0, scammerMessage);
                                 }
                             }
 

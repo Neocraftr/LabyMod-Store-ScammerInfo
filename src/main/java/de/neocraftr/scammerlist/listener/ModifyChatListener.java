@@ -18,14 +18,6 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     private Pattern clanMemberRegex = Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)");
     private Pattern startkickTargetRegex = Pattern.compile("^\\[GrieferGames\\] Soll der Spieler (\\!?\\w{1,16}) rausgeworfen werden\\? \\/ja \\/nein");
     private Pattern startkickCreatorRegex = Pattern.compile("^\\[GrieferGames\\] Ersteller: (\\!?\\w{1,16})");
-    private ChatComponentText privateScammerMessage, onlineScammerMessage;
-
-    public ModifyChatListener() {
-        privateScammerMessage = new ChatComponentText("§c§l[§4§l!§c§l] §r");
-        privateScammerMessage.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§e§lPrivat§8§l)")));
-        onlineScammerMessage = new ChatComponentText("§c§l[§4§l!§c§l] §r");
-        onlineScammerMessage.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§b§lOnline§8§l)")));
-    }
 
     @Override
     public Object onModifyChatMessage(Object o) {
@@ -74,10 +66,13 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     }
 
     private void checkAndModify(IChatComponent msg, int after, String playerName) {
+        IChatComponent scammerPrefix = new ChatComponentText(sc.getHelper().colorize(sc.getSettings().getScammerPrefix())+" §r");
         if(sc.getPrivateListName().contains(playerName) || sc.getPrivateListName().contains("*")) {
-            msg.getSiblings().add(after, privateScammerMessage);
+            scammerPrefix.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§e§lPrivat§8§l)")));
+            msg.getSiblings().add(after, scammerPrefix);
         } else if(sc.getSettings().isShowOnlineScammer() && sc.getOnlineListName().contains(playerName)) {
-            msg.getSiblings().add(after, onlineScammerMessage);
+            scammerPrefix.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§b§lOnline§8§l)")));
+            msg.getSiblings().add(after, scammerPrefix);
         }
     }
 }
