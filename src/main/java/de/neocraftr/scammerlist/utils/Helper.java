@@ -12,14 +12,15 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class Helper {
 
     private ScammerList sc = ScammerList.getScammerList();
 
-    public ArrayList<String> getNamesFromUUID(String uuid) {
-        ArrayList<String> names = new ArrayList<>();
+    public List<String> getNamesFromUUID(String uuid) {
+        List<String> names = new ArrayList<>();
 
         if(uuid.startsWith("!") || uuid.equals("*")) {
             names.add(uuid);
@@ -82,18 +83,24 @@ public class Helper {
                 JsonReader json = new JsonReader(reader);
                 json.beginArray();
 
-                sc.getOnlineListUUID().clear();
+                sc.getOnlineList().clear();
 
                 while (json.hasNext()) {
                     json.beginObject();
+                    String uuid = null, name = null;
                     while (json.hasNext()) {
-                        if(json.nextName().equals("uuid")) {
-                            String uuid = json.nextString();
-                            sc.getOnlineListUUID().add(uuid);
-                        } else {
-                            json.nextString();
+                        switch (json.nextName()) {
+                            case "uuid":
+                                uuid = json.nextString();
+                                break;
+                            case "name":
+                                name = json.nextString();
+                                break;
+                            default:
+                                json.nextString();
                         }
                     }
+                    sc.getOnlineList().add(new Scammer(uuid, name));
                     json.endObject();
                 }
 
@@ -112,44 +119,64 @@ public class Helper {
 
         // Update online list
         downloadOnlineScammerList();
-        ArrayList<String> newOnlineScammerListName = new ArrayList<>();
-        sc.getOnlineListUUID().forEach(uuid -> {
-            ArrayList<String> names = getNamesFromUUID(uuid);
-            if(!sc.getOnlineListName().contains(names.get(0))) {
+        sc.getOnlineList().forEach(scammer -> {
+            List<String> names = getNamesFromUUID(scammer.getUUID());
+            if(!scammer.getName().equals(names.get(0))) {
                 addNameChange(names);
             }
-            newOnlineScammerListName.add(names.get(0));
+            scammer.setName(names.get(0));
+            //scammer.setPreviousName(names.size() > 1 ? names.get(1) : null);
         });
-        sc.setOnlineListName(newOnlineScammerListName);
+        sc.saveOnlineList();
 
         // Update private list
-        ArrayList<String> newScammerListName = new ArrayList<>();
-        sc.getPrivateListUUID().forEach(uuid -> {
-            ArrayList<String> names = getNamesFromUUID(uuid);
-            if(!sc.getPrivateListName().contains(names.get(0))) {
+        sc.getPrivateList().forEach(scammer -> {
+            List<String> names = getNamesFromUUID(scammer.getUUID());
+            if(!scammer.getName().equals(names.get(0))) {
                 addNameChange(names);
             }
-            newScammerListName.add(names.get(0));
+            scammer.setName(names.get(0));
+            //scammer.setPreviousName(names.size() > 1 ? names.get(1) : null);
         });
-        sc.setPrivateListName(newScammerListName);
+        sc.savePrivateList();
 
+        sc.getConfig().add("nameChangedPlayers", sc.getGson().toJsonTree(sc.getNameChangedPlayers()));
         sc.saveConfig();
         sc.setUpdatingList(false);
     }
 
-    private void addNameChange(ArrayList<String> names) {
+    private void addNameChange(List<String> names) {
         if(names.size() == 1) {
+            // normally impossible
             if(!sc.getNameChangedPlayers().contains(names.get(0))) {
                 sc.getNameChangedPlayers().add(names.get(0));
             }
         } else {
-            if(!sc.getNameChangedPlayers().contains(names.get(0)+" ["+names.get(1)+"]")) {
-                sc.getNameChangedPlayers().add(names.get(0)+" ["+names.get(1)+"]");
+            if(!sc.getNameChangedPlayers().contains(names.get(1)+" -> "+names.get(0))) {
+                sc.getNameChangedPlayers().add(names.get(1)+" -> "+names.get(0));
             }
         }
     }
 
     public String colorize(String msg) {
         return msg.replace("&", "§");
+    }
+
+    public boolean checkUUID(String uuid, List<Scammer> list) {
+        for(Scammer scammer : list) {
+            if(scammer.getUUID().equals(uuid)) return true;
+        }
+        return false;
+    }
+
+    public boolean checkName(String name, List<Scammer> list) {
+        for(Scammer scammer : list) {
+            if(scammer.getName().equals(name)) return true;
+        }
+        return false;
+    }
+
+    public void removeFromList(String uuid, List<Scammer> list) {
+        list.removeIf(scammer -> scammer.getUUID().equals(uuid));
     }
 }

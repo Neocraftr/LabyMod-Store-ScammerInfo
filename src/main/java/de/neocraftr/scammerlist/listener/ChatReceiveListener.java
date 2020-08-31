@@ -1,9 +1,11 @@
 package de.neocraftr.scammerlist.listener;
 
 import de.neocraftr.scammerlist.ScammerList;
+import de.neocraftr.scammerlist.utils.Scammer;
 import net.labymod.api.events.MessageReceiveEvent;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +13,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
 
     private ScammerList sc = ScammerList.getScammerList();
     private Pattern clanMemberRegex = Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)");
-    private ArrayList<String> clanMemberList = new ArrayList<>();
+    private List<String> clanMemberList = new ArrayList<>();
     private String clanName;
     private boolean clanMessage;
     private int newPlayers;
@@ -20,7 +22,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
     public boolean onReceive(String msgRaw, String msg) {
         if(sc.isAddClan() || sc.isRemoveClan()) {
             if(msg.equals("----------- Clan-Mitglieder -----------")) {
-                if(isClanMessage()) {
+                if(clanMessage) {
                     boolean addClan = sc.isAddClan(), removeClan = sc.isRemoveClan();
                     new Thread(() -> {
                         try {
@@ -28,14 +30,13 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        getClanMemberList().forEach(name -> {
+                        clanMemberList.forEach(name -> {
                             if(addClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
-                                    if (!sc.getPrivateListUUID().contains(uuid)) {
-                                        sc.getPrivateListUUID().add(uuid);
-                                        sc.getPrivateListName().add(name);
-                                        addNewPlayer();
+                                    if (!sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
+                                        sc.getPrivateList().add(new Scammer(uuid, name));
+                                        newPlayers++;
                                     }
                                 } else {
                                     sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e"+name+" §cwurde nicht gefunden.");
@@ -44,10 +45,9 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             if(removeClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
-                                    if (sc.getPrivateListUUID().contains(uuid)) {
-                                        sc.getPrivateListUUID().remove(uuid);
-                                        sc.getPrivateListName().remove(name);
-                                        addNewPlayer();
+                                    if (sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
+                                        sc.getHelper().removeFromList(uuid, sc.getPrivateList());
+                                        newPlayers++;
                                     }
                                 } else {
                                     sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e"+name+" §cwurde nicht gefunden.");
@@ -56,20 +56,20 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                         });
 
                         sc.saveConfig();
-                        if(addClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+getNewPlayers()+" §aSpieler des Clans §e"+getClanName()+" §azur Scammerliste hinzugefügt.");
-                        if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+getNewPlayers()+" §aSpieler des Clans §e"+getClanName()+" §avon der Scammerliste entfernt.");
+                        if(addClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §azur Scammerliste hinzugefügt.");
+                        if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §avon der Scammerliste entfernt.");
 
-                        setClanMessage(false);
-                        getClanMemberList().clear();
-                        setClanName("");
-                        setNewPlayers(0);
+                        clanMessage = false;
+                        clanMemberList.clear();
+                        clanName = "";
+                        newPlayers = 0;
                         sc.setClanInProcess(false);
                     }).start();
 
                     sc.setAddClan(false);
                     sc.setRemoveClan(false);
                 } else {
-                    setClanMessage(true);
+                    clanMessage = true;
                 }
             }
 
@@ -81,48 +81,17 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                 sc.setClanInProcess(false);
             }
 
-            if(isClanMessage()) {
+            if(clanMessage) {
                 if(msg.startsWith("Clan-Name:")) {
-                    setClanName(msg.split(":")[1].trim());
+                    clanName = msg.split(":")[1].trim();
                 }
 
                 Matcher m = clanMemberRegex.matcher(msg);
                 if(m.matches()) {
-                    getClanMemberList().add(m.group(1));
+                    clanMemberList.add(m.group(1));
                 }
             }
         }
         return false;
-    }
-
-    public ArrayList<String> getClanMemberList() {
-        return clanMemberList;
-    }
-    public void setClanMemberList(ArrayList<String> clanMemberList) {
-        this.clanMemberList = clanMemberList;
-    }
-
-    public String getClanName() {
-        return clanName;
-    }
-    public void setClanName(String clanName) {
-        this.clanName = clanName;
-    }
-
-    public boolean isClanMessage() {
-        return clanMessage;
-    }
-    public void setClanMessage(boolean clanMessage) {
-        this.clanMessage = clanMessage;
-    }
-
-    public int getNewPlayers() {
-        return newPlayers;
-    }
-    public void setNewPlayers(int newPlayers) {
-        this.newPlayers = newPlayers;
-    }
-    public void addNewPlayer() {
-        this.newPlayers++;
     }
 }

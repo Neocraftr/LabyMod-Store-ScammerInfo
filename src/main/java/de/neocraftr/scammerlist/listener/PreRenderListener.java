@@ -12,8 +12,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PreRenderListener {
 
@@ -24,8 +22,8 @@ public class PreRenderListener {
     public void onPreRender(RenderGameOverlayEvent e) {
         if(Minecraft.getMinecraft().gameSettings.keyBindPlayerList.isKeyDown()
                 && !Minecraft.getMinecraft().isIntegratedServerRunning()) {
-            if(!isTablistUpdated()) {
-                setTablistUpdated(true);
+            if(!tablistUpdated) {
+                tablistUpdated = true;
                 ScoreObjective scoreobjective = LabyModCore.getMinecraft().getWorld().getScoreboard().getObjectiveInDisplaySlot(0);
                 NetHandlerPlayClient handler = LabyModCore.getMinecraft().getPlayer().sendQueue;
 
@@ -42,8 +40,8 @@ public class PreRenderListener {
                             }
 
                             if(sc.getSettings().isHighlightInTablist()) {
-                                if(sc.getPrivateListName().contains(player.getGameProfile().getName()) || sc.getPrivateListName().contains("*")
-                                        || (sc.getSettings().isShowOnlineScammer() && sc.getOnlineListName().contains(player.getGameProfile().getName()))) {
+                                if(sc.getHelper().checkName(player.getGameProfile().getName(), sc.getPrivateList()) || sc.getHelper().checkName("*", sc.getPrivateList())
+                                        || (sc.getSettings().isShowOnlineScammer() && sc.getHelper().checkName(player.getGameProfile().getName(), sc.getOnlineList()))) {
                                     playerName.getSiblings().add(0, scammerMessage);
                                 }
                             }
@@ -54,14 +52,7 @@ public class PreRenderListener {
                 }
             }
         } else {
-            setTablistUpdated(false);
+            tablistUpdated = false;
         }
-    }
-
-    public boolean isTablistUpdated() {
-        return tablistUpdated;
-    }
-    public void setTablistUpdated(boolean tablistUpdated) {
-        this.tablistUpdated = tablistUpdated;
     }
 }

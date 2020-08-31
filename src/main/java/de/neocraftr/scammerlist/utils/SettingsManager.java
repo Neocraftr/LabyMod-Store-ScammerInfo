@@ -48,42 +48,49 @@ public class SettingsManager {
     public void fillSettings(final List<SettingsElement> settings) {
         final BooleanElement showOnlineScammerBtn = new BooleanElement("[SCAMMER] Radar Integration", new ControlElement.IconData(Material.COMPASS), value -> {
             setShowOnlineScammer(value);
+            sc.getConfig().addProperty("showOnlineScammer", value);
             sc.saveConfig();
         }, isShowOnlineScammer());
         settings.add(showOnlineScammerBtn);
 
         final BooleanElement highlightInChatBtn = new BooleanElement("Im Chat markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
             setHighlightInChat(value);
+            sc.getConfig().addProperty("highlightInChat", value);
             sc.saveConfig();
         }, isHighlightInChat());
         settings.add(highlightInChatBtn);
 
         final BooleanElement highlightInClanInfoBtn = new BooleanElement("In Clan Info markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
             setHighlightInClanInfo(value);
+            sc.getConfig().addProperty("highlightInClanInfo", value);
             sc.saveConfig();
         }, isHighlightInClanInfo());
         settings.add(highlightInClanInfoBtn);
 
         final BooleanElement highlightInStartkickBtn = new BooleanElement("Bei Startkicks markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
             setHighlightInStartkick(value);
+            sc.getConfig().addProperty("highlightInStartkick", value);
             sc.saveConfig();
         }, isHighlightInStartkick());
         settings.add(highlightInStartkickBtn);
 
         final BooleanElement highlightInTablistBtn = new BooleanElement("In Tabliste markieren", new ControlElement.IconData("labymod/textures/settings/settings/oldtablist.png"), value -> {
             setHighlightInTablist(value);
+            sc.getConfig().addProperty("highlightInTablist", value);
             sc.saveConfig();
         }, isHighlightInTablist());
         settings.add(highlightInTablistBtn);
 
         final BooleanElement autoUpdateBtn = new BooleanElement("Automatisch aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
             setAutoUpdate(value);
+            sc.getConfig().addProperty("autoUpdate", value);
             sc.saveConfig();
         }, isAutoUpdate());
         settings.add(autoUpdateBtn);
 
         final StringElement scammerPrefixSetting = new StringElement("Scammer Prefix", new ControlElement.IconData(Material.BOOK_AND_QUILL), getScammerPrefix(), value -> {
             setScammerPrefix(value);
+            sc.getConfig().addProperty("scammerPrefix", value);
             sc.saveConfig();
         });
         settings.add(scammerPrefixSetting);

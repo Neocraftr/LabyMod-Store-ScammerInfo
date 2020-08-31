@@ -1,12 +1,17 @@
 package de.neocraftr.scammerlist;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import de.neocraftr.scammerlist.listener.*;
 import de.neocraftr.scammerlist.utils.Helper;
+import de.neocraftr.scammerlist.utils.Scammer;
 import de.neocraftr.scammerlist.utils.SettingsManager;
+import net.labymod.addon.AddonLoader;
 import net.labymod.api.LabyModAddon;
 import net.labymod.settings.elements.SettingsElement;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,21 +29,44 @@ public class ScammerList extends LabyModAddon {
     private Gson gson;
     private SettingsManager settings;
     private Helper helper;
+    private File listDir, onlineListFile, privateListFile;
     private long nextUpdate = 0;
-    private ArrayList<String> privateListName = new ArrayList<>();
-    private ArrayList<String> privateListUUID = new ArrayList<>();
-    private ArrayList<String> onlineListName = new ArrayList<>();
-    private ArrayList<String> onlineListUUID = new ArrayList<>();
-    private ArrayList<String> nameChangedPlayers = new ArrayList<>();
+    private List<Scammer> privateList = new ArrayList<>();
+    private List<Scammer> onlineList = new ArrayList<>();
+    private List<String> nameChangedPlayers = new ArrayList<>();
     private boolean addClan, removeClan, clanInProcess, updatingList;
     private Set<ClientCommandEvent> commandListeners = new HashSet<>();
 
     @Override
     public void onEnable() {
-        setScammerList(this);
-        setGson(new Gson());
-        setSettings(new SettingsManager());
-        setHelper(new Helper());
+        scammerList = this;
+        gson = new GsonBuilder().setPrettyPrinting().create();
+        settings = new SettingsManager();
+        helper = new Helper();
+
+        listDir = new File(AddonLoader.getConfigDirectory(), "ScammerList");
+        if(!listDir.exists()) {
+            listDir.mkdirs();
+        }
+        privateListFile = new File(listDir, "PrivateList.json");
+        if(!privateListFile.exists()) {
+            try {
+                privateListFile.createNewFile();
+                savePrivateList();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        onlineListFile = new File(listDir, "OnlineList.json");
+        if(!onlineListFile.exists()) {
+            try {
+                onlineListFile.createNewFile();
+                helper.downloadOnlineScammerList();
+                saveOnlineList();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         getApi().getEventManager().register(new ChatSendListener());
         getApi().getEventManager().register(new ChatReceiveListener());
@@ -49,58 +77,66 @@ public class ScammerList extends LabyModAddon {
 
     @Override
     public void loadConfig() {
-        getSettings().loadSettings();
+        settings.loadSettings();
 
-        if(getConfig().has("scammerListName")) {
-            setPrivateListName(getGson().fromJson(getConfig().get("scammerListName"), ArrayList.class));
-        }
-        if(getConfig().has("scammerListUUID")) {
-            setPrivateListUUID(getGson().fromJson(getConfig().get("scammerListUUID"), ArrayList.class));
-        }
-        if(getConfig().has("onlineScammerListName")) {
-            setOnlineListName(getGson().fromJson(getConfig().get("onlineScammerListName"), ArrayList.class));
-        }
-        if(getConfig().has("onlineScammerListUUID")) {
-            setOnlineListUUID(getGson().fromJson(getConfig().get("onlineScammerListUUID"), ArrayList.class));
-        }
         if(getConfig().has("nameChangedPlayers")) {
-            setNameChangedPlayers(getGson().fromJson(getConfig().get("nameChangedPlayers"), ArrayList.class));
+            nameChangedPlayers = gson.fromJson(getConfig().get("nameChangedPlayers"), ArrayList.class);
         }
         if(getConfig().has("nextUpdate")) {
-            setNextUpdate(getConfig().get("nextUpdate").getAsLong());
+            nextUpdate = getConfig().get("nextUpdate").getAsLong();
         }
 
-        if(getSettings().isAutoUpdate()) {
-            if(getNextUpdate() < System.currentTimeMillis()) {
-                setNextUpdate(System.currentTimeMillis()+UPDATE_INTERVAL);
+        try {
+            FileReader reader = new FileReader(privateListFile);
+            privateList = gson.fromJson(reader, new TypeToken<List<Scammer>>(){}.getType());
+            reader.close();
+
+            reader = new FileReader(onlineListFile);
+            onlineList = gson.fromJson(reader, new TypeToken<List<Scammer>>(){}.getType());
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(settings.isAutoUpdate()) {
+            if(nextUpdate < System.currentTimeMillis()) {
 
                 new Thread(() -> {
-                    getHelper().updateLists();
+                    helper.updateLists();
+
+                    nextUpdate = System.currentTimeMillis()+UPDATE_INTERVAL;
+                    getConfig().addProperty("nextUpdate", nextUpdate);
+                    saveConfig();
+
                     System.out.println("[ScammerList] Updated player names.");
                 }).start();
             }
         }
     }
 
-    @Override
-    protected void fillSettings(List<SettingsElement> settings) {
-        getSettings().fillSettings(settings);
+    public void savePrivateList() {
+        try {
+            FileWriter writer = new FileWriter(privateListFile);
+            writer.write(gson.toJson(privateList));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void saveConfig() {
-        getConfig().add("scammerListName", getGson().toJsonTree(getPrivateListName()));
-        getConfig().add("scammerListUUID", getGson().toJsonTree(getPrivateListUUID()));
-        getConfig().add("onlineScammerListName", getGson().toJsonTree(getOnlineListName()));
-        getConfig().add("onlineScammerListUUID", getGson().toJsonTree(getOnlineListUUID()));
-        getConfig().add("nameChangedPlayers", getGson().toJsonTree(getNameChangedPlayers()));
-        getConfig().addProperty("nextUpdate", getNextUpdate());
-        getConfig().addProperty("showOnlineScammer", getSettings().isShowOnlineScammer());
-        getConfig().addProperty("highlightInChat", getSettings().isHighlightInChat());
-        getConfig().addProperty("highlightInTablist", getSettings().isHighlightInTablist());
-        getConfig().addProperty("highlightInStartkick", getSettings().isHighlightInStartkick());
-        getConfig().addProperty("autoUpdate", getSettings().isAutoUpdate());
-        getConfig().addProperty("scammerPrefix", getSettings().getScammerPrefix());
-        super.saveConfig();
+    public void saveOnlineList() {
+        try {
+            FileWriter writer = new FileWriter(onlineListFile);
+            writer.write(gson.toJson(onlineList));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void fillSettings(List<SettingsElement> settings) {
+        this.settings.fillSettings(settings);
     }
 
     public void displayMessage(String msg) {
@@ -111,9 +147,6 @@ public class ScammerList extends LabyModAddon {
         getCommandListeners().add(listener);
     }
 
-    public static void setScammerList(ScammerList scammerList) {
-        ScammerList.scammerList = scammerList;
-    }
     public static ScammerList getScammerList() {
         return scammerList;
     }
@@ -121,57 +154,25 @@ public class ScammerList extends LabyModAddon {
     public Gson getGson() {
         return gson;
     }
-    public void setGson(Gson gson) {
-        this.gson = gson;
-    }
 
-    public void setSettings(SettingsManager settings) {
-        this.settings = settings;
-    }
     public SettingsManager getSettings() {
         return settings;
     }
 
-    public void setHelper(Helper helper) {
-        this.helper = helper;
-    }
     public Helper getHelper() {
         return helper;
     }
 
-    public ArrayList<String> getPrivateListName() {
-        return privateListName;
-    }
-    public void setPrivateListName(ArrayList<String> privateListName) {
-        this.privateListName = privateListName;
+    public List<Scammer> getPrivateList() {
+        return privateList;
     }
 
-    public ArrayList<String> getPrivateListUUID() {
-        return privateListUUID;
-    }
-    public void setPrivateListUUID(ArrayList<String> privateListUUID) {
-        this.privateListUUID = privateListUUID;
+    public List<Scammer> getOnlineList() {
+        return onlineList;
     }
 
-    public ArrayList<String> getOnlineListName() {
-        return onlineListName;
-    }
-    public void setOnlineListName(ArrayList<String> onlineListName) {
-        this.onlineListName = onlineListName;
-    }
-
-    public ArrayList<String> getOnlineListUUID() {
-        return onlineListUUID;
-    }
-    public void setOnlineListUUID(ArrayList<String> onlineListUUID) {
-        this.onlineListUUID = onlineListUUID;
-    }
-
-    public ArrayList<String> getNameChangedPlayers() {
+    public List<String> getNameChangedPlayers() {
         return nameChangedPlayers;
-    }
-    public void setNameChangedPlayers(ArrayList<String> nameChangedPlayers) {
-        this.nameChangedPlayers = nameChangedPlayers;
     }
 
     public boolean isAddClan() {
@@ -209,11 +210,7 @@ public class ScammerList extends LabyModAddon {
         this.nextUpdate = nextUpdate;
     }
 
-    public void setCommandListeners(Set<ClientCommandEvent> commandListeners) {
-        this.commandListeners = commandListeners;
-    }
     public Set<ClientCommandEvent> getCommandListeners() {
         return commandListeners;
     }
 }
-

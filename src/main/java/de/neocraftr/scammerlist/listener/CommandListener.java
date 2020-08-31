@@ -1,14 +1,12 @@
 package de.neocraftr.scammerlist.listener;
 
 import de.neocraftr.scammerlist.ScammerList;
+import de.neocraftr.scammerlist.utils.Scammer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.util.ChatComponentText;
 
-import java.util.ArrayList;
-import java.util.StringJoiner;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class CommandListener implements ClientCommandEvent {
 
@@ -29,18 +27,18 @@ public class CommandListener implements ClientCommandEvent {
                 new Thread(() -> {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
-                        String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
-                        if (!sc.getPrivateListUUID().contains(uuid)) {
-                            sc.getPrivateListUUID().add(uuid);
-                            sc.getPrivateListName().add(name);
-                            if(uuid.equals(name)) {
-                                sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (UUID nicht verfügbar) §awurde zu deiner Scammerliste hinzugefügt.");
+                        List<String> names = sc.getHelper().getNamesFromUUID(uuid);
+                        if (!sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
+                            //sc.getPrivateList().add(new Scammer(uuid, names.get(0), (names.size() > 1 ? names.get(1) : null)));
+                            sc.getPrivateList().add(new Scammer(uuid, names.get(0)));
+                            if(uuid.equals(names.get(0))) {
+                                sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + names.get(0) + " (UUID nicht verfügbar) §awurde zu deiner Scammerliste hinzugefügt.");
                             } else {
-                                sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde zu deiner Scammerliste hinzugefügt.");
+                                sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + names.get(0) + " (" + uuid + ") §awurde zu deiner Scammerliste hinzugefügt.");
                             }
-                            sc.saveConfig();
+                            sc.savePrivateList();
                         } else {
-                            sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + name + " §cbefindet sich bereits auf deiner Scammerliste.");
+                            sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + names.get(0) + " §cbefindet sich bereits auf deiner Scammerliste.");
                         }
                     } else {
                         sc.displayMessage(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
@@ -85,15 +83,14 @@ public class CommandListener implements ClientCommandEvent {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
                         String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
-                        if (sc.getPrivateListUUID().contains(uuid)) {
-                            sc.getPrivateListUUID().remove(uuid);
-                            sc.getPrivateListName().remove(name);
+                        if (sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
+                            sc.getHelper().removeFromList(uuid, sc.getPrivateList());
                             if(uuid.equals(name)) {
                                 sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (UUID nicht verfügbar) §awurde von deiner Scammerliste entfernt.");
                             } else {
                                 sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " (" + uuid + ") §awurde von deiner Scammerliste entfernt.");
                             }
-                            sc.saveConfig();
+                            sc.savePrivateList();
                         } else {
                             sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + name + " §cbefindet sich nicht auf deiner Scammerliste.");
                         }
@@ -139,14 +136,14 @@ public class CommandListener implements ClientCommandEvent {
                 new Thread(() -> {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
-                        ArrayList<String> nameHistory = sc.getHelper().getNamesFromUUID(uuid);
-                        if (sc.getPrivateListUUID().contains(uuid)) {
+                        List<String> nameHistory = sc.getHelper().getNamesFromUUID(uuid);
+                        if (sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
                             if (nameHistory.size() == 1) {
                                 sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " §cbefindet sich auf deiner Scammerliste.");
                             } else {
                                 sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " [" + nameHistory.get(1) + "] §cbefindet sich auf deiner Scammerliste.");
                             }
-                        } else if(sc.getSettings().isShowOnlineScammer() && sc.getOnlineListUUID().contains(uuid)) {
+                        } else if(sc.getSettings().isShowOnlineScammer() && sc.getHelper().checkUUID(uuid, sc.getOnlineList())) {
                             if (nameHistory.size() == 1) {
                                 sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + nameHistory.get(0) + " §cbefindet sich auf der online Scammerliste.");
                             } else {
@@ -166,27 +163,27 @@ public class CommandListener implements ClientCommandEvent {
 
         // List scammers
         if (args[0].equalsIgnoreCase("list")) {
-            if (!sc.getPrivateListName().isEmpty()) {
+            if (!sc.getPrivateList().isEmpty()) {
                 try {
                     int page = 0;
                     if(args.length >= 2) page = Integer.parseInt(args[1]) - 1;
                     if(page < 0) throw new NumberFormatException();
 
-                    int numPages = (int) Math.ceil(sc.getPrivateListName().size() / (double)ScammerList.PLAYERS_PER_LIST_PAGE);
+                    int numPages = (int) Math.ceil(sc.getPrivateList().size() / (double)ScammerList.PLAYERS_PER_LIST_PAGE);
 
                     if(page < numPages) {
                         int from = page * ScammerList.PLAYERS_PER_LIST_PAGE;
                         int to = page * ScammerList.PLAYERS_PER_LIST_PAGE + ScammerList.PLAYERS_PER_LIST_PAGE;
-                        if(to > sc.getPrivateListName().size() - 1)
-                            to = (sc.getPrivateListName().size() - 1 % ScammerList.PLAYERS_PER_LIST_PAGE) + 1;
+                        if(to > sc.getPrivateList().size() - 1)
+                            to = (sc.getPrivateList().size() - 1 % ScammerList.PLAYERS_PER_LIST_PAGE) + 1;
 
                         ChatComponentText text = new ChatComponentText("");
                         text.appendText("\n§7-------------------- §eScammerliste §7--------------------");
                         for(int i=from; i<to; i++) {
-                            text.appendText("\n§8- §c"+sc.getPrivateListName().get(i));
+                            text.appendText("\n§8- §c"+sc.getPrivateList().get(i).getName());
                         }
                         if(page >= numPages - 1) {
-                            text.appendText("\n§4Einträge insgesamt: §c"+sc.getPrivateListName().size());
+                            text.appendText("\n§4Einträge insgesamt: §c"+sc.getPrivateList().size());
                         }
                         if(page > 0) {
                             ChatComponentText previousPage = new ChatComponentText("\n§a§l§n<<<");
@@ -233,12 +230,13 @@ public class CommandListener implements ClientCommandEvent {
 
         // Update lists
         if (args[0].equalsIgnoreCase("update")) {
-            if (!sc.getPrivateListUUID().isEmpty() || sc.getSettings().isShowOnlineScammer()) {
+            if (!sc.getPrivateList().isEmpty() || sc.getSettings().isShowOnlineScammer()) {
                 if(!sc.isUpdatingList()) {
                     sc.displayMessage(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
                     new Thread(() -> {
                         sc.getHelper().updateLists();
                         sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
+                        sc.getConfig().addProperty("nextUpdate", sc.getNextUpdate());
                         sc.saveConfig();
                         sc.displayMessage(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
                     }).start();
@@ -253,24 +251,23 @@ public class CommandListener implements ClientCommandEvent {
         // Clear scammer list
         if (args[0].equalsIgnoreCase("clear")) {
             if (args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
-                if (isConfirmClear()) {
-                    setConfirmClear(false);
-                    sc.getPrivateListUUID().clear();
-                    sc.getPrivateListName().clear();
-                    sc.saveConfig();
+                if (confirmClear) {
+                    confirmClear = false;
+                    sc.getPrivateList().clear();
+                    sc.savePrivateList();
                     sc.displayMessage(ScammerList.PREFIX + "§aAlle Einträge deiner Scammerliste wurden gelöscht.");
                 } else {
                     sc.displayMessage(ScammerList.PREFIX + "§cBitte gib zuerst §e" + ScammerList.COMMAND_PREFIX + cmd + " clear §cein.");
                 }
             } else {
-                if (!isConfirmClear()) {
-                    setConfirmClear(true);
+                if (!confirmClear) {
+                    confirmClear = true;
                     sc.displayMessage(ScammerList.PREFIX + "§c§lAchtung: §cUm alle Einträge deiner Scammerliste zu löschen bestätige dies in den nächsten 15 Sekunden mit §e"
                             + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
                     new Timer().schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            setConfirmClear(false);
+                            confirmClear = false;
                         }
                     }, 15000);
                 } else {
@@ -297,11 +294,4 @@ public class CommandListener implements ClientCommandEvent {
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.)");
         sc.displayMessage(joiner.toString());
     }
-
-        public boolean isConfirmClear() {
-            return confirmClear;
-        }
-        public void setConfirmClear(boolean confirmClear) {
-            this.confirmClear = confirmClear;
-        }
 }
