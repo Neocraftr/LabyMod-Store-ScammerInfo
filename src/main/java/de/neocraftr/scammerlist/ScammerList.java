@@ -44,30 +44,6 @@ public class ScammerList extends LabyModAddon {
         settings = new SettingsManager();
         helper = new Helper();
 
-        listDir = new File(AddonLoader.getConfigDirectory(), "ScammerList");
-        if(!listDir.exists()) {
-            listDir.mkdirs();
-        }
-        privateListFile = new File(listDir, "PrivateList.json");
-        if(!privateListFile.exists()) {
-            try {
-                privateListFile.createNewFile();
-                savePrivateList();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        onlineListFile = new File(listDir, "OnlineList.json");
-        if(!onlineListFile.exists()) {
-            try {
-                onlineListFile.createNewFile();
-                helper.downloadOnlineScammerList();
-                saveOnlineList();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         getApi().getEventManager().register(new ChatSendListener());
         getApi().getEventManager().register(new ChatReceiveListener());
         getApi().getEventManager().register(new ModifyChatListener());
@@ -86,6 +62,30 @@ public class ScammerList extends LabyModAddon {
             nextUpdate = getConfig().get("nextUpdate").getAsLong();
         }
 
+        listDir = new File(AddonLoader.getConfigDirectory(), "ScammerList");
+        if(!listDir.exists()) {
+            listDir.mkdirs();
+        }
+        privateListFile = new File(listDir, "PrivateList.json");
+        if(!privateListFile.exists()) {
+            try {
+                privateListFile.createNewFile();
+                savePrivateList();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        onlineListFile = new File(listDir, "OnlineList.json");
+        if(!onlineListFile.exists()) {
+            try {
+                onlineListFile.createNewFile();
+                if(settings.isShowOnlineScammer()) helper.downloadOnlineScammerList();
+                saveOnlineList();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
             FileReader reader = new FileReader(privateListFile);
             privateList = gson.fromJson(reader, new TypeToken<List<Scammer>>(){}.getType());
@@ -100,14 +100,8 @@ public class ScammerList extends LabyModAddon {
 
         if(settings.isAutoUpdate()) {
             if(nextUpdate < System.currentTimeMillis()) {
-
                 new Thread(() -> {
                     helper.updateLists();
-
-                    nextUpdate = System.currentTimeMillis()+UPDATE_INTERVAL;
-                    getConfig().addProperty("nextUpdate", nextUpdate);
-                    saveConfig();
-
                     System.out.println("[ScammerList] Updated player names.");
                 }).start();
             }

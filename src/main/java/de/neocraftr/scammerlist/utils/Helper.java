@@ -118,16 +118,18 @@ public class Helper {
         sc.getNameChangedPlayers().clear();
 
         // Update online list
-        downloadOnlineScammerList();
-        sc.getOnlineList().forEach(scammer -> {
-            List<String> names = getNamesFromUUID(scammer.getUUID());
-            if(!scammer.getName().equals(names.get(0))) {
-                addNameChange(names);
-            }
-            scammer.setName(names.get(0));
-            //scammer.setPreviousName(names.size() > 1 ? names.get(1) : null);
-        });
-        sc.saveOnlineList();
+        if(sc.getSettings().isShowOnlineScammer()) {
+            downloadOnlineScammerList();
+            sc.getOnlineList().forEach(scammer -> {
+                List<String> names = getNamesFromUUID(scammer.getUUID());
+                if(!scammer.getName().equals(names.get(0))) {
+                    addNameChange(names);
+                }
+                scammer.setName(names.get(0));
+                //scammer.setPreviousName(names.size() > 1 ? names.get(1) : null);
+            });
+            sc.saveOnlineList();
+        }
 
         // Update private list
         sc.getPrivateList().forEach(scammer -> {
@@ -141,6 +143,8 @@ public class Helper {
         sc.savePrivateList();
 
         sc.getConfig().add("nameChangedPlayers", sc.getGson().toJsonTree(sc.getNameChangedPlayers()));
+        sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
+        sc.getConfig().addProperty("nextUpdate", sc.getNextUpdate());
         sc.saveConfig();
         sc.setUpdatingList(false);
     }

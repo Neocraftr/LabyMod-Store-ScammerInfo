@@ -50,6 +50,11 @@ public class SettingsManager {
             setShowOnlineScammer(value);
             sc.getConfig().addProperty("showOnlineScammer", value);
             sc.saveConfig();
+            if(value && !sc.isUpdatingList()) {
+                new Thread(() -> {
+                     sc.getHelper().updateLists();
+                }).start();
+            }
         }, isShowOnlineScammer());
         settings.add(showOnlineScammerBtn);
 
