@@ -34,7 +34,7 @@ public class ScammerList extends LabyModAddon {
     private List<Scammer> privateList = new ArrayList<>();
     private List<Scammer> onlineList = new ArrayList<>();
     private List<String> nameChangedPlayers = new ArrayList<>();
-    private boolean addClan, removeClan, clanInProcess, updatingList;
+    private boolean addClan, removeClan, clanInProcess, updatingList, listsToConvert;
     private Set<ClientCommandEvent> commandListeners = new HashSet<>();
 
     @Override
@@ -111,6 +111,11 @@ public class ScammerList extends LabyModAddon {
                     System.out.println("[ScammerList] Updated player names.");
                 }).start();
             }
+        }
+
+        // Convert old list format
+        if(getConfig().has("scammerListUUID")) {
+            setListsToConvert(true);
         }
     }
 
@@ -201,6 +206,13 @@ public class ScammerList extends LabyModAddon {
     }
     public void setUpdatingList(boolean updatingList) {
         this.updatingList = updatingList;
+    }
+
+    public boolean isListsToConvert() {
+        return listsToConvert;
+    }
+    public void setListsToConvert(boolean listsToConvert) {
+        this.listsToConvert = listsToConvert;
     }
 
     public long getNextUpdate() {

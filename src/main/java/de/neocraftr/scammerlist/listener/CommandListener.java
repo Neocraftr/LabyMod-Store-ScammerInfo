@@ -16,6 +16,11 @@ public class CommandListener implements ClientCommandEvent {
     @Override
     public boolean onCommand(String cmd, String[] args) {
         if(!cmd.equalsIgnoreCase("scammer") && !cmd.equalsIgnoreCase("sc")) return false;
+
+        if(sc.isListsToConvert()) {
+            sc.displayMessage(ScammerList.PREFIX+"§cEs wurde eine Liste im alten Speicherformat gefunden. Du kannst sie mit §e"+ScammerList.COMMAND_PREFIX+"scammer convertlists §cumwandeln.");
+        }
+
         if(args.length == 0) {
             printHelp();
             return true;
@@ -274,6 +279,40 @@ public class CommandListener implements ClientCommandEvent {
                     sc.displayMessage(ScammerList.PREFIX + "§cBitte bestätige das Löschen aller Einträge mit §e"
                             + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
                 }
+            }
+        } else
+
+        // Convert old list format
+        if (args[0].equalsIgnoreCase("convertlists")) {
+            if(sc.getConfig().has("scammerListUUID")) {
+                if(!sc.isUpdatingList()) {
+                    sc.setUpdatingList(true);
+                    sc.setListsToConvert(false);
+                    List<String> uuids = sc.getGson().fromJson(sc.getConfig().get("scammerListUUID"), ArrayList.class);
+                    sc.displayMessage(ScammerList.PREFIX + "§aEs werden §e" + uuids.size() + " §aSpieler aus dem alten Speicherformat umgewandelt. Dies kann einige Minuten dauern...");
+                    new Thread(() -> {
+                        uuids.forEach(uuid -> {
+                            if(!sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
+                                String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
+                                sc.getPrivateList().add(new Scammer(uuid, name));
+                            }
+                        });
+                        sc.savePrivateList();
+
+                        sc.getConfig().remove("scammerListUUID");
+                        sc.getConfig().remove("scammerListName");
+                        sc.getConfig().remove("onlineScammerListUUID");
+                        sc.getConfig().remove("onlineScammerListName");
+                        sc.saveConfig();
+
+                        sc.displayMessage(ScammerList.PREFIX+"§aKonvertierung erfolgreich abgeschlossen.");
+                        sc.setUpdatingList(false);
+                    }).start();
+                } else {
+                    sc.displayMessage(ScammerList.PREFIX+"§cEs wird momentan eine Aktion ausgeführt. Bite warten!");
+                }
+            } else {
+                sc.displayMessage(ScammerList.PREFIX+"§aEs wurde keinen Listen im alten Speicherformat gefunden.");
             }
         } else printHelp();
 
