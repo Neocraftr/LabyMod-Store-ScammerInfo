@@ -20,6 +20,7 @@ import java.util.Set;
 public class ScammerList extends LabyModAddon {
 
     public static final String PREFIX = "§8[§4Scammerliste§8] §r",
+                               PREFIX_LINE = "§7-------------------- §4Scammerliste §7--------------------",
                                COMMAND_PREFIX = ".",
                                ONLINE_SCAMMER_URL = "https://coolertyp.scammer-radar.de/onlineScammer.json";
     public static final int PLAYERS_PER_LIST_PAGE = 15,

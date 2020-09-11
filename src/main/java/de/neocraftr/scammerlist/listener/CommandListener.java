@@ -182,13 +182,13 @@ public class CommandListener implements ClientCommandEvent {
                         if(to > sc.getPrivateList().size() - 1)
                             to = (sc.getPrivateList().size() - 1 % ScammerList.PLAYERS_PER_LIST_PAGE) + 1;
 
-                        ChatComponentText text = new ChatComponentText("");
-                        text.appendText("\n§7-------------------- §eScammerliste §7--------------------");
+                        ChatComponentText text = new ChatComponentText(ScammerList.PREFIX_LINE);
+                        text.appendText("\n§aPrivate Scammerliste:");
                         for(int i=from; i<to; i++) {
-                            text.appendText("\n§8- §c"+sc.getPrivateList().get(i).getName());
+                            text.appendText("\n§8- §e"+sc.getPrivateList().get(i).getName());
                         }
                         if(page >= numPages - 1) {
-                            text.appendText("\n§4Einträge insgesamt: §c"+sc.getPrivateList().size());
+                            text.appendText("\n§aEinträge insgesamt: §e"+sc.getPrivateList().size());
                         }
                         if(page > 0) {
                             ChatComponentText previousPage = new ChatComponentText("\n§a§l§n<<<");
@@ -206,7 +206,7 @@ public class CommandListener implements ClientCommandEvent {
                             text.appendText("§7§l>>>");
                         }
 
-                        text.appendText("\n§7-----------------------------------------------------");
+                        text.appendText("\n"+ScammerList.PREFIX_LINE);
                         Minecraft.getMinecraft().thePlayer.addChatComponentMessage(text);
                     } else {
                         sc.displayMessage(ScammerList.PREFIX + "§cSeite §e"+(page + 1)+" §cexistiert nicht.");
@@ -223,10 +223,12 @@ public class CommandListener implements ClientCommandEvent {
         if (args[0].equalsIgnoreCase("namechanges")) {
             if (!sc.getNameChangedPlayers().isEmpty()) {
                 StringJoiner joiner = new StringJoiner("\n");
-                joiner.add(ScammerList.PREFIX+"§aLetzte Namensänderungen:");
+                joiner.add(ScammerList.PREFIX_LINE);
+                joiner.add("§aLetzte Namensänderungen:");
                 sc.getNameChangedPlayers().forEach(name -> {
                     joiner.add("§8- §e"+name);
                 });
+                joiner.add(ScammerList.PREFIX_LINE);
                 sc.displayMessage(joiner.toString());
             } else {
                 sc.displayMessage(ScammerList.PREFIX + "§cBei der letzten Aktualisierung wurden keine Namensänderungen festgestellt.");
@@ -321,7 +323,8 @@ public class CommandListener implements ClientCommandEvent {
 
     private void printHelp() {
         StringJoiner joiner = new StringJoiner("\n");
-        joiner.add(ScammerList.PREFIX + "§aVerfügbare Befehle:");
+        joiner.add(ScammerList.PREFIX_LINE);
+        joiner.add("§aVerfügbare Befehle:");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer add <Name> §8- §aFügt einen Spieler zur Scammerliste hinzu.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer remove <Name> §8- §aEntfernt einen Spieler von der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer addclan <Name|ClanTag §8- §aFügt die Spieler eines Clans zur Scammerliste hinzu.");
@@ -331,6 +334,7 @@ public class CommandListener implements ClientCommandEvent {
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.)");
+        joiner.add(ScammerList.PREFIX_LINE);
         sc.displayMessage(joiner.toString());
     }
 }
