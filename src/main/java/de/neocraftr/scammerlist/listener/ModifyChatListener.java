@@ -53,12 +53,12 @@ public class ModifyChatListener implements MessageModifyChatEvent {
         if(sc.getSettings().isHighlightInStartkick()) {
             Matcher m = startkickTargetRegex.matcher(msg.getUnformattedText());
             if(m.find()) {
-                checkAndModify(msg, 3, m.group(1));
+                checkAndModify(msg, 4, m.group(1));
             }
 
             m = startkickCreatorRegex.matcher(msg.getUnformattedText());
             if(m.find()) {
-                checkAndModify(msg, 3, m.group(1));
+                checkAndModify(msg, 4, m.group(1));
             }
         }
 

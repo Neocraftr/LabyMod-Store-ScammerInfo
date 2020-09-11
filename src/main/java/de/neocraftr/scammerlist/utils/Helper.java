@@ -64,12 +64,11 @@ public class Helper {
         }
 
         try {
-            try (BufferedReader reader = Resources.asCharSource(new URL(String.format("https://api.mojang.com/users/profiles/minecraft/%s", name)), StandardCharsets.UTF_8).openBufferedStream()) {
-                JsonObject json = sc.getGson().fromJson(reader, JsonObject.class);
-                if(json == null || !json.has("id")) return null;
-                String uuid = json.get("id").getAsString();
-                return Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})").matcher(uuid).replaceAll("$1-$2-$3-$4-$5");
-            }
+            BufferedReader reader = Resources.asCharSource(new URL(String.format("https://api.mojang.com/users/profiles/minecraft/%s", name)), StandardCharsets.UTF_8).openBufferedStream();
+            JsonObject json = sc.getGson().fromJson(reader, JsonObject.class);
+            if(json == null || !json.has("id")) return null;
+            String uuid = json.get("id").getAsString();
+            return Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})").matcher(uuid).replaceAll("$1-$2-$3-$4-$5");
         } catch(IOException e) {
             System.out.println("[ScammerList] Could not get uuid from mojang api: "+e.getMessage());
         }
@@ -78,38 +77,39 @@ public class Helper {
 
     public void downloadOnlineScammerList() {
         try {
-            try(BufferedReader reader = Resources.asCharSource(new URL(ScammerList.ONLINE_SCAMMER_URL), StandardCharsets.UTF_8).openBufferedStream()) {
+            List<Scammer> onlineList = new ArrayList<>();
+            BufferedReader reader = Resources.asCharSource(new URL(ScammerList.ONLINE_SCAMMER_URL), StandardCharsets.UTF_8).openBufferedStream();
+            JsonReader json = new JsonReader(reader);
+            json.beginArray();
 
-                JsonReader json = new JsonReader(reader);
-                json.beginArray();
 
-                sc.getOnlineList().clear();
-
+            while (json.hasNext()) {
+                json.beginObject();
+                String uuid = null, name = null;
                 while (json.hasNext()) {
-                    json.beginObject();
-                    String uuid = null, name = null;
-                    while (json.hasNext()) {
-                        switch (json.nextName()) {
-                            case "uuid":
-                                uuid = json.nextString();
-                                break;
-                            case "name":
-                                name = json.nextString();
-                                break;
-                            default:
-                                json.nextString();
-                        }
+                    switch (json.nextName()) {
+                        case "uuid":
+                            uuid = json.nextString();
+                            break;
+                        case "name":
+                            name = json.nextString();
+                            break;
+                        default:
+                            json.nextString();
                     }
-                    sc.getOnlineList().add(new Scammer(uuid, name));
-                    json.endObject();
                 }
-
-                json.endArray();
-
-                sc.saveConfig();
+                onlineList.add(new Scammer(uuid, name));
+                json.endObject();
             }
+
+            json.endArray();
+
+            sc.setOnlineList(onlineList);
+            sc.saveConfig();
         } catch (IOException e) {
-            System.out.println("[ScammerList] Could not load online scammer list: "+e.getMessage());
+            System.out.println("[ScammerList] Could not download online scammer list: "+e.getMessage());
+        } catch(IllegalStateException e) {
+            System.out.println("[ScammerList] Could not read online scammer list: "+e.getMessage());
         }
     }
 

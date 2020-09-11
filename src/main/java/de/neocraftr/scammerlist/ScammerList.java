@@ -165,9 +165,15 @@ public class ScammerList extends LabyModAddon {
     public List<Scammer> getPrivateList() {
         return privateList;
     }
+    public void setPrivateList(List<Scammer> privateList) {
+        this.privateList = privateList;
+    }
 
     public List<Scammer> getOnlineList() {
         return onlineList;
+    }
+    public void setOnlineList(List<Scammer> onlineList) {
+        this.onlineList = onlineList;
     }
 
     public List<String> getNameChangedPlayers() {
