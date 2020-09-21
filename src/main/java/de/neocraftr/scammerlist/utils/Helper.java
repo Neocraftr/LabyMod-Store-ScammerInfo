@@ -105,7 +105,6 @@ public class Helper {
             json.endArray();
 
             sc.setOnlineList(onlineList);
-            sc.saveConfig();
         } catch (IOException e) {
             System.out.println("[ScammerList] Could not download online scammer list: "+e.getMessage());
         } catch(IllegalStateException e) {
@@ -176,6 +175,20 @@ public class Helper {
             if(scammer.getName().equals(name)) return true;
         }
         return false;
+    }
+
+    public Scammer getByUUID(String uuid, List<Scammer> list) {
+        for(Scammer scammer : list) {
+            if(scammer.getUUID().equals(uuid)) return scammer;
+        }
+        return null;
+    }
+
+    public Scammer getByName(String name, List<Scammer> list) {
+        for(Scammer scammer : list) {
+            if(scammer.getName().equals(name)) return scammer;
+        }
+        return null;
     }
 
     public void removeFromList(String uuid, List<Scammer> list) {

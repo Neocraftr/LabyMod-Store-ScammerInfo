@@ -35,7 +35,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
                                     if (!sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
-                                        sc.getPrivateList().add(new Scammer(uuid, name));
+                                        sc.getPrivateList().add(new Scammer(uuid, name, "Clan Mitglied - "+clanName));
                                         newPlayers++;
                                     }
                                 } else {
@@ -55,7 +55,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             }
                         });
 
-                        sc.saveConfig();
+                        sc.savePrivateList();
                         if(addClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §azur Scammerliste hinzugefügt.");
                         if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §avon der Scammerliste entfernt.");
 
