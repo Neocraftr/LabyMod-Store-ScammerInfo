@@ -126,7 +126,6 @@ public class Helper {
                     addNameChange(names);
                 }
                 scammer.setName(names.get(0));
-                //scammer.setPreviousName(names.size() > 1 ? names.get(1) : null);
             });
             sc.saveOnlineList();
         }
@@ -138,7 +137,6 @@ public class Helper {
                 addNameChange(names);
             }
             scammer.setName(names.get(0));
-            //scammer.setPreviousName(names.size() > 1 ? names.get(1) : null);
         });
         sc.savePrivateList();
 

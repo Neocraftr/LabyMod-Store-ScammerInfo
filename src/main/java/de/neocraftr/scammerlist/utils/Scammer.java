@@ -4,13 +4,6 @@ public class Scammer {
 
     private String uuid;
     private String name;
-    private String previousName;
-
-    public Scammer(String uuid, String name, String previousName) {
-        this.uuid = uuid;
-        this.name = name;
-        this.previousName = previousName;
-    }
 
     public Scammer(String uuid, String name) {
         this.uuid = uuid;
@@ -33,13 +26,5 @@ public class Scammer {
     }
     public void setName(String name) {
         this.name = name;
-    }
-
-    // not used at the moment
-    public String getPreviousName() {
-        return previousName;
-    }
-    public void setPreviousName(String previousName) {
-        this.previousName = previousName;
     }
 }
