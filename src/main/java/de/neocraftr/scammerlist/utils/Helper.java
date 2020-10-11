@@ -22,7 +22,7 @@ public class Helper {
     public List<String> getNamesFromUUID(String uuid) {
         List<String> names = new ArrayList<>();
 
-        if(uuid.startsWith("!") || uuid.equals("*")) {
+        if(uuid.startsWith("!")) {
             names.add(uuid);
             return names;
         }
@@ -59,7 +59,7 @@ public class Helper {
     }
 
     public String getUUIDFromName(String name) {
-        if(name.startsWith("!") || name.equals("*")) {
+        if(name.startsWith("!")) {
             return name;
         }
 
@@ -121,6 +121,7 @@ public class Helper {
             downloadOnlineScammerList();
             sc.getOnlineList().forEach(scammer -> {
                 List<String> names = getNamesFromUUID(scammer.getUUID());
+                if(names.size() == 0) return;
                 if(!scammer.getName().equals(names.get(0))) {
                     addNameChange(names);
                 }
@@ -132,6 +133,7 @@ public class Helper {
         // Update private list
         sc.getPrivateList().forEach(scammer -> {
             List<String> names = getNamesFromUUID(scammer.getUUID());
+            if(names.size() == 0) return;
             if(!scammer.getName().equals(names.get(0))) {
                 addNameChange(names);
             }
