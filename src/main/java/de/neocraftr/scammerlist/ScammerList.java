@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.neocraftr.scammerlist.listener.*;
 import de.neocraftr.scammerlist.utils.Helper;
-import de.neocraftr.scammerlist.utils.Scammer;
+import de.neocraftr.scammerlist.utils.PlayerList;
 import de.neocraftr.scammerlist.utils.SettingsManager;
 import net.labymod.addon.AddonLoader;
 import net.labymod.api.LabyModAddon;
@@ -32,8 +32,8 @@ public class ScammerList extends LabyModAddon {
     private Helper helper;
     private File listDir, onlineListFile, privateListFile;
     private long nextUpdate = 0;
-    private List<Scammer> privateList = new ArrayList<>();
-    private List<Scammer> onlineList = new ArrayList<>();
+    private PlayerList privateList = new PlayerList();
+    private PlayerList onlineList = new PlayerList();
     private List<String> nameChangedPlayers = new ArrayList<>();
     private boolean addClan, removeClan, clanInProcess, updatingList, listsToConvert;
     private Set<ClientCommandEvent> commandListeners = new HashSet<>();
@@ -89,11 +89,11 @@ public class ScammerList extends LabyModAddon {
 
         try {
             FileReader reader = new FileReader(privateListFile);
-            privateList = gson.fromJson(reader, new TypeToken<List<Scammer>>(){}.getType());
+            privateList = gson.fromJson(reader, new TypeToken<PlayerList>(){}.getType());
             reader.close();
 
             reader = new FileReader(onlineListFile);
-            onlineList = gson.fromJson(reader, new TypeToken<List<Scammer>>(){}.getType());
+            onlineList = gson.fromJson(reader, new TypeToken<PlayerList>(){}.getType());
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -163,17 +163,17 @@ public class ScammerList extends LabyModAddon {
         return helper;
     }
 
-    public List<Scammer> getPrivateList() {
+    public PlayerList getPrivateList() {
         return privateList;
     }
-    public void setPrivateList(List<Scammer> privateList) {
+    public void setPrivateList(PlayerList privateList) {
         this.privateList = privateList;
     }
 
-    public List<Scammer> getOnlineList() {
+    public PlayerList getOnlineList() {
         return onlineList;
     }
-    public void setOnlineList(List<Scammer> onlineList) {
+    public void setOnlineList(PlayerList onlineList) {
         this.onlineList = onlineList;
     }
 

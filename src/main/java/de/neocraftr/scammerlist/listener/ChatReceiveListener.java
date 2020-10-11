@@ -34,7 +34,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             if(addClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
-                                    if (!sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
+                                    if (!sc.getPrivateList().containsUUID(uuid)) {
                                         sc.getPrivateList().add(new Scammer(uuid, name, "Clan Mitglied - "+clanName));
                                         newPlayers++;
                                     }
@@ -45,8 +45,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             if(removeClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
-                                    if (sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
-                                        sc.getHelper().removeFromList(uuid, sc.getPrivateList());
+                                    if (sc.getPrivateList().removeByUUID(uuid)) {
                                         newPlayers++;
                                     }
                                 } else {

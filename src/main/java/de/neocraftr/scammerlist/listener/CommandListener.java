@@ -34,7 +34,7 @@ public class CommandListener implements ClientCommandEvent {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
                         List<String> names = sc.getHelper().getNamesFromUUID(uuid);
-                        if (!sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
+                        if (!sc.getPrivateList().containsUUID(uuid)) {
                             String description = null;
                             if(args.length >= 3) {
                                 StringJoiner joiner = new StringJoiner(" ");
@@ -96,8 +96,7 @@ public class CommandListener implements ClientCommandEvent {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
                         String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
-                        if (sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
-                            sc.getHelper().removeFromList(uuid, sc.getPrivateList());
+                        if (sc.getPrivateList().removeByUUID(uuid)) {
                             sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " §awurde von deiner Scammerliste entfernt.");
                             sc.savePrivateList();
                         } else {
@@ -146,8 +145,8 @@ public class CommandListener implements ClientCommandEvent {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
                         List<String> nameHistory = sc.getHelper().getNamesFromUUID(uuid);
-                        boolean isPrivateScammer = sc.getHelper().checkUUID(uuid, sc.getPrivateList());
-                        boolean isOnlineScammer = sc.getSettings().isShowOnlineScammer() && sc.getHelper().checkUUID(uuid, sc.getOnlineList());
+                        boolean isPrivateScammer = sc.getPrivateList().containsUUID(uuid);
+                        boolean isOnlineScammer = sc.getSettings().isShowOnlineScammer() && sc.getOnlineList().containsUUID(uuid);
                         if(isPrivateScammer || isOnlineScammer) {
                             StringJoiner joiner = new StringJoiner("\n");
                             joiner.add(ScammerList.PREFIX_LINE);
@@ -160,7 +159,7 @@ public class CommandListener implements ClientCommandEvent {
                             joiner.add("§cUUID: §e"+(uuid.equals(nameHistory.get(0)) ? "Nicht verfügbar" : uuid));
                             joiner.add("§cListe: §e"+(isPrivateScammer ? "Privat" : "") + (isPrivateScammer && isOnlineScammer ? " und " : "") + (isOnlineScammer ? "Online" : ""));
                             if(isPrivateScammer) {
-                                Scammer s = sc.getHelper().getByUUID(uuid, sc.getPrivateList());
+                                Scammer s = sc.getPrivateList().getByUUID(uuid);
                                 joiner.add("§cHinzugefügt am: §e"
                                         +(s.getDate() == 0 ? "Nicht verfügbar" : new SimpleDateFormat("dd:MM:yyyy HH:mm").format(new Date(s.getDate()))));
                                 if(s.getDescription() != null) joiner.add("§cBeschreibung: §e"+s.getDescription());
@@ -307,7 +306,7 @@ public class CommandListener implements ClientCommandEvent {
                     sc.displayMessage(ScammerList.PREFIX + "§aEs werden §e" + uuids.size() + " §aSpieler aus dem alten Speicherformat umgewandelt. Dies kann einige Minuten dauern...");
                     new Thread(() -> {
                         uuids.forEach(uuid -> {
-                            if(!sc.getHelper().checkUUID(uuid, sc.getPrivateList())) {
+                            if(!sc.getPrivateList().containsUUID(uuid)) {
                                 String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
                                 sc.getPrivateList().add(new Scammer(uuid, name));
                             }
