@@ -14,7 +14,6 @@ buildscript {
 apply plugin: "net.minecraftforge.gradle.forge"
 apply plugin: "de.undercouch.download"
 
-version = "1.0"
 group= "de.neocraftr.scammerlist"
 archivesBaseName = "ScammerList"
 
