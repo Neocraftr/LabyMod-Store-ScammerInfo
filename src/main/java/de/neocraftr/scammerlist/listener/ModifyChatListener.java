@@ -58,6 +58,13 @@ public class ModifyChatListener implements MessageModifyChatEvent {
 
             m = startkickCreatorRegex.matcher(msg.getUnformattedText());
             if(m.find()) {
+                // Divide in two sibblings
+                msg.getSiblings().remove(3);
+                IChatComponent creator1 = new ChatComponentText("Ersteller: ");
+                IChatComponent creator2 = new ChatComponentText(m.group(1));
+                msg.getSiblings().add(creator1);
+                msg.getSiblings().add(creator2);
+
                 checkAndModify(msg, 4, m.group(1));
             }
         }
