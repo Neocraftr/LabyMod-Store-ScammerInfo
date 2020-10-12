@@ -7,6 +7,7 @@ import de.neocraftr.scammerlist.listener.*;
 import de.neocraftr.scammerlist.utils.Helper;
 import de.neocraftr.scammerlist.utils.PlayerList;
 import de.neocraftr.scammerlist.utils.SettingsManager;
+import de.neocraftr.scammerlist.utils.Updater;
 import net.labymod.addon.AddonLoader;
 import net.labymod.api.LabyModAddon;
 import net.labymod.settings.elements.SettingsElement;
@@ -22,7 +23,8 @@ public class ScammerList extends LabyModAddon {
     public static final String PREFIX = "§8[§4Scammerliste§8] §r",
                                PREFIX_LINE = "§7-------------------- §4Scammerliste §7--------------------",
                                COMMAND_PREFIX = ".",
-                               ONLINE_SCAMMER_URL = "https://coolertyp.scammer-radar.de/onlineScammer.json";
+                               ONLINE_SCAMMER_URL = "https://coolertyp.scammer-radar.de/onlineScammer.json",
+                               VERSION = "1.1.0";
     public static final int PLAYERS_PER_LIST_PAGE = 15,
                             UPDATE_INTERVAL = 604800000; // 1 week
 
@@ -30,6 +32,7 @@ public class ScammerList extends LabyModAddon {
     private Gson gson;
     private SettingsManager settings;
     private Helper helper;
+    private Updater updater;
     private File listDir, onlineListFile, privateListFile;
     private long nextUpdate = 0;
     private PlayerList privateList = new PlayerList();
@@ -44,6 +47,7 @@ public class ScammerList extends LabyModAddon {
         gson = new GsonBuilder().setPrettyPrinting().create();
         settings = new SettingsManager();
         helper = new Helper();
+        updater = new Updater();
 
         getApi().getEventManager().register(new ChatSendListener());
         getApi().getEventManager().register(new ChatReceiveListener());
@@ -54,6 +58,8 @@ public class ScammerList extends LabyModAddon {
 
     @Override
     public void loadConfig() {
+        updater.setAddonJar(AddonLoader.getFiles().get(about.uuid));
+
         settings.loadSettings();
 
         if(getConfig().has("nameChangedPlayers")) {

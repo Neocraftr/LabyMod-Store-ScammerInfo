@@ -18,7 +18,8 @@ public class SettingsManager {
                     highlightInClanInfo = true,
                     highlightInTablist = true,
                     highlightInStartkick = true,
-                    autoUpdate = true;
+                    autoUpdate = true,
+                    autoUpdateAddon = true;
     private String scammerPrefix = "&c&l[&4&l!&c&l]";
 
     public void loadSettings() {
@@ -39,6 +40,9 @@ public class SettingsManager {
         }
         if(sc.getConfig().has("autoUpdate")) {
             setAutoUpdate(sc.getConfig().get("autoUpdate").getAsBoolean());
+        }
+        if(sc.getConfig().has("autoUpdateAddon")) {
+            setAutoUpdate(sc.getConfig().get("autoUpdateAddon").getAsBoolean());
         }
         if(sc.getConfig().has("scammerPrefix")) {
             setScammerPrefix(sc.getConfig().get("scammerPrefix").getAsString());
@@ -86,12 +90,19 @@ public class SettingsManager {
         }, isHighlightInTablist());
         settings.add(highlightInTablistBtn);
 
-        final BooleanElement autoUpdateBtn = new BooleanElement("Automatisch aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
+        final BooleanElement autoUpdateBtn = new BooleanElement("Listen automatisch aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
             setAutoUpdate(value);
             sc.getConfig().addProperty("autoUpdate", value);
             sc.saveConfig();
         }, isAutoUpdate());
         settings.add(autoUpdateBtn);
+
+        final BooleanElement autoUpdateAddonBtn = new BooleanElement("Addon beim start aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
+            setAutoUpdateAddon(value);
+            sc.getConfig().addProperty("autoUpdateAddon", value);
+            sc.saveConfig();
+        }, isAutoUpdate());
+        settings.add(autoUpdateAddonBtn);
 
         final StringElement scammerPrefixSetting = new StringElement("Scammer Prefix", new ControlElement.IconData(Material.BOOK_AND_QUILL), getScammerPrefix(), value -> {
             setScammerPrefix(value);
@@ -142,6 +153,13 @@ public class SettingsManager {
     }
     public void setAutoUpdate(boolean autoUpdate) {
         this.autoUpdate = autoUpdate;
+    }
+
+    public boolean isAutoUpdateAddon() {
+        return autoUpdateAddon;
+    }
+    public void setAutoUpdateAddon(boolean autoUpdateAddon) {
+        this.autoUpdateAddon = autoUpdateAddon;
     }
 
     public String getScammerPrefix() {
