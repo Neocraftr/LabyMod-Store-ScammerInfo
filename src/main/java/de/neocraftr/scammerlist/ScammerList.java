@@ -169,6 +169,10 @@ public class ScammerList extends LabyModAddon {
         return helper;
     }
 
+    public Updater getUpdater() {
+        return updater;
+    }
+
     public PlayerList getPrivateList() {
         return privateList;
     }

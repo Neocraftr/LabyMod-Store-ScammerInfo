@@ -328,6 +328,16 @@ public class CommandListener implements ClientCommandEvent {
             } else {
                 sc.displayMessage(ScammerList.PREFIX+"§aEs wurde keinen Listen im alten Speicherformat gefunden.");
             }
+        } else
+
+        // Version
+        if(args[0].equalsIgnoreCase("version")) {
+            sc.displayMessage(ScammerList.PREFIX+"§aInstallierte Version: §ev"+ScammerList.VERSION);
+
+            String latestVersion = sc.getUpdater().getLatestVersion();
+            if(latestVersion != null) {
+                sc.displayMessage(ScammerList.PREFIX+"§aNeuste Version: §ev"+latestVersion);
+            }
         } else printHelp();
 
         return true;
@@ -344,8 +354,9 @@ public class CommandListener implements ClientCommandEvent {
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer check <Name> §8- §aÜberprüft ob sich ein Spieler auf der Scammerliste befindet.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
-        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt.)");
-        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.)");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt)");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer version §8- §aZeigt die Version des Addons an.");
         joiner.add(ScammerList.PREFIX_LINE);
         sc.displayMessage(joiner.toString());
     }

@@ -90,6 +90,10 @@ public class Updater {
         return addonJar != null && addonJar.isFile();
     }
 
+    public String getLatestVersion() {
+        return latestVersion;
+    }
+
     public void setAddonJar(File addonJar) {
         this.addonJar = addonJar;
     }
