@@ -24,7 +24,7 @@ public class ScammerList extends LabyModAddon {
                                PREFIX_LINE = "§7-------------------- §4Scammerliste §7--------------------",
                                COMMAND_PREFIX = ".",
                                ONLINE_SCAMMER_URL = "https://coolertyp.scammer-radar.de/onlineScammer.json",
-                               VERSION = "1.1.0";
+                               VERSION = "1.2.0";
     public static final int PLAYERS_PER_LIST_PAGE = 15,
                             UPDATE_INTERVAL = 604800000; // 1 week
 
