@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class ChatReceiveListener implements MessageReceiveEvent {
 
     private ScammerList sc = ScammerList.getScammerList();
-    private Pattern clanMemberRegex = Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)");
+    private Pattern clanMemberRegex = Pattern.compile("^\\u00BB (\\!?\\w{1,16}) \\((online|offline)\\)");
     private List<String> clanMemberList = new ArrayList<>();
     private String clanName;
     private boolean clanMessage;
@@ -21,7 +21,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
     @Override
     public boolean onReceive(String msgRaw, String msg) {
         if(sc.isAddClan() || sc.isRemoveClan()) {
-            if(msg.equals("----------- Clan-Mitglieder -----------")) {
+            if(msg.equals("------------[ Clan-Mitglieder ]------------")) {
                 if(clanMessage) {
                     boolean addClan = sc.isAddClan(), removeClan = sc.isRemoveClan();
                     new Thread(() -> {
@@ -72,7 +72,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                 }
             }
 
-            if(msg.startsWith("[Clans]")) {
+            if(msg.startsWith("[Clan]")) {
                 if(sc.isAddClan()) sc.displayMessage(ScammerList.PREFIX+"§cDer Clan konnte nicht hinzugefügt werden!");
                 if(sc.isRemoveClan()) sc.displayMessage(ScammerList.PREFIX+"§cDer Clan konnte nicht entfernt werden!");
                 sc.setAddClan(false);

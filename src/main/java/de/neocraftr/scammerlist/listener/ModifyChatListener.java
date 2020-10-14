@@ -15,7 +15,7 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     private Pattern chatRegex = Pattern.compile("^(?:\\[[^\\]]+\\] )?[A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16}) \\u00BB");
     private Pattern msgReceiveRegex = Pattern.compile("^\\[[A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16}) -> mir\\]");
     private Pattern msgSendRegex = Pattern.compile("^\\[mir -> [A-Za-z\\-]+\\+? \\u2503 (\\!?\\w{1,16})\\]");
-    private Pattern clanMemberRegex = Pattern.compile("^>> (\\!?\\w{1,16}) \\((Online|Offline)\\)");
+    private Pattern clanMemberRegex = Pattern.compile("^\\u00BB (\\!?\\w{1,16}) \\((online|offline)\\)");
     private Pattern startkickTargetRegex = Pattern.compile("^\\[GrieferGames\\] Soll der Spieler (\\!?\\w{1,16}) rausgeworfen werden\\? \\/ja \\/nein");
     private Pattern startkickCreatorRegex = Pattern.compile("^\\[GrieferGames\\] Ersteller: (\\!?\\w{1,16})");
 
