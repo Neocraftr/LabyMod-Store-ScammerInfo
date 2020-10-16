@@ -1,9 +1,6 @@
 package de.neocraftr.scammerlist.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.addon.AddonLoader;
@@ -36,15 +33,21 @@ public class ListManager {
         privateList = new PlayerList(true, "Privat", null);
         readList(privateList);
 
+        if(!sc.getConfig().has("lists")) {
+            lists.add(new PlayerList(true, "[SCAMMER] Radar", "https://coolertyp.scammer-radar.de/onlineScammer.json"));
+            saveListSettings();
+        }
+
         for(JsonElement element : sc.getConfig().get("lists").getAsJsonArray()) {
             JsonObject list = element.getAsJsonObject();
-            boolean enabled = list.get("enabled").getAsBoolean();
-            String name = list.get("name").getAsString();
-            String url = list.get("url").getAsString();
+            if(list.has("enabled") && list.has("name") && list.has("url")) {
+                boolean enabled = list.get("enabled").getAsBoolean();
+                String name = list.get("name").getAsString();
+                String url = list.get("url").getAsString();
+                if(name.equalsIgnoreCase("Privat")) continue;
 
-            PlayerList playerList = new PlayerList(enabled, name, url);
-
-            if(readList(playerList)) {
+                PlayerList playerList = new PlayerList(enabled, name, url);
+                if(readList(playerList)) continue;
                 lists.add(playerList);
             }
         }
@@ -68,7 +71,7 @@ public class ListManager {
         sc.setUpdatingList(false);
     }
 
-    private void updateList(PlayerList playerList) {
+    public void updateList(PlayerList playerList) {
         if(!playerList.isEnabled()) return;
         for(Scammer scammer : playerList) {
             List<String> names = sc.getHelper().getNamesFromUUID(scammer.getUUID());
@@ -81,7 +84,7 @@ public class ListManager {
         saveList(playerList);
     }
 
-    private boolean downloadList(PlayerList playerList) {
+    public boolean downloadList(PlayerList playerList) {
         if(!playerList.isEnabled()) return true;
         if(playerList.getUrl() == null) return false;
         try {
@@ -105,7 +108,7 @@ public class ListManager {
         }
     }
 
-    private boolean readList(PlayerList playerList) {
+    public boolean readList(PlayerList playerList) {
         try {
             File listFile = new File(listDir, playerList.getName()+"-list.json");
             if(!listFile.isFile()) {
@@ -168,6 +171,19 @@ public class ListManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void saveListSettings() {
+        JsonArray savedLists = new JsonArray();
+        for(PlayerList list : lists) {
+            JsonObject savedList = new JsonObject();
+            savedList.addProperty("name", list.getName());
+            savedList.addProperty("enabled", list.isEnabled());
+            savedList.addProperty("url", list.getUrl());
+            savedLists.add(savedList);
+        }
+        sc.getConfig().add("lists", savedLists);
+        sc.saveConfig();
     }
 
     public boolean listExists(String name) {

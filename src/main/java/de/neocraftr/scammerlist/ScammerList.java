@@ -3,6 +3,7 @@ package de.neocraftr.scammerlist;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.neocraftr.scammerlist.listener.*;
+import de.neocraftr.scammerlist.settings.SettingsManager;
 import de.neocraftr.scammerlist.utils.*;
 import net.labymod.addon.AddonLoader;
 import net.labymod.api.LabyModAddon;
@@ -18,7 +19,6 @@ public class ScammerList extends LabyModAddon {
     public static final String PREFIX = "§8[§4Scammerliste§8] §r",
                                PREFIX_LINE = "§7-------------------- §4Scammerliste §7--------------------",
                                COMMAND_PREFIX = ".",
-                               ONLINE_SCAMMER_URL = "https://coolertyp.scammer-radar.de/onlineScammer.json",
                                VERSION = "1.2.0";
     public static final int PLAYERS_PER_LIST_PAGE = 15,
                             UPDATE_INTERVAL = 604800000; // 1 week

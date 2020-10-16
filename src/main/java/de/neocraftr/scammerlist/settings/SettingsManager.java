@@ -1,4 +1,4 @@
-package de.neocraftr.scammerlist.utils;
+package de.neocraftr.scammerlist.settings;
 
 import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.settings.elements.BooleanElement;
@@ -10,7 +10,6 @@ import net.labymod.utils.Material;
 import java.util.List;
 
 public class SettingsManager {
-    // TODO: add online list settings
 
     private ScammerList sc = ScammerList.getScammerList();
 
@@ -95,6 +94,10 @@ public class SettingsManager {
             sc.saveConfig();
         });
         settings.add(scammerPrefixSetting);
+
+        final ArraySettingsElement messagesSetting = new ArraySettingsElement("Listen verwalten",
+                new ControlElement.IconData(Material.BOOK_AND_QUILL), sc.getListManager().getLists());
+        settings.add(messagesSetting);
     }
 
     public boolean isHighlightInChat() {
