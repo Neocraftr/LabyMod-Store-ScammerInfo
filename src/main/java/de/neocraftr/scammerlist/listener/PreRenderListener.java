@@ -40,9 +40,7 @@ public class PreRenderListener {
                             }
 
                             if(sc.getSettings().isHighlightInTablist()) {
-                                boolean isPrivateScammer = sc.getPrivateList().containsName(player.getGameProfile().getName());
-                                boolean isOnlineScammer = sc.getSettings().isShowOnlineScammer() && sc.getOnlineList().containsName(player.getGameProfile().getName());
-                                if(isOnlineScammer || isPrivateScammer) {
+                                if(sc.getListManager().checkName(player.getGameProfile().getName())) {
                                     playerName.getSiblings().add(0, scammerMessage);
                                 }
                             }

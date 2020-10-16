@@ -10,11 +10,11 @@ import net.labymod.utils.Material;
 import java.util.List;
 
 public class SettingsManager {
+    // TODO: add online list settings
 
     private ScammerList sc = ScammerList.getScammerList();
 
-    private boolean showOnlineScammer = true,
-                    highlightInChat = true,
+    private boolean highlightInChat = true,
                     highlightInClanInfo = true,
                     highlightInTablist = true,
                     highlightInStartkick = true,
@@ -23,9 +23,6 @@ public class SettingsManager {
     private String scammerPrefix = "&c&l[&4&l!&c&l]";
 
     public void loadSettings() {
-        if(sc.getConfig().has("showOnlineScammer")) {
-            setShowOnlineScammer(sc.getConfig().get("showOnlineScammer").getAsBoolean());
-        }
         if(sc.getConfig().has("highlightInChat")) {
             setHighlightInChat(sc.getConfig().get("highlightInChat").getAsBoolean());
         }
@@ -50,18 +47,6 @@ public class SettingsManager {
     }
 
     public void fillSettings(final List<SettingsElement> settings) {
-        final BooleanElement showOnlineScammerBtn = new BooleanElement("[SCAMMER] Radar Integration", new ControlElement.IconData(Material.COMPASS), value -> {
-            setShowOnlineScammer(value);
-            sc.getConfig().addProperty("showOnlineScammer", value);
-            sc.saveConfig();
-            if(value && !sc.isUpdatingList()) {
-                new Thread(() -> {
-                     sc.getHelper().updateLists();
-                }).start();
-            }
-        }, isShowOnlineScammer());
-        settings.add(showOnlineScammerBtn);
-
         final BooleanElement highlightInChatBtn = new BooleanElement("Im Chat markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
             setHighlightInChat(value);
             sc.getConfig().addProperty("highlightInChat", value);
@@ -110,13 +95,6 @@ public class SettingsManager {
             sc.saveConfig();
         });
         settings.add(scammerPrefixSetting);
-    }
-
-    public boolean isShowOnlineScammer() {
-        return showOnlineScammer;
-    }
-    public void setShowOnlineScammer(boolean showOnlineScammer) {
-        this.showOnlineScammer = showOnlineScammer;
     }
 
     public boolean isHighlightInChat() {

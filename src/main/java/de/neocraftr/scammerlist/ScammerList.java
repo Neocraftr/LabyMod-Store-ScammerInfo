@@ -2,17 +2,12 @@ package de.neocraftr.scammerlist;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import de.neocraftr.scammerlist.listener.*;
-import de.neocraftr.scammerlist.utils.Helper;
-import de.neocraftr.scammerlist.utils.PlayerList;
-import de.neocraftr.scammerlist.utils.SettingsManager;
-import de.neocraftr.scammerlist.utils.Updater;
+import de.neocraftr.scammerlist.utils.*;
 import net.labymod.addon.AddonLoader;
 import net.labymod.api.LabyModAddon;
 import net.labymod.settings.elements.SettingsElement;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,12 +28,10 @@ public class ScammerList extends LabyModAddon {
     private SettingsManager settings;
     private Helper helper;
     private Updater updater;
-    private File listDir, onlineListFile, privateListFile;
+    private ListManager listManager;
     private long nextUpdate = 0;
-    private PlayerList privateList = new PlayerList();
-    private PlayerList onlineList = new PlayerList();
     private List<String> nameChangedPlayers = new ArrayList<>();
-    private boolean addClan, removeClan, clanInProcess, updatingList, listsToConvert;
+    private boolean addClan, removeClan, clanInProcess, updatingList;
     private Set<ClientCommandEvent> commandListeners = new HashSet<>();
 
     @Override
@@ -48,6 +41,7 @@ public class ScammerList extends LabyModAddon {
         settings = new SettingsManager();
         helper = new Helper();
         updater = new Updater();
+        listManager = new ListManager();
 
         getApi().getEventManager().register(new ChatSendListener());
         getApi().getEventManager().register(new ChatReceiveListener());
@@ -61,6 +55,7 @@ public class ScammerList extends LabyModAddon {
         updater.setAddonJar(AddonLoader.getFiles().get(about.uuid));
 
         settings.loadSettings();
+        listManager.loadLists();
 
         if(getConfig().has("nameChangedPlayers")) {
             nameChangedPlayers = gson.fromJson(getConfig().get("nameChangedPlayers"), ArrayList.class);
@@ -69,74 +64,13 @@ public class ScammerList extends LabyModAddon {
             nextUpdate = getConfig().get("nextUpdate").getAsLong();
         }
 
-        listDir = new File(AddonLoader.getConfigDirectory(), "ScammerList");
-        if(!listDir.exists()) {
-            listDir.mkdirs();
-        }
-        privateListFile = new File(listDir, "PrivateList.json");
-        if(!privateListFile.exists()) {
-            try {
-                privateListFile.createNewFile();
-                savePrivateList();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        onlineListFile = new File(listDir, "OnlineList.json");
-        if(!onlineListFile.exists()) {
-            try {
-                onlineListFile.createNewFile();
-                if(settings.isShowOnlineScammer()) helper.downloadOnlineScammerList();
-                saveOnlineList();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            FileReader reader = new FileReader(privateListFile);
-            privateList = gson.fromJson(reader, new TypeToken<PlayerList>(){}.getType());
-            reader.close();
-
-            reader = new FileReader(onlineListFile);
-            onlineList = gson.fromJson(reader, new TypeToken<PlayerList>(){}.getType());
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         if(settings.isAutoUpdate()) {
             if(nextUpdate < System.currentTimeMillis()) {
                 new Thread(() -> {
-                    helper.updateLists();
+                    listManager.updateLists();
                     System.out.println("[ScammerList] Updated player names.");
                 }).start();
             }
-        }
-
-        // Convert old list format
-        if(getConfig().has("scammerListUUID")) {
-            setListsToConvert(true);
-        }
-    }
-
-    public void savePrivateList() {
-        try {
-            FileWriter writer = new FileWriter(privateListFile);
-            writer.write(gson.toJson(privateList));
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void saveOnlineList() {
-        try {
-            FileWriter writer = new FileWriter(onlineListFile);
-            writer.write(gson.toJson(onlineList));
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -173,18 +107,8 @@ public class ScammerList extends LabyModAddon {
         return updater;
     }
 
-    public PlayerList getPrivateList() {
-        return privateList;
-    }
-    public void setPrivateList(PlayerList privateList) {
-        this.privateList = privateList;
-    }
-
-    public PlayerList getOnlineList() {
-        return onlineList;
-    }
-    public void setOnlineList(PlayerList onlineList) {
-        this.onlineList = onlineList;
+    public ListManager getListManager() {
+        return listManager;
     }
 
     public List<String> getNameChangedPlayers() {
@@ -217,13 +141,6 @@ public class ScammerList extends LabyModAddon {
     }
     public void setUpdatingList(boolean updatingList) {
         this.updatingList = updatingList;
-    }
-
-    public boolean isListsToConvert() {
-        return listsToConvert;
-    }
-    public void setListsToConvert(boolean listsToConvert) {
-        this.listsToConvert = listsToConvert;
     }
 
     public long getNextUpdate() {
