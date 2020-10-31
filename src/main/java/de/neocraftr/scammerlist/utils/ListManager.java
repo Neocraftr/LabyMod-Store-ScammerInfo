@@ -69,6 +69,9 @@ public class ListManager {
             updateList(list);
         }
 
+        sc.getConfig().add("nameChangedPlayers", sc.getGson().toJsonTree(sc.getNameChangedPlayers()));
+        sc.saveConfig();
+
         sc.setUpdatingList(false);
     }
 

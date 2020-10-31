@@ -68,6 +68,9 @@ public class ScammerList extends LabyModAddon {
             if(nextUpdate < System.currentTimeMillis()) {
                 new Thread(() -> {
                     listManager.updateLists();
+                    nextUpdate = System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL;
+                    getConfig().addProperty("nextUpdate", nextUpdate);
+                    saveConfig();
                     System.out.println("[ScammerList] Updated player names.");
                 }).start();
             }
