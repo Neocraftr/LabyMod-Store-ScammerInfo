@@ -30,6 +30,8 @@ public class ListManager {
             listDir.mkdirs();
         }
 
+        convertOldLists();
+
         privateList = new PlayerList(true, "Privat", null);
         readList(privateList);
 
@@ -131,6 +133,27 @@ public class ListManager {
             System.err.println("[ScammerList] Error while loading list "+playerList.getName()+": "+e.getMessage());
         }
         return false;
+    }
+
+    public void convertOldLists() {
+        try {
+            File oldPrivateList = new File(listDir, "PrivateList.json");
+            if(oldPrivateList.isFile()) {
+                File newPrivateList = new File(listDir, "Privat-list.json");
+                if(!newPrivateList.isFile()) {
+                    FileUtils.copyFile(oldPrivateList, newPrivateList);
+                    System.out.println("[ScammerList] Converted list from old storage format.");
+                } else {
+                    System.out.println("[ScammerList] Could not convert list from old storage format: There is already a new list.");
+                }
+                FileUtils.moveFile(oldPrivateList, new File(listDir, "PrivateList.json.old"));
+            }
+
+            File oldOnlineList = new File(listDir, "OnlineList.json");
+            if(oldOnlineList.isFile()) oldOnlineList.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean checkName(String name) {
