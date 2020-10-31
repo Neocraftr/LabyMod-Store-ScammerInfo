@@ -47,7 +47,7 @@ public class ListManager {
                 if(name.equalsIgnoreCase("Privat")) continue;
 
                 PlayerList playerList = new PlayerList(enabled, name, url);
-                if(readList(playerList)) continue;
+                if(!readList(playerList)) continue;
                 lists.add(playerList);
             }
         }
@@ -57,6 +57,7 @@ public class ListManager {
 
     public void updateLists() {
         sc.setUpdatingList(true);
+        sc.getNameChangedPlayers().clear();
 
         downloadList(privateList);
         readList(privateList);
@@ -100,9 +101,7 @@ public class ListManager {
         for(File f : listDir.listFiles()) {
             if(f.isFile() && f.getName().endsWith("-list.json")) {
                 String listName = f.getName().replace("-list.json", "");
-                System.out.print(listName);
                 if(listName.equals("Privat") || listExists(listName)) continue;
-                System.out.println(" deleted");
                 f.delete();
             }
         }
@@ -149,7 +148,7 @@ public class ListManager {
         return false;
     }
 
-    public List<String> getContainungLists(String uuid) {
+    public List<String> getContainingLists(String uuid) {
         List<String> containungLists = new ArrayList<>();
         if(privateList.containsUUID(uuid)) containungLists.add("Privat");
         for(PlayerList list : lists) {

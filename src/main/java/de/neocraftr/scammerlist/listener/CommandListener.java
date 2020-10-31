@@ -152,7 +152,7 @@ public class CommandListener implements ClientCommandEvent {
                                 joiner.add("§cName: §e"+nameHistory.get(0)+" ["+nameHistory.get(1)+"]");
                             }
                             joiner.add("§cUUID: §e"+(uuid.equals(nameHistory.get(0)) ? "Nicht verfügbar" : uuid));
-                            List<String> containingLists = sc.getListManager().getContainungLists(uuid);
+                            List<String> containingLists = sc.getListManager().getContainingLists(uuid);
                             joiner.add("§cListe: §e"+formatList(containingLists));
                             if(containingLists.contains("Privat")) {
                                 Scammer s = sc.getListManager().getPrivateList().getByUUID(uuid);
