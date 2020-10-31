@@ -247,61 +247,59 @@ public class CommandListener implements ClientCommandEvent {
         } else
 
         // Update lists
-        {
-            if (args[0].equalsIgnoreCase("update")) {
-                if(!sc.isUpdatingList()) {
-                    sc.displayMessage(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
-                    new Thread(() -> {
-                        sc.getListManager().updateLists();
-                        sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
-                        sc.getConfig().addProperty("nextUpdate", sc.getNextUpdate());
-                        sc.saveConfig();
-                        sc.displayMessage(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
-                    }).start();
+        if (args[0].equalsIgnoreCase("update")) {
+            if(!sc.isUpdatingList()) {
+                sc.displayMessage(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
+                new Thread(() -> {
+                    sc.getListManager().updateLists();
+                    sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
+                    sc.getConfig().addProperty("nextUpdate", sc.getNextUpdate());
+                    sc.saveConfig();
+                    sc.displayMessage(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
+                }).start();
+            } else {
+                sc.displayMessage(ScammerList.PREFIX + "§cDie Scammerliste wird bereits aktualisiert. Bite warten!");
+            }
+        } else
+
+        // Clear scammer list
+        if (args[0].equalsIgnoreCase("clear")) {
+            if (args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
+                if (confirmClear) {
+                    confirmClear = false;
+                    sc.getListManager().getPrivateList().clear();
+                    sc.getListManager().savePrivateList();
+                    sc.displayMessage(ScammerList.PREFIX + "§aAlle Einträge deiner Scammerliste wurden gelöscht.");
                 } else {
-                    sc.displayMessage(ScammerList.PREFIX + "§cDie Scammerliste wird bereits aktualisiert. Bite warten!");
+                    sc.displayMessage(ScammerList.PREFIX + "§cBitte gib zuerst §e" + ScammerList.COMMAND_PREFIX + cmd + " clear §cein.");
                 }
-            } else
-
-            // Clear scammer list
-            if (args[0].equalsIgnoreCase("clear")) {
-                if (args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
-                    if (confirmClear) {
-                        confirmClear = false;
-                        sc.getListManager().getPrivateList().clear();
-                        sc.getListManager().savePrivateList();
-                        sc.displayMessage(ScammerList.PREFIX + "§aAlle Einträge deiner Scammerliste wurden gelöscht.");
-                    } else {
-                        sc.displayMessage(ScammerList.PREFIX + "§cBitte gib zuerst §e" + ScammerList.COMMAND_PREFIX + cmd + " clear §cein.");
-                    }
+            } else {
+                if (!confirmClear) {
+                    confirmClear = true;
+                    sc.displayMessage(ScammerList.PREFIX + "§c§lAchtung: §cUm alle Einträge deiner Scammerliste zu löschen bestätige dies in den nächsten 15 Sekunden mit §e"
+                            + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            confirmClear = false;
+                        }
+                    }, 15000);
                 } else {
-                    if (!confirmClear) {
-                        confirmClear = true;
-                        sc.displayMessage(ScammerList.PREFIX + "§c§lAchtung: §cUm alle Einträge deiner Scammerliste zu löschen bestätige dies in den nächsten 15 Sekunden mit §e"
-                                + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
-                        new Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                confirmClear = false;
-                            }
-                        }, 15000);
-                    } else {
-                        sc.displayMessage(ScammerList.PREFIX + "§cBitte bestätige das Löschen aller Einträge mit §e"
-                                + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
-                    }
+                    sc.displayMessage(ScammerList.PREFIX + "§cBitte bestätige das Löschen aller Einträge mit §e"
+                            + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
                 }
-            } else
+            }
+        } else
 
-            // Version
-            if(args[0].equalsIgnoreCase("version")) {
-                sc.displayMessage(ScammerList.PREFIX+"§aInstallierte Version: §ev"+ScammerList.VERSION);
+        // Version
+        if(args[0].equalsIgnoreCase("version")) {
+            sc.displayMessage(ScammerList.PREFIX+"§aInstallierte Version: §ev"+ScammerList.VERSION);
 
-                String latestVersion = sc.getUpdater().getLatestVersion();
-                if(latestVersion != null) {
-                    sc.displayMessage(ScammerList.PREFIX+"§aNeuste Version: §ev"+latestVersion);
-                }
-            } else printHelp();
-        }
+            String latestVersion = sc.getUpdater().getLatestVersion();
+            if(latestVersion != null) {
+                sc.displayMessage(ScammerList.PREFIX+"§aNeuste Version: §ev"+latestVersion);
+            }
+        } else printHelp();
 
         return true;
     }
