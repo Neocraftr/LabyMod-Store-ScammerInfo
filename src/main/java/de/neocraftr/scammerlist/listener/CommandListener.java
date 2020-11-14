@@ -144,6 +144,7 @@ public class CommandListener implements ClientCommandEvent {
                         List<String> nameHistory = sc.getHelper().getNamesFromUUID(uuid);
                         if(sc.getListManager().checkUUID(uuid)) {
                             StringJoiner joiner = new StringJoiner("\n");
+
                             joiner.add(ScammerList.PREFIX_LINE);
                             joiner.add("§cDer Spieler befindet sich auf der Scammerliste.");
                             if(nameHistory.size() ==  1) {
@@ -152,14 +153,16 @@ public class CommandListener implements ClientCommandEvent {
                                 joiner.add("§cName: §e"+nameHistory.get(0)+" ["+nameHistory.get(1)+"]");
                             }
                             joiner.add("§cUUID: §e"+(uuid.equals(nameHistory.get(0)) ? "Nicht verfügbar" : uuid));
+
                             List<String> containingLists = sc.getListManager().getContainingLists(uuid);
                             joiner.add("§cListe: §e"+formatList(containingLists));
                             if(containingLists.contains("Privat")) {
                                 Scammer s = sc.getListManager().getPrivateList().getByUUID(uuid);
-                                joiner.add("§cHinzugefügt am: §e"
-                                        +(s.getDate() == 0 ? "Nicht verfügbar" : new SimpleDateFormat("dd:MM:yyyy HH:mm").format(new Date(s.getDate()))));
+                                if(s.getDate() != 0) joiner.add("§cHinzugefügt am: §e"+new SimpleDateFormat("dd:MM:yyyy HH:mm").format(new Date(s.getDate())));
+                                if(s.getOriginalName() != null) joiner.add("§cUrsprünglicher Name: §e"+s.getOriginalName());
                                 if(s.getDescription() != null) joiner.add("§cBeschreibung: §e"+s.getDescription());
                             }
+
                             joiner.add(ScammerList.PREFIX_LINE);
                             sc.displayMessage(joiner.toString());
                         } else {

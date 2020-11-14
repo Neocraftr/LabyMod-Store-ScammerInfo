@@ -5,11 +5,13 @@ public class Scammer {
     private String uuid;
     private String name;
     private String description;
+    private String originalName;
     private final long date;
 
     public Scammer(String uuid, String name, String description) {
         this.uuid = uuid;
         this.name = name;
+        this.originalName = name;
         this.description = description;
         this.date = System.currentTimeMillis();
     }
@@ -17,6 +19,7 @@ public class Scammer {
     public Scammer(String uuid, String name) {
         this.uuid = uuid;
         this.name = name;
+        this.originalName = name;
         this.date = System.currentTimeMillis();
     }
 
@@ -44,6 +47,13 @@ public class Scammer {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getOriginalName() {
+        return originalName;
+    }
+    public void setOriginalName(String originalName) {
+        this.originalName = originalName;
     }
 
     public long getDate() {
