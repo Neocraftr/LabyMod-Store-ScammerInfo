@@ -5,10 +5,12 @@ Scammerliste für GrieferGames und ähnliche Server.
 ### Funktionen
 - Speicherung der UUID von Spielern (Scammer beliben auch nach Nemansänderung auf der Liste)
 - Automatische Aktualisierung der Spielernamen
-- Markierung von Scammern im Chat, in Clans und per MSg
+- Markierung von Scammern im Chat, in Clans und per MSG
 - Befehl zum hinzufügen / entfernen ganzer Clans
 - Befehl um Namensänderungen seit der letzten Aktualisierung aufzulisten.
-- Integration der öffentlichen Scammerliste des [\[SCAMMER\] Radar](https://scammer-radar.de/) Projekts
+- Möglichkeit eigene\* oder öffentliche Listen hinzuzufügen und zu verwalten z.B. die des [\[SCAMMER\] Radar](https://scammer-radar.de/) Projekt
+
+\* Auch Dateipfade können in der URL Zeile angegeben werden. Bsp: _file://C:\Pfad\zu\meiner\Liste.json_
 
 ### Verfügbare Befehle:
 - **.scammer add \<Name\>** - Fügt einen Spieler zur Scammerliste hinzu.
@@ -29,9 +31,9 @@ Folgende Funktionen sind ausschließlich auf GrieferGames (oder Servern mit glei
 - Hinzufügen und Entfernen von Clans
 
 ### Installation
-Download: https://github.com/Neocraftr/LabyMod-Scammerliste/releases
+Download: https://github.com/Neocraftr/LabyMod-Scammerliste/releases/latest
 
-Verschiebe die Datei in den Addons Ordner von LabyMod:
+Verschiebe die ScammerList.jar in den Addons Ordner von LabyMod:
 |Betriebssystem |Dateipfad                                                 |
 |---------------|----------------------------------------------------------|
 |Windows        |%APPDATA%\\.minecraft\\LabyMod\\addons-1.8                |
