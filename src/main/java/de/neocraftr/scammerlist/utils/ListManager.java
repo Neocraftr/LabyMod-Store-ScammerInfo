@@ -35,6 +35,7 @@ public class ListManager {
             saveListSettings();
         }
 
+        lists.clear();
         for(JsonElement element : sc.getConfig().get("lists").getAsJsonArray()) {
             JsonObject list = element.getAsJsonObject();
             if(list.has("enabled") && list.has("name") && list.has("url")) {
