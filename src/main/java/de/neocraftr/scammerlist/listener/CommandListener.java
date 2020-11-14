@@ -46,7 +46,7 @@ public class CommandListener implements ClientCommandEvent {
                             } else {
                                 sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + names.get(0) + " §awurde zu deiner Scammerliste hinzugefügt.");
                             }
-                            sc.getListManager().savePrivateList();
+                            sc.getListManager().getPrivateList().save();
                         } else {
                             sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + names.get(0) + " §cbefindet sich bereits auf deiner Scammerliste.");
                         }
@@ -95,7 +95,7 @@ public class CommandListener implements ClientCommandEvent {
                         String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
                         if (sc.getListManager().getPrivateList().removeByUUID(uuid)) {
                             sc.displayMessage(ScammerList.PREFIX + "§aDer Spieler §e" + name + " §awurde von deiner Scammerliste entfernt.");
-                            sc.getListManager().savePrivateList();
+                            sc.getListManager().getPrivateList().save();
                         } else {
                             sc.displayMessage(ScammerList.PREFIX + "§cDer Spieler §e" + name + " §cbefindet sich nicht auf deiner Scammerliste.");
                         }
@@ -233,7 +233,7 @@ public class CommandListener implements ClientCommandEvent {
 
         // List name changes
         if (args[0].equalsIgnoreCase("namechanges")) {
-            String lastUpdate = new SimpleDateFormat("dd:MM:yyyy").format(new Date(sc.getNextUpdate() - ScammerList.UPDATE_INTERVAL));
+            String lastUpdate = new SimpleDateFormat("dd.MM.yyyy").format(new Date(sc.getNextUpdate() - ScammerList.UPDATE_INTERVAL));
             if (!sc.getNameChangedPlayers().isEmpty()) {
                 StringJoiner joiner = new StringJoiner("\n");
                 joiner.add(ScammerList.PREFIX_LINE);
@@ -271,7 +271,7 @@ public class CommandListener implements ClientCommandEvent {
                 if (confirmClear) {
                     confirmClear = false;
                     sc.getListManager().getPrivateList().clear();
-                    sc.getListManager().savePrivateList();
+                    sc.getListManager().getPrivateList().save();
                     sc.displayMessage(ScammerList.PREFIX + "§aAlle Einträge deiner Scammerliste wurden gelöscht.");
                 } else {
                     sc.displayMessage(ScammerList.PREFIX + "§cBitte gib zuerst §e" + ScammerList.COMMAND_PREFIX + cmd + " clear §cein.");

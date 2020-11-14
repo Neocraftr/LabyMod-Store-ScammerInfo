@@ -117,10 +117,10 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
                 sc.getListManager().saveListSettings();
 
                 sc.setUpdatingList(true);
-                sc.getListManager().downloadList(list);
-                sc.getListManager().readList(list);
+                list.download();
+                list.load();
                 new Thread(() -> {
-                    sc.getListManager().updateList(list);
+                    list.update();
                     sc.setUpdatingList(false);
                 }).start();
 

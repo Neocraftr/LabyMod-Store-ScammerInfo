@@ -1,16 +1,12 @@
 package de.neocraftr.scammerlist.utils;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.addon.AddonLoader;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +15,6 @@ public class ListManager {
     private PlayerList privateList;
     private File listDir;
 
-    private Gson gson = new Gson();
     private ScammerList sc = ScammerList.getScammerList();
 
     public void loadLists() {
@@ -33,7 +28,7 @@ public class ListManager {
         convertOldLists();
 
         privateList = new PlayerList(true, "Privat", null);
-        readList(privateList);
+        privateList.load();
 
         if(!sc.getConfig().has("lists")) {
             lists.add(new PlayerList(true, "[SCAMMER] Radar", "https://coolertyp.scammer-radar.de/onlineScammer.json"));
@@ -49,7 +44,7 @@ public class ListManager {
                 if(name.equalsIgnoreCase("Privat")) continue;
 
                 PlayerList playerList = new PlayerList(enabled, name, url);
-                if(!readList(playerList)) continue;
+                if(!playerList.load()) continue;
                 lists.add(playerList);
             }
         }
@@ -61,45 +56,20 @@ public class ListManager {
         sc.setUpdatingList(true);
         sc.getNameChangedPlayers().clear();
 
-        downloadList(privateList);
-        readList(privateList);
-        updateList(privateList);
+        privateList.download();
+        privateList.load();
+        privateList.update();
 
         for(PlayerList list : lists) {
-            downloadList(list);
-            readList(list);
-            updateList(list);
+            list.download();
+            list.load();
+            list.update();
         }
 
         sc.getConfig().add("nameChangedPlayers", sc.getGson().toJsonTree(sc.getNameChangedPlayers()));
         sc.saveConfig();
 
         sc.setUpdatingList(false);
-    }
-
-    public void updateList(PlayerList playerList) {
-        if(!playerList.isEnabled()) return;
-        for(Scammer scammer : playerList) {
-            List<String> names = sc.getHelper().getNamesFromUUID(scammer.getUUID());
-            if(names.size() == 0) return;
-            if(!scammer.getName().equals(names.get(0))) {
-                sc.getHelper().addNameChange(names);
-            }
-            scammer.setName(names.get(0));
-        }
-        saveList(playerList);
-    }
-
-    public boolean downloadList(PlayerList playerList) {
-        if(!playerList.isEnabled()) return true;
-        if(playerList.getUrl() == null) return false;
-        try {
-            FileUtils.copyURLToFile(new URL(playerList.getUrl()), new File(listDir, playerList.getName()+"-list.json"));
-            return true;
-        } catch (IOException e) {
-            System.err.println("[ScammerList] Error while downloading list "+playerList.getName()+": "+e.getMessage());
-        }
-        return false;
     }
 
     private void cleanListDir() {
@@ -110,29 +80,6 @@ public class ListManager {
                 f.delete();
             }
         }
-    }
-
-    public boolean readList(PlayerList playerList) {
-        try {
-            File listFile = new File(listDir, playerList.getName()+"-list.json");
-            if(!listFile.isFile()) {
-                if(playerList.getName().equals("Privat")) {
-                    saveList(playerList);
-                } else if(!downloadList(playerList)) {
-                    return false;
-                }
-            }
-            FileReader reader = new FileReader(listFile);
-            List<Scammer> list = gson.fromJson(reader, new TypeToken<List<Scammer>>(){}.getType());
-            reader.close();
-
-            playerList.clear();
-            playerList.addAll(list);
-            return true;
-        } catch (IOException | JsonSyntaxException e) {
-            System.err.println("[ScammerList] Error while loading list "+playerList.getName()+": "+e.getMessage());
-        }
-        return false;
     }
 
     public void convertOldLists() {
@@ -184,20 +131,6 @@ public class ListManager {
         return containungLists;
     }
 
-    public void savePrivateList() {
-        saveList(privateList);
-    }
-
-    private void saveList(PlayerList playerList) {
-        try {
-            FileWriter writer = new FileWriter(new File(listDir, playerList.getName()+"-list.json"));
-            writer.write(gson.toJson(playerList));
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void saveListSettings() {
         JsonArray savedLists = new JsonArray();
         for(PlayerList list : lists) {
@@ -224,5 +157,9 @@ public class ListManager {
 
     public PlayerList getPrivateList() {
         return privateList;
+    }
+
+    public File getListDir() {
+        return listDir;
     }
 }

@@ -54,7 +54,7 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             }
                         });
 
-                        sc.getListManager().savePrivateList();
+                        sc.getListManager().getPrivateList().save();
                         if(addClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §azur Scammerliste hinzugefügt.");
                         if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §avon der Scammerliste entfernt.");
 
