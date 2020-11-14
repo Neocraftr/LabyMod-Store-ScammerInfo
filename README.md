@@ -2,6 +2,8 @@
 
 Scammerliste für GrieferGames und ähnliche Server.
 
+Spielversion: **LabyMod 1.8.9 Vanilla/Forge**
+
 ### Funktionen
 - Speicherung der UUID von Spielern (Scammer beliben auch nach Nemansänderung auf der Liste)
 - Automatische Aktualisierung der Spielernamen
