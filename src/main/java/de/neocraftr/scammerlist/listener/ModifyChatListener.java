@@ -75,7 +75,7 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     private void checkAndModify(IChatComponent msg, int after, String playerName) {
         if(!sc.getListManager().checkName(playerName)) return;
         IChatComponent scammerPrefix = new ChatComponentText(sc.getHelper().colorize(sc.getSettings().getScammerPrefix())+" §r");
-        scammerPrefix.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer §8§l(§b§lOnline§8§l)")));
+        scammerPrefix.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer")));
         msg.getSiblings().add(after, scammerPrefix);
     }
 }
