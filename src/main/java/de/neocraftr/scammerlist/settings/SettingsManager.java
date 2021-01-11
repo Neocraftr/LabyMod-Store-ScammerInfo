@@ -98,6 +98,9 @@ public class SettingsManager {
         final ArraySettingsElement messagesSetting = new ArraySettingsElement("Listen verwalten",
                 new ControlElement.IconData(Material.BOOK_AND_QUILL), sc.getListManager().getLists());
         settings.add(messagesSetting);
+
+        settings.add(new TextElement("§7Übersicht aller ingame Befehle: §e.scammer help\n\n§7Installierte Version: §b"+ScammerList.VERSION
+            +"\n§7Neuste Version: §b"+sc.getUpdater().getLatestVersion()));
     }
 
     public boolean isHighlightInChat() {
