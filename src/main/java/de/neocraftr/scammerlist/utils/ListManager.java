@@ -3,10 +3,8 @@ package de.neocraftr.scammerlist.utils;
 import com.google.gson.*;
 import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.addon.AddonLoader;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +23,10 @@ public class ListManager {
             listDir.mkdirs();
         }
 
-        convertOldLists();
-
-        privateList = new PlayerList(true, "Privat", null);
+        privateList = new PlayerList(true, "Private Liste", null);
+        privateList.getMeta().setId("private");
         privateList.load();
+
 
         if(!sc.getConfig().has("lists")) {
             lists.add(new PlayerList(true, "[SCAMMER] Radar", "https://coolertyp.scammer-radar.de/onlineScammer.json"));
@@ -38,19 +36,13 @@ public class ListManager {
         lists.clear();
         for(JsonElement element : sc.getConfig().get("lists").getAsJsonArray()) {
             JsonObject list = element.getAsJsonObject();
-            if(list.has("enabled") && list.has("name") && list.has("url")) {
-                boolean enabled = list.get("enabled").getAsBoolean();
-                String name = list.get("name").getAsString();
-                String url = list.get("url").getAsString();
-                if(name.equalsIgnoreCase("Privat")) continue;
+            PlayerList playerList = new PlayerList(sc.getGson().fromJson(list, PlayerList.Meta.class));
 
-                PlayerList playerList = new PlayerList(enabled, name, url);
-                if(!playerList.load()) continue;
-                lists.add(playerList);
-            }
+            playerList.load();
+            lists.add(playerList);
         }
 
-        cleanListDir();
+        saveListSettings();
     }
 
     public void updateLists() {
@@ -73,41 +65,10 @@ public class ListManager {
         sc.setUpdatingList(false);
     }
 
-    private void cleanListDir() {
-        for(File f : listDir.listFiles()) {
-            if(f.isFile() && f.getName().endsWith("-list.json")) {
-                String listName = f.getName().replace("-list.json", "");
-                if(listName.equals("Privat") || listExists(listName)) continue;
-                f.delete();
-            }
-        }
-    }
-
-    public void convertOldLists() {
-        try {
-            File oldPrivateList = new File(listDir, "PrivateList.json");
-            if(oldPrivateList.isFile()) {
-                File newPrivateList = new File(listDir, "Privat-list.json");
-                if(!newPrivateList.isFile()) {
-                    FileUtils.copyFile(oldPrivateList, newPrivateList);
-                    System.out.println("[ScammerList] Converted list from old storage format.");
-                } else {
-                    System.out.println("[ScammerList] Could not convert list from old storage format: There is already a new list.");
-                }
-                FileUtils.moveFile(oldPrivateList, new File(listDir, "PrivateList.json.old"));
-            }
-
-            File oldOnlineList = new File(listDir, "OnlineList.json");
-            if(oldOnlineList.isFile()) oldOnlineList.delete();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public boolean checkName(String name) {
         if(privateList.containsName(name)) return true;
         for(PlayerList list : lists) {
-            if(!list.isEnabled()) continue;
+            if(!list.getMeta().isEnabled()) continue;
             if(list.containsName(name)) return true;
         }
         return false;
@@ -116,7 +77,7 @@ public class ListManager {
     public boolean checkUUID(String uuid) {
         if(privateList.containsUUID(uuid)) return true;
         for(PlayerList list : lists) {
-            if(!list.isEnabled()) continue;
+            if(!list.getMeta().isEnabled()) continue;
             if(list.containsUUID(uuid)) return true;
         }
         return false;
@@ -126,8 +87,8 @@ public class ListManager {
         List<String> containungLists = new ArrayList<>();
         if(privateList.containsUUID(uuid)) containungLists.add("Privat");
         for(PlayerList list : lists) {
-            if(!list.isEnabled()) continue;
-            if(list.containsUUID(uuid)) containungLists.add(list.getName());
+            if(!list.getMeta().isEnabled()) continue;
+            if(list.containsUUID(uuid)) containungLists.add(list.getMeta().getName());
         }
         return containungLists;
     }
@@ -135,21 +96,21 @@ public class ListManager {
     public void saveListSettings() {
         JsonArray savedLists = new JsonArray();
         for(PlayerList list : lists) {
-            JsonObject savedList = new JsonObject();
-            savedList.addProperty("name", list.getName());
-            savedList.addProperty("enabled", list.isEnabled());
-            savedList.addProperty("url", list.getUrl());
-            savedLists.add(savedList);
+            savedLists.add(sc.getGson().toJsonTree(list.getMeta(), PlayerList.Meta.class));
         }
         sc.getConfig().add("lists", savedLists);
         sc.saveConfig();
     }
 
-    public boolean listExists(String name) {
-        for(PlayerList list : lists) {
-            if(list.getName().equals(name)) return true;
-        }
-        return false;
+    public PlayerList createList(boolean enabled, String name, String url) {
+        PlayerList list = new PlayerList(enabled, name, url);
+        lists.add(list);
+        return list;
+    }
+
+    public void deleteList(PlayerList list) {
+        list.deleteListFile();
+        lists.remove(list);
     }
 
     public List<PlayerList> getLists() {

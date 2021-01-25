@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class ArraySettingsElementGui extends GuiScreen {
+    private ScammerList sc = ScammerList.getScammerList();
+
     private Scrollbar scrollbar = new Scrollbar(29);
     private GuiScreen lastScreen;
     private boolean addElementScreen = false;
@@ -24,11 +26,9 @@ public class ArraySettingsElementGui extends GuiScreen {
     private GuiButton buttonEdit;
     private GuiButton buttonRemove;
     private String title;
-    public List<PlayerList> elements;
     public int selectedIndex = -1;
 
-    public ArraySettingsElementGui(GuiScreen lastScreen, String title, List<PlayerList> elements) {
-        this.elements = elements;
+    public ArraySettingsElementGui(GuiScreen lastScreen, String title) {
         this.title = title;
         this.lastScreen = lastScreen;
     }
@@ -63,13 +63,13 @@ public class ArraySettingsElementGui extends GuiScreen {
                 @Override
                 public void confirmClicked(boolean result, int id) {
                     if (result) {
-                        elements.remove(selectedIndex);
-                        ScammerList.getScammerList().getListManager().saveListSettings();
+                        sc.getListManager().deleteList(sc.getListManager().getLists().get(selectedIndex));
+                        sc.getListManager().saveListSettings();
                     }
                     Minecraft.getMinecraft().displayGuiScreen(lastScreen);
                     selectedIndex = -1;
                 }
-            }, "Soll diese Liste wirklich gelöscht werden?", elements.get(this.selectedIndex).getName(),
+            }, "Soll diese Liste wirklich gelöscht werden?", sc.getListManager().getLists().get(this.selectedIndex).getMeta().getName(),
                     1));
             break;
         case 2:
@@ -90,9 +90,9 @@ public class ArraySettingsElementGui extends GuiScreen {
             return;
         this.hoveredIndex = -1;
         double entryHeights = 0;
-        for (int i = 0; i < elements.size(); i++) {
-            PlayerList list = elements.get(i);
-            String element = list.getName() + (list.isEnabled() ? " §7(§2Aktiviert§7)" : " §7(§4Deaktiviert§7)");
+        for (int i = 0; i < sc.getListManager().getLists().size(); i++) {
+            PlayerList list = sc.getListManager().getLists().get(i);
+            String element = list.getMeta().getName() + (list.getMeta().isEnabled() ? " §7(§2Aktiviert§7)" : " §7(§4Deaktiviert§7)");
             entryHeights += drawEntry(i, element, (entryHeights + 45.0D + this.scrollbar.getScrollY() + 3.0D), mouseX, mouseY);
         }
         LabyMod.getInstance().getDrawUtils().drawOverlayBackground(0, 41);
@@ -100,8 +100,8 @@ public class ArraySettingsElementGui extends GuiScreen {
         LabyMod.getInstance().getDrawUtils().drawGradientShadowTop(41.0D, 0.0D, this.width);
         LabyMod.getInstance().getDrawUtils().drawGradientShadowBottom((this.height - 32), 0.0D, this.width);
         LabyMod.getInstance().getDrawUtils().drawCenteredString(title, (this.width / 2), 25.0D);
-        this.scrollbar.setEntryHeight(entryHeights / elements.size());
-        this.scrollbar.update(elements.size());
+        this.scrollbar.setEntryHeight(entryHeights / sc.getListManager().getLists().size());
+        this.scrollbar.update(sc.getListManager().getLists().size());
         this.scrollbar.draw();
         this.buttonEdit.enabled = (this.selectedIndex != -1);
         this.buttonRemove.enabled = (this.selectedIndex != -1);

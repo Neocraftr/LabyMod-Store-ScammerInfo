@@ -12,20 +12,29 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PlayerList extends ArrayList<Scammer> {
 
     private static ScammerList sc = ScammerList.getScammerList();
-
-    private boolean enabled;
-    private String name;
-    private String url;
+    private Meta meta = new Meta();
 
     public PlayerList(boolean enabled, String name, String url) {
-        this.enabled = enabled;
-        this.name = name;
-        this.url = url;
+        meta.setId(UUID.randomUUID().toString());
+        meta.setEnabled(enabled);
+        meta.setName(name);
+        meta.setUrl(url);
     }
+
+    public PlayerList(Meta meta) {
+        if(meta.getId() == null) meta.setId(UUID.randomUUID().toString());
+        this.meta = meta;
+    }
+
+    public PlayerList() {
+        meta.setId(UUID.randomUUID().toString());
+    }
+
 
     public boolean containsUUID(String uuid) {
         for(Scammer scammer : this) {
@@ -64,19 +73,19 @@ public class PlayerList extends ArrayList<Scammer> {
     }
 
     public boolean download() {
-        if(!enabled) return true;
-        if(url == null) return false;
+        if(!meta.isEnabled()) return true;
+        if(meta.getUrl() == null) return false;
         try {
-            FileUtils.copyURLToFile(new URL(url), new File(sc.getListManager().getListDir(), name+"-list.json"));
+            FileUtils.copyURLToFile(new URL(meta.getUrl()), new File(sc.getListManager().getListDir(), meta.getId()+".json"));
             return true;
         } catch (IOException e) {
-            System.err.println("[ScammerList] Error while downloading list "+name+": "+e.getMessage());
+            System.err.println("[ScammerList] Error while downloading list "+meta.getName()+": "+e.getMessage());
         }
         return false;
     }
 
     public void update() {
-        if(!enabled) return;
+        if(!meta.isEnabled()) return;
         for(Scammer scammer : this) {
             List<String> names = sc.getHelper().getNamesFromUUID(scammer.getUUID());
             if(names.size() == 0) return;
@@ -90,7 +99,7 @@ public class PlayerList extends ArrayList<Scammer> {
 
     public void save() {
         try {
-            FileWriter writer = new FileWriter(new File(sc.getListManager().getListDir(), name+"-list.json"));
+            FileWriter writer = new FileWriter(new File(sc.getListManager().getListDir(), meta.getId()+".json"));
             writer.write(sc.getGson().toJson(this, new TypeToken<List<Scammer>>(){}.getType()));
             writer.close();
         } catch (IOException e) {
@@ -99,10 +108,11 @@ public class PlayerList extends ArrayList<Scammer> {
     }
 
     public boolean load() {
+        if(!meta.isEnabled()) return true;
         try {
-            File listFile = new File(sc.getListManager().getListDir(), name+"-list.json");
+            File listFile = new File(sc.getListManager().getListDir(), meta.getId()+".json");
             if(!listFile.isFile()) {
-                if(name.equals("Privat")) {
+                if(meta.getUrl() == null) {
                     save();
                 } else if(!download()) {
                     return false;
@@ -116,38 +126,71 @@ public class PlayerList extends ArrayList<Scammer> {
             this.addAll(list);
             return true;
         } catch (IOException | JsonSyntaxException e) {
-            System.err.println("[ScammerList] Error while loading list "+name+": "+e.getMessage());
+            System.err.println("[ScammerList] Error while loading list "+meta.getName()+": "+e.getMessage());
         }
         return false;
     }
 
-    @Override
-    public String toString() {
-        return "PlayerList{" +
-                "enabled=" + enabled +
+    public void deleteListFile() {
+        File listFile = new File(sc.getListManager().getListDir(), meta.getId()+".json");
+        if(listFile.isFile()) listFile.delete();
+    }
+
+    public Meta getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Meta meta) {
+        if(meta.getId() == null) meta.setId(UUID.randomUUID().toString());
+        this.meta = meta;
+    }
+
+    public class Meta {
+        private String id;
+        private boolean enabled;
+        private String name;
+        private String url;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public String toString() {
+            return "PlayerListMeta{" +
+                "id='" + id + '\'' +
+                ", enabled=" + enabled +
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
                 '}';
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-    public void setUrl(String url) {
-        this.url = url;
+        }
     }
 }

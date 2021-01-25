@@ -58,10 +58,10 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
         this.lastUrlCheck = -1;
 
         if (this.editIndex != -1) {
-            PlayerList list = this.lastScreen.elements.get(editIndex);
-            this.nameField.setText(list.getName());
-            this.urlField.setText(list.getUrl());
-            this.enableCheckBox.setCurrentValue(list.isEnabled() ? CheckBox.EnumCheckBoxValue.ENABLED : CheckBox.EnumCheckBoxValue.DISABLED);
+            PlayerList list = sc.getListManager().getLists().get(editIndex);
+            this.nameField.setText(list.getMeta().getName());
+            this.urlField.setText(list.getMeta().getUrl());
+            this.enableCheckBox.setCurrentValue(list.getMeta().isEnabled() ? CheckBox.EnumCheckBoxValue.ENABLED : CheckBox.EnumCheckBoxValue.DISABLED);
             this.lastUrlCheck = 0;
         }
     }
@@ -102,27 +102,18 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
         super.actionPerformed(button);
         switch (button.id) {
             case 0:
-                PlayerList list;
                 if (this.editIndex != -1) {
-                    list = lastScreen.elements.get(editIndex);
-                    list.setEnabled(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED);
-                    list.setName(this.nameField.getText());
-                    list.setUrl(this.urlField.getText());
+                    PlayerList list = sc.getListManager().getLists().get(editIndex);
+                    list.getMeta().setEnabled(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED);
+                    list.getMeta().setName(this.nameField.getText());
+                    list.getMeta().setUrl(this.urlField.getText());
                 } else {
-                    list = new PlayerList(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED,
+                    sc.getListManager().createList(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED,
                             this.nameField.getText(), this.urlField.getText());
-                    lastScreen.elements.add(list);
                 }
                 lastScreen.selectedIndex = -1;
                 sc.getListManager().saveListSettings();
-
-                sc.setUpdatingList(true);
-                list.download();
-                list.load();
-                new Thread(() -> {
-                    list.update();
-                    sc.setUpdatingList(false);
-                }).start();
+                // TODO: update List
 
                 Minecraft.getMinecraft().displayGuiScreen(this.lastScreen);
                 break;

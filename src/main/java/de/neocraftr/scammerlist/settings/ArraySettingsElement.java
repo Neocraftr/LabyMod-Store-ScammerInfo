@@ -1,6 +1,5 @@
 package de.neocraftr.scammerlist.settings;
 
-import de.neocraftr.scammerlist.utils.PlayerList;
 import net.labymod.main.LabyMod;
 import net.labymod.settings.elements.ControlElement.IconData;
 import net.labymod.settings.elements.SettingsElement;
@@ -16,15 +15,13 @@ public class ArraySettingsElement extends SettingsElement {
 
     protected IconData iconData;
     private boolean selected;
-    private List<PlayerList> elements;
     private boolean hoverable;
     private int lastMaxX;
     private boolean blocked = false;
 
-    public ArraySettingsElement(String displayName, IconData iconData, List<PlayerList> elements) {
+    public ArraySettingsElement(String displayName, IconData iconData) {
         super(displayName, null);
         this.iconData = iconData;
-        this.elements = elements;
     }
 
     public IconData getIconData() {
@@ -93,7 +90,7 @@ public class ArraySettingsElement extends SettingsElement {
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         Minecraft.getMinecraft().displayGuiScreen(new ArraySettingsElementGui(Minecraft.getMinecraft().currentScreen,
-                this.getDisplayName(), elements));
+                this.getDisplayName()));
     }
 
     @Override
