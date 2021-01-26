@@ -18,6 +18,7 @@ public class PlayerList extends ArrayList<Scammer> {
 
     private static ScammerList sc = ScammerList.getScammerList();
     private Meta meta = new Meta();
+    private Thread updateThread;
 
     public PlayerList(boolean enabled, String name, String url) {
         meta.setId(UUID.randomUUID().toString());
@@ -30,11 +31,6 @@ public class PlayerList extends ArrayList<Scammer> {
         if(meta.getId() == null) meta.setId(UUID.randomUUID().toString());
         this.meta = meta;
     }
-
-    public PlayerList() {
-        meta.setId(UUID.randomUUID().toString());
-    }
-
 
     public boolean containsUUID(String uuid) {
         for(Scammer scammer : this) {
@@ -72,7 +68,7 @@ public class PlayerList extends ArrayList<Scammer> {
         return removeIf(scammer -> scammer.getName().equals(name));
     }
 
-    public boolean download() {
+    private boolean download() {
         if(!meta.isEnabled()) return true;
         if(meta.getUrl() == null) return false;
         try {
@@ -84,14 +80,11 @@ public class PlayerList extends ArrayList<Scammer> {
         return false;
     }
 
-    public void update() {
+    private void updateNames() {
         if(!meta.isEnabled()) return;
         for(Scammer scammer : this) {
             List<String> names = sc.getHelper().getNamesFromUUID(scammer.getUUID());
             if(names.size() == 0) return;
-            if(!scammer.getName().equals(names.get(0))) {
-                sc.getHelper().addNameChange(names);
-            }
             scammer.setName(names.get(0));
         }
         save();
@@ -132,6 +125,7 @@ public class PlayerList extends ArrayList<Scammer> {
     }
 
     public void deleteListFile() {
+        sc.getUpdateQueue().removeList(this);
         File listFile = new File(sc.getListManager().getListDir(), meta.getId()+".json");
         if(listFile.isFile()) listFile.delete();
     }
@@ -143,6 +137,25 @@ public class PlayerList extends ArrayList<Scammer> {
     public void setMeta(Meta meta) {
         if(meta.getId() == null) meta.setId(UUID.randomUUID().toString());
         this.meta = meta;
+    }
+
+    public void startUpdate() {
+        if(updateThread != null) updateThread.stop();
+        updateThread = new Thread(() -> {
+            download();
+            load();
+            updateNames();;
+        });
+        updateThread.start();
+    }
+
+    public void stopUpdate() {
+        if(updateThread != null) updateThread.stop();
+        updateThread = null;
+    }
+
+    public boolean isUpdating() {
+        return updateThread != null && updateThread.isAlive();
     }
 
     public class Meta {

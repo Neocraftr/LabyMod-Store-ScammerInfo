@@ -9,7 +9,6 @@ import net.labymod.addon.AddonLoader;
 import net.labymod.api.LabyModAddon;
 import net.labymod.settings.elements.SettingsElement;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,9 +28,9 @@ public class ScammerList extends LabyModAddon {
     private Helper helper;
     private Updater updater;
     private ListManager listManager;
+    private UpdateQueue updateQueue;
     private long nextUpdate = 0;
-    private List<String> nameChangedPlayers = new ArrayList<>();
-    private boolean addClan, removeClan, clanInProcess, updatingList;
+    private boolean addClan, removeClan, clanInProcess;
     private Set<ClientCommandEvent> commandListeners = new HashSet<>();
 
     @Override
@@ -42,11 +41,13 @@ public class ScammerList extends LabyModAddon {
         helper = new Helper();
         updater = new Updater();
         listManager = new ListManager();
+        updateQueue = new UpdateQueue();
 
         getApi().getEventManager().register(new ChatSendListener());
         getApi().getEventManager().register(new ChatReceiveListener());
         getApi().getEventManager().register(new ModifyChatListener());
         getApi().registerForgeListener(new PreRenderListener());
+        getApi().registerForgeListener(new TickListener());
         registerEvent(new CommandListener());
     }
 
@@ -57,22 +58,18 @@ public class ScammerList extends LabyModAddon {
         settings.loadSettings();
         listManager.loadLists();
 
-        if(getConfig().has("nameChangedPlayers")) {
-            nameChangedPlayers = gson.fromJson(getConfig().get("nameChangedPlayers"), ArrayList.class);
-        }
         if(getConfig().has("nextUpdate")) {
             nextUpdate = getConfig().get("nextUpdate").getAsLong();
         }
 
         if(settings.isAutoUpdate()) {
             if(nextUpdate < System.currentTimeMillis()) {
-                new Thread(() -> {
-                    listManager.updateLists();
+                listManager.updateLists(() -> {
                     nextUpdate = System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL;
                     getConfig().addProperty("nextUpdate", nextUpdate);
                     saveConfig();
                     System.out.println("[ScammerList] Updated player names.");
-                }).start();
+                });
             }
         }
     }
@@ -114,8 +111,8 @@ public class ScammerList extends LabyModAddon {
         return listManager;
     }
 
-    public List<String> getNameChangedPlayers() {
-        return nameChangedPlayers;
+    public UpdateQueue getUpdateQueue() {
+        return updateQueue;
     }
 
     public boolean isAddClan() {
@@ -137,13 +134,6 @@ public class ScammerList extends LabyModAddon {
     }
     public void setClanInProcess(boolean clanInProcess) {
         this.clanInProcess = clanInProcess;
-    }
-
-    public boolean isUpdatingList() {
-        return updatingList;
-    }
-    public void setUpdatingList(boolean updatingList) {
-        this.updatingList = updatingList;
     }
 
     public long getNextUpdate() {

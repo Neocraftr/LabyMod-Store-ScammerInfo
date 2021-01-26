@@ -45,24 +45,15 @@ public class ListManager {
         saveListSettings();
     }
 
-    public void updateLists() {
-        sc.setUpdatingList(true);
-        sc.getNameChangedPlayers().clear();
-
-        privateList.download();
-        privateList.load();
-        privateList.update();
-
-        for(PlayerList list : lists) {
-            list.download();
-            list.load();
-            list.update();
+    public void updateLists(Runnable callback) {
+        if(callback != null) {
+            sc.getUpdateQueue().registerFinishCallback(callback);
         }
 
-        sc.getConfig().add("nameChangedPlayers", sc.getGson().toJsonTree(sc.getNameChangedPlayers()));
-        sc.saveConfig();
-
-        sc.setUpdatingList(false);
+        sc.getUpdateQueue().addList(privateList);
+        for(PlayerList list : lists) {
+            sc.getUpdateQueue().addList(list);
+        }
     }
 
     public boolean checkName(String name) {

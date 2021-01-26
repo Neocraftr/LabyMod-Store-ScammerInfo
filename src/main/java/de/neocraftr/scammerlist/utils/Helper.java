@@ -75,19 +75,6 @@ public class Helper {
         return null;
     }
 
-    public void addNameChange(List<String> names) {
-        if(names.size() == 1) {
-            // normally impossible
-            if(!sc.getNameChangedPlayers().contains(names.get(0))) {
-                sc.getNameChangedPlayers().add(names.get(0));
-            }
-        } else {
-            if(!sc.getNameChangedPlayers().contains(names.get(1)+" -> "+names.get(0))) {
-                sc.getNameChangedPlayers().add(names.get(1)+" -> "+names.get(0));
-            }
-        }
-    }
-
     public String colorize(String msg) {
         return msg.replace("&", "§");
     }

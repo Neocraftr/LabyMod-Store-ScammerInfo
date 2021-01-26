@@ -102,18 +102,19 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
         super.actionPerformed(button);
         switch (button.id) {
             case 0:
+                PlayerList list;
                 if (this.editIndex != -1) {
-                    PlayerList list = sc.getListManager().getLists().get(editIndex);
+                    list = sc.getListManager().getLists().get(editIndex);
                     list.getMeta().setEnabled(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED);
                     list.getMeta().setName(this.nameField.getText());
                     list.getMeta().setUrl(this.urlField.getText());
                 } else {
-                    sc.getListManager().createList(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED,
+                    list = sc.getListManager().createList(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED,
                             this.nameField.getText(), this.urlField.getText());
                 }
                 lastScreen.selectedIndex = -1;
                 sc.getListManager().saveListSettings();
-                // TODO: update List
+                sc.getUpdateQueue().addList(list);
 
                 Minecraft.getMinecraft().displayGuiScreen(this.lastScreen);
                 break;

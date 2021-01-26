@@ -231,37 +231,18 @@ public class CommandListener implements ClientCommandEvent {
             }
         } else
 
-        // List name changes
-        if (args[0].equalsIgnoreCase("namechanges")) {
-            String lastUpdate = new SimpleDateFormat("dd.MM.yyyy").format(new Date(sc.getNextUpdate() - ScammerList.UPDATE_INTERVAL));
-            if (!sc.getNameChangedPlayers().isEmpty()) {
-                StringJoiner joiner = new StringJoiner("\n");
-                joiner.add(ScammerList.PREFIX_LINE);
-                joiner.add("§aLetzte Namensänderungen:");
-                sc.getNameChangedPlayers().forEach(name -> {
-                    joiner.add("§8- §e"+name);
-                });
-                joiner.add("§aLetzte Aktualisierung am §e"+lastUpdate+"§a.");
-                joiner.add(ScammerList.PREFIX_LINE);
-                sc.displayMessage(joiner.toString());
-            } else {
-                sc.displayMessage(ScammerList.PREFIX + "§cBei der letzten Aktualisierung am §e"+lastUpdate+" §cwurden keine Namensänderungen festgestellt.");
-            }
-        } else
-
         // Update lists
         if (args[0].equalsIgnoreCase("update")) {
-            if(!sc.isUpdatingList()) {
+            if(!sc.getUpdateQueue().isUpdating()) {
                 sc.displayMessage(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
-                new Thread(() -> {
-                    sc.getListManager().updateLists();
+                sc.getListManager().updateLists(() -> {
                     sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
                     sc.getConfig().addProperty("nextUpdate", sc.getNextUpdate());
                     sc.saveConfig();
                     sc.displayMessage(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
-                }).start();
+                });
             } else {
-                sc.displayMessage(ScammerList.PREFIX + "§cDie Scammerliste wird bereits aktualisiert. Bite warten!");
+                sc.displayMessage(ScammerList.PREFIX + "§cEs werden bereits Scammerlisten aktualisiert. Bite warten!");
             }
         } else
 
@@ -319,7 +300,6 @@ public class CommandListener implements ClientCommandEvent {
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt)");
-        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer namechanges §8- §aZeigt die Namensänderungen der letzten Aktualisierung an.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer version §8- §aZeigt die Version des Addons an.");
         joiner.add(ScammerList.PREFIX_LINE);
         sc.displayMessage(joiner.toString());
