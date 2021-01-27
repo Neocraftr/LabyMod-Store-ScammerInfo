@@ -79,6 +79,7 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
                 this.lastUrlCheck = -1;
                 this.urlMessage = "";
             } else {
+                this.urlMessage = "§7Teste...";
                 this.lastUrlCheck = System.currentTimeMillis() + 1000;
             }
         }
@@ -108,13 +109,18 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
                     list.getMeta().setEnabled(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED);
                     list.getMeta().setName(this.nameField.getText());
                     list.getMeta().setUrl(this.urlField.getText());
+                    if(list.getMeta().isEnabled()) {
+                        sc.getUpdateQueue().addList(list);
+                    } else {
+                        sc.getUpdateQueue().removeList(list);
+                    }
                 } else {
                     list = sc.getListManager().createList(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED,
                             this.nameField.getText(), this.urlField.getText());
+                    if(list.getMeta().isEnabled()) sc.getUpdateQueue().addList(list);
                 }
                 lastScreen.selectedIndex = -1;
                 sc.getListManager().saveListSettings();
-                sc.getUpdateQueue().addList(list);
 
                 Minecraft.getMinecraft().displayGuiScreen(this.lastScreen);
                 break;
@@ -133,7 +139,6 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
 
         if(!this.testingUrl && this.lastUrlCheck != -1 && this.lastUrlCheck < System.currentTimeMillis()) {
             this.lastUrlCheck = -1;
-            this.urlMessage = "§7Teste...";
             new Thread(() -> {
                 this.testingUrl = true;
                 try {

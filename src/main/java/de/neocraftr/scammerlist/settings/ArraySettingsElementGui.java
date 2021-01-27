@@ -69,7 +69,7 @@ public class ArraySettingsElementGui extends GuiScreen {
                     Minecraft.getMinecraft().displayGuiScreen(lastScreen);
                     selectedIndex = -1;
                 }
-            }, "Soll diese Liste wirklich gelöscht werden?", sc.getListManager().getLists().get(this.selectedIndex).getMeta().getName(),
+            }, "Soll diese Liste wirklich gelöscht werden?", "§c"+sc.getListManager().getLists().get(this.selectedIndex).getMeta().getName(),
                     1));
             break;
         case 2:

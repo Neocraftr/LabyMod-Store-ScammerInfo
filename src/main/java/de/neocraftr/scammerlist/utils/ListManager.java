@@ -56,6 +56,13 @@ public class ListManager {
         }
     }
 
+    public void cancelAllUpdates() {
+        sc.getUpdateQueue().removeList(privateList);
+        for(PlayerList list : lists) {
+            sc.getUpdateQueue().removeList(list);
+        }
+    }
+
     public boolean checkName(String name) {
         if(privateList.containsName(name)) return true;
         for(PlayerList list : lists) {

@@ -1,10 +1,7 @@
 package de.neocraftr.scammerlist.settings;
 
 import de.neocraftr.scammerlist.ScammerList;
-import net.labymod.settings.elements.BooleanElement;
-import net.labymod.settings.elements.ControlElement;
-import net.labymod.settings.elements.SettingsElement;
-import net.labymod.settings.elements.StringElement;
+import net.labymod.settings.elements.*;
 import net.labymod.utils.Material;
 
 import java.util.List;
@@ -20,6 +17,9 @@ public class SettingsManager {
                     autoUpdate = true,
                     autoUpdateAddon = true;
     private String scammerPrefix = "&c&l[&4&l!&c&l]";
+
+    private ButtonElement updateListsBtn;
+    private TextElement listUpdateStatus;
 
     public void loadSettings() {
         if(sc.getConfig().has("highlightInChat")) {
@@ -46,6 +46,18 @@ public class SettingsManager {
     }
 
     public void fillSettings(final List<SettingsElement> settings) {
+        settings.add(new HeaderElement("Allgemein"));
+
+        final BooleanElement autoUpdateAddonBtn = new BooleanElement("Addon aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
+            setAutoUpdateAddon(value);
+            sc.getConfig().addProperty("autoUpdateAddon", value);
+            sc.saveConfig();
+        }, isAutoUpdate());
+        autoUpdateAddonBtn.setDescriptionText("Addon beim beenden automatisch aktualisieren");
+        settings.add(autoUpdateAddonBtn);
+
+        settings.add(new HeaderElement("Markierungen"));
+
         final BooleanElement highlightInChatBtn = new BooleanElement("Im Chat markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
             setHighlightInChat(value);
             sc.getConfig().addProperty("highlightInChat", value);
@@ -74,20 +86,6 @@ public class SettingsManager {
         }, isHighlightInTablist());
         settings.add(highlightInTablistBtn);
 
-        final BooleanElement autoUpdateBtn = new BooleanElement("Listen automatisch aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
-            setAutoUpdate(value);
-            sc.getConfig().addProperty("autoUpdate", value);
-            sc.saveConfig();
-        }, isAutoUpdate());
-        settings.add(autoUpdateBtn);
-
-        final BooleanElement autoUpdateAddonBtn = new BooleanElement("Addon beim start aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
-            setAutoUpdateAddon(value);
-            sc.getConfig().addProperty("autoUpdateAddon", value);
-            sc.saveConfig();
-        }, isAutoUpdate());
-        settings.add(autoUpdateAddonBtn);
-
         final StringElement scammerPrefixSetting = new StringElement("Scammer Prefix", new ControlElement.IconData(Material.BOOK_AND_QUILL), getScammerPrefix(), value -> {
             setScammerPrefix(value);
             sc.getConfig().addProperty("scammerPrefix", value);
@@ -95,9 +93,33 @@ public class SettingsManager {
         });
         settings.add(scammerPrefixSetting);
 
+        settings.add(new HeaderElement("Listen"));
+
         final ArraySettingsElement messagesSetting = new ArraySettingsElement("Listen verwalten",
                 new ControlElement.IconData(Material.BOOK_AND_QUILL));
+        messagesSetting.setDescriptionText("Scammerlisten hinzufügen oder entfernen");
         settings.add(messagesSetting);
+
+        final BooleanElement autoUpdateBtn = new BooleanElement("Automatisch aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
+            setAutoUpdate(value);
+            sc.getConfig().addProperty("autoUpdate", value);
+            sc.saveConfig();
+        }, isAutoUpdate());
+        autoUpdateBtn.setDescriptionText("Listen 1mal wöchentlich automatisch aktualisieren");
+        settings.add(autoUpdateBtn);
+
+        updateListsBtn = new ButtonElement("Jetzt aktualisieren", "Start", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), () -> {
+            if(sc.getUpdateQueue().isUpdating()) {
+                sc.getListManager().cancelAllUpdates();
+                listUpdateStatus.setText("§cLaufende Aktualisierungen abgebrochen");
+            } else {
+                sc.getListManager().updateLists(null);
+            }
+        });
+        settings.add(updateListsBtn);
+
+        listUpdateStatus = new TextElement("");
+        settings.add(listUpdateStatus);
 
         settings.add(new TextElement("§7Übersicht aller ingame Befehle: §e.scammer help\n\n§7Installierte Version: §b"+ScammerList.VERSION
             +"\n§7Neuste Version: §b"+sc.getUpdater().getLatestVersion()));
@@ -151,5 +173,13 @@ public class SettingsManager {
     }
     public void setScammerPrefix(String scammerPrefix) {
         this.scammerPrefix = scammerPrefix;
+    }
+
+    public TextElement getListUpdateStatus() {
+        return listUpdateStatus;
+    }
+
+    public ButtonElement getUpdateListsBtn() {
+        return updateListsBtn;
     }
 }

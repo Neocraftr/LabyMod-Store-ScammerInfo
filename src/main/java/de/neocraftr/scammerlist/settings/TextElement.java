@@ -76,6 +76,10 @@ public class TextElement extends SettingsElement {
         }
     }
 
+    public String getText() {
+        return super.getDescriptionText();
+    }
+
     public void setTextAlignment(String textAlignment) {
         this.textAlignment = textAlignment;
     }
