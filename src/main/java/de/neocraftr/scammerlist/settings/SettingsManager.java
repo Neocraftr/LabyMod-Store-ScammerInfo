@@ -21,6 +21,11 @@ public class SettingsManager {
     private ButtonElement updateListsBtn;
     private TextElement listUpdateStatus;
 
+    public SettingsManager() {
+        updateListsBtn = new ButtonElement("Jetzt aktualisieren", "Start", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), null);
+        listUpdateStatus = new TextElement("");
+    }
+
     public void loadSettings() {
         if(sc.getConfig().has("highlightInChat")) {
             setHighlightInChat(sc.getConfig().get("highlightInChat").getAsBoolean());
@@ -108,7 +113,7 @@ public class SettingsManager {
         autoUpdateBtn.setDescriptionText("Listen 1mal wöchentlich automatisch aktualisieren");
         settings.add(autoUpdateBtn);
 
-        updateListsBtn = new ButtonElement("Jetzt aktualisieren", "Start", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), () -> {
+        updateListsBtn.setClickCallback(() -> {
             if(sc.getUpdateQueue().isUpdating()) {
                 sc.getListManager().cancelAllUpdates();
                 listUpdateStatus.setText("§cLaufende Aktualisierungen abgebrochen");
@@ -118,7 +123,6 @@ public class SettingsManager {
         });
         settings.add(updateListsBtn);
 
-        listUpdateStatus = new TextElement("");
         settings.add(listUpdateStatus);
 
         settings.add(new TextElement("§7Übersicht aller ingame Befehle: §e.scammer help\n\n§7Installierte Version: §b"+ScammerList.VERSION
