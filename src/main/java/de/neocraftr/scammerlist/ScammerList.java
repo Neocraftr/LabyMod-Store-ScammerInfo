@@ -18,7 +18,7 @@ public class ScammerList extends LabyModAddon {
     public static final String PREFIX = "§8[§4Scammerliste§8] §r",
                                PREFIX_LINE = "§7-------------------- §4Scammerliste §7--------------------",
                                COMMAND_PREFIX = ".",
-                               VERSION = "1.5.0";
+                               VERSION = "1.5.1";
     public static final int PLAYERS_PER_LIST_PAGE = 15,
                             UPDATE_INTERVAL = 604800000; // 1 week
 
