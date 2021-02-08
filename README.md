@@ -2,12 +2,12 @@
 
 Scammerliste für GrieferGames und ähnliche Server.
 
-Spielversion: **LabyMod 1.8.9 Vanilla/Forge**
+Spielversion: **LabyMod 1.8.9 Forge** (Vanilla nicht mehr unterstützt)
 
 ### Funktionen
 - Speicherung der UUID von Spielern (Scammer beliben auch nach Nemansänderung auf der Liste)
 - Automatische Aktualisierung der Spielernamen
-- Markierung von Scammern im Chat, in Clans und per MSG
+- Markierung von Scammern im Chat, in Clans, in Direktnachrichten und bei Startkicks.
 - Befehl zum hinzufügen / entfernen ganzer Clans
 - Befehl um Namensänderungen seit der letzten Aktualisierung aufzulisten.
 - Möglichkeit eigene\* oder öffentliche Listen hinzuzufügen und zu verwalten z.B. die des [\[SCAMMER\] Radar](https://scammer-radar.de/) Projekt
