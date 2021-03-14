@@ -9,7 +9,7 @@ public class TickListener {
     private ScammerList sc = ScammerList.getScammerList();
 
     @SubscribeEvent
-    public void onTick(TickEvent e) {
+    public void onTick(TickEvent.ClientTickEvent e) {
         if(e.phase == TickEvent.Phase.END) {
             sc.getUpdateQueue().tick();
         }
