@@ -29,7 +29,7 @@ public class ListManager {
 
 
         if(!sc.getConfig().has("lists")) {
-            lists.add(new PlayerList(true, "[SCAMMER] Radar", "https://coolertyp.scammer-radar.de/onlineScammer.json"));
+            lists.add(new PlayerList(true, "[SCAMMER] Radar", "%scammer-radar%"));
             saveListSettings();
         }
 

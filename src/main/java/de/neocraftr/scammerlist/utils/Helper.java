@@ -78,4 +78,13 @@ public class Helper {
     public String colorize(String msg) {
         return msg.replace("&", "§");
     }
+
+    public String replaceUrlWildcards(String msg) {
+        switch(msg.toLowerCase()) {
+            case "%scammer-radar%":
+                return "https://coolertyp.scammer-radar.de/onlineScammer.json";
+            default:
+                return msg;
+        }
+    }
 }

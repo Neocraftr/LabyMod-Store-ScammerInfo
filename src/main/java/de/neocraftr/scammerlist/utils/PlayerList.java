@@ -72,7 +72,8 @@ public class PlayerList extends ArrayList<Scammer> {
         if(!meta.isEnabled()) return true;
         if(meta.getUrl() == null) return false;
         try {
-            FileUtils.copyURLToFile(new URL(meta.getUrl()), new File(sc.getListManager().getListDir(), meta.getId()+".json"));
+            FileUtils.copyURLToFile(new URL(sc.getHelper().replaceUrlWildcards(meta.getUrl())),
+                    new File(sc.getListManager().getListDir(), meta.getId()+".json"));
             return true;
         } catch (IOException e) {
             System.err.println("[ScammerList] Error while downloading list "+meta.getName()+": "+e.getMessage());

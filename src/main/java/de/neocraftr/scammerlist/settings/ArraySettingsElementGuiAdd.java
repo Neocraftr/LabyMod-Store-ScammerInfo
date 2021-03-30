@@ -142,7 +142,7 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
             new Thread(() -> {
                 this.testingUrl = true;
                 try {
-                    URL url = new URL(this.urlField.getText());
+                    URL url = new URL(sc.getHelper().replaceUrlWildcards(this.urlField.getText()));
                     URLConnection conn = url.openConnection();
                     conn.setConnectTimeout(3000);
                     conn.setReadTimeout(3000);
