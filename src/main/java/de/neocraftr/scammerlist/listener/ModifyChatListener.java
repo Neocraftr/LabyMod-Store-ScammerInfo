@@ -2,6 +2,7 @@ package de.neocraftr.scammerlist.listener;
 
 import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.api.events.MessageModifyChatEvent;
+import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
@@ -75,7 +76,8 @@ public class ModifyChatListener implements MessageModifyChatEvent {
     private void checkAndModify(IChatComponent msg, int after, String playerName) {
         if(!sc.getListManager().checkName(playerName)) return;
         IChatComponent scammerPrefix = new ChatComponentText(sc.getHelper().colorize(sc.getSettings().getScammerPrefix())+" §r");
-        scammerPrefix.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4§lScammer")));
+        scammerPrefix.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4*Weitere Informationen*")));
+        scammerPrefix.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ".scammer check "+playerName));
         msg.getSiblings().add(after, scammerPrefix);
     }
 }
