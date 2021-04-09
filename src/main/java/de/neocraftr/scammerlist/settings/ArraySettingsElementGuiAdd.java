@@ -1,7 +1,9 @@
 package de.neocraftr.scammerlist.settings;
 
+import com.google.gson.reflect.TypeToken;
 import de.neocraftr.scammerlist.ScammerList;
 import de.neocraftr.scammerlist.utils.PlayerList;
+import de.neocraftr.scammerlist.utils.Scammer;
 import net.labymod.gui.elements.CheckBox;
 import net.labymod.gui.elements.ModTextField;
 import net.labymod.main.LabyMod;
@@ -9,12 +11,16 @@ import net.labymod.main.lang.LanguageManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpException;
 import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class ArraySettingsElementGuiAdd extends GuiScreen {
     private ScammerList sc = ScammerList.getScammerList();
@@ -141,17 +147,32 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
             this.lastUrlCheck = -1;
             new Thread(() -> {
                 this.testingUrl = true;
+                String urlStr = sc.getHelper().replaceUrlWildcards(this.urlField.getText());
                 try {
-                    URL url = new URL(sc.getHelper().replaceUrlWildcards(this.urlField.getText()));
-                    URLConnection conn = url.openConnection();
+                    URL url = new URL(urlStr);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setConnectTimeout(3000);
                     conn.setReadTimeout(3000);
                     conn.connect();
-                    this.urlMessage = "§2Verbindung möglich";
+
+                    if(conn.getResponseCode() != 200) {
+                        throw new HttpException("Server returned status code other than 200");
+                    }
+
+                    try {
+                        String response = IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8);
+                        sc.getGson().fromJson(response, new TypeToken<List<Scammer>>(){}.getType());
+
+                        this.urlMessage = "§2Verbindung möglich";
+                    } catch(Exception e) {
+                        this.urlMessage = "§4Fehler beim laden der Liste";
+                        System.out.println("[ScammerList] URL check for '"+urlStr+"' failed: "+e);
+                    }
                 } catch(MalformedURLException e) {
                     this.urlMessage = "§4Nicht gültig";
                 } catch (Exception e) {
                     this.urlMessage = "§4Verbindung nicht möglich";
+                    System.out.println("[ScammerList] URL check for '"+urlStr+"' failed: "+e);
                 }
                 this.testingUrl = false;
             }).start();

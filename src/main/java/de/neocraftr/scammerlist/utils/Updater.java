@@ -72,7 +72,7 @@ public class Updater {
                 System.out.println("[ScammerList] Could not check for updates: Invalid response.");
             }
         } catch (IOException | IllegalStateException | JsonSyntaxException e) {
-            System.out.println("[ScammerList] Could not check for updates: "+e.getMessage());
+            System.out.println("[ScammerList] Could not check for updates: "+e);
         }
     }
 
