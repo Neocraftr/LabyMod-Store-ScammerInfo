@@ -76,7 +76,7 @@ public class PlayerList extends ArrayList<Scammer> {
                     new File(sc.getListManager().getListDir(), meta.getId()+".json"));
             return true;
         } catch (IOException e) {
-            System.err.println("[ScammerList] Error while downloading list "+meta.getName()+": "+e.getMessage());
+            System.err.println("[ScammerList] Error while downloading list "+meta.getName()+": "+e);
         }
         return false;
     }
@@ -120,7 +120,7 @@ public class PlayerList extends ArrayList<Scammer> {
             this.addAll(list);
             return true;
         } catch (IOException | JsonSyntaxException e) {
-            System.err.println("[ScammerList] Error while loading list "+meta.getName()+": "+e.getMessage());
+            System.err.println("[ScammerList] Error while loading list "+meta.getName()+": "+e);
         }
         return false;
     }
