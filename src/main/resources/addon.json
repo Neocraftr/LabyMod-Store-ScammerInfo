@@ -1,10 +1,10 @@
 {
   "uuid": "%uuid%",
-  "name": "Scammerliste",
+  "name": "GrieferGames Scammerlist",
   "mainClass": "de.neocraftr.scammerlist.ScammerList",
-  "description": "Scammerlist for GrieferGames.net or similar servers.",
+  "description": "An alternative addon for the list of the [SCAMMER] Radar project",
   "version": 1,
   "author": "Neocraftr",
-  "category": 2,
+  "category": 3,
   "icon": "https://raw.githubusercontent.com/Neocraftr/LabyMod-Scammerliste/master/icons/ScammerList.png"
 }
