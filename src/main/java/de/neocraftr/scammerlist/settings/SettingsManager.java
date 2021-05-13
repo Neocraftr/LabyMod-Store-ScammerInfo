@@ -14,8 +14,7 @@ public class SettingsManager {
                     highlightInClanInfo = true,
                     highlightInTablist = true,
                     highlightInStartkick = true,
-                    autoUpdate = true,
-                    autoUpdateAddon = true;
+                    autoUpdate = true;
     private String scammerPrefix = "&c&l[&4&l!&c&l]";
 
     private ButtonElement updateListsBtn;
@@ -42,25 +41,12 @@ public class SettingsManager {
         if(sc.getConfig().has("autoUpdate")) {
             setAutoUpdate(sc.getConfig().get("autoUpdate").getAsBoolean());
         }
-        if(sc.getConfig().has("autoUpdateAddon")) {
-            setAutoUpdate(sc.getConfig().get("autoUpdateAddon").getAsBoolean());
-        }
         if(sc.getConfig().has("scammerPrefix")) {
             setScammerPrefix(sc.getConfig().get("scammerPrefix").getAsString());
         }
     }
 
     public void fillSettings(final List<SettingsElement> settings) {
-        settings.add(new HeaderElement("Allgemein"));
-
-        final BooleanElement autoUpdateAddonBtn = new BooleanElement("Addon aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
-            setAutoUpdateAddon(value);
-            sc.getConfig().addProperty("autoUpdateAddon", value);
-            sc.saveConfig();
-        }, isAutoUpdate());
-        autoUpdateAddonBtn.setDescriptionText("Addon beim beenden automatisch aktualisieren");
-        settings.add(autoUpdateAddonBtn);
-
         settings.add(new HeaderElement("Markierungen"));
 
         final BooleanElement highlightInChatBtn = new BooleanElement("Im Chat markieren", new ControlElement.IconData("labymod/textures/settings/settings/advanced_chat_settings.png"), value -> {
@@ -125,8 +111,7 @@ public class SettingsManager {
 
         settings.add(listUpdateStatus);
 
-        settings.add(new TextElement("§7Übersicht aller ingame Befehle: §e.scammer help\n\n§7Installierte Version: §b"+ScammerList.VERSION
-            +"\n§7Neuste Version: §b"+sc.getUpdater().getLatestVersion()));
+        settings.add(new TextElement("§7Übersicht aller ingame Befehle: §e.scammer help\n\n§7Installierte Version: §b"+ScammerList.VERSION+"-laby"));
     }
 
     public boolean isHighlightInChat() {
@@ -163,13 +148,6 @@ public class SettingsManager {
     }
     public void setAutoUpdate(boolean autoUpdate) {
         this.autoUpdate = autoUpdate;
-    }
-
-    public boolean isAutoUpdateAddon() {
-        return autoUpdateAddon;
-    }
-    public void setAutoUpdateAddon(boolean autoUpdateAddon) {
-        this.autoUpdateAddon = autoUpdateAddon;
     }
 
     public String getScammerPrefix() {

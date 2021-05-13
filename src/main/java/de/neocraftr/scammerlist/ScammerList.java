@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import de.neocraftr.scammerlist.listener.*;
 import de.neocraftr.scammerlist.settings.SettingsManager;
 import de.neocraftr.scammerlist.utils.*;
-import net.labymod.addon.AddonLoader;
 import net.labymod.api.LabyModAddon;
 import net.labymod.settings.elements.SettingsElement;
 
@@ -26,7 +25,6 @@ public class ScammerList extends LabyModAddon {
     private Gson gson;
     private SettingsManager settings;
     private Helper helper;
-    private Updater updater;
     private ListManager listManager;
     private UpdateQueue updateQueue;
     private long nextUpdate = 0;
@@ -39,7 +37,6 @@ public class ScammerList extends LabyModAddon {
         gson = new GsonBuilder().setPrettyPrinting().create();
         settings = new SettingsManager();
         helper = new Helper();
-        updater = new Updater();
         listManager = new ListManager();
         updateQueue = new UpdateQueue();
 
@@ -53,8 +50,6 @@ public class ScammerList extends LabyModAddon {
 
     @Override
     public void loadConfig() {
-        updater.setAddonJar(AddonLoader.getFiles().get(about.uuid));
-
         settings.loadSettings();
         listManager.loadLists();
 
@@ -101,10 +96,6 @@ public class ScammerList extends LabyModAddon {
 
     public Helper getHelper() {
         return helper;
-    }
-
-    public Updater getUpdater() {
-        return updater;
     }
 
     public ListManager getListManager() {

@@ -273,16 +273,6 @@ public class CommandListener implements ClientCommandEvent {
                             + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§c.");
                 }
             }
-        } else
-
-        // Version
-        if(args[0].equalsIgnoreCase("version")) {
-            sc.displayMessage(ScammerList.PREFIX+"§aInstallierte Version: §ev"+ScammerList.VERSION);
-
-            String latestVersion = sc.getUpdater().getLatestVersion();
-            if(latestVersion != null) {
-                sc.displayMessage(ScammerList.PREFIX+"§aNeuste Version: §ev"+latestVersion);
-            }
         } else printHelp();
 
         return true;
