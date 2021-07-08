@@ -86,8 +86,12 @@ public class Updater {
         }
     }
 
-    private boolean canDoUpdate() {
+    public boolean canDoUpdate() {
         return addonJar != null && addonJar.isFile();
+    }
+
+    public boolean isUpdateAvailable() {
+        return updateAvailable;
     }
 
     public String getLatestVersion() {
