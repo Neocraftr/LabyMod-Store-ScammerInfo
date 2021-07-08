@@ -3,6 +3,7 @@ package de.neocraftr.scammerlist.settings;
 import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.settings.elements.*;
 import net.labymod.utils.Material;
+import net.minecraft.client.Minecraft;
 
 import java.util.List;
 
@@ -102,10 +103,14 @@ public class SettingsManager {
 
         settings.add(new HeaderElement("Listen"));
 
-        final ArraySettingsElement messagesSetting = new ArraySettingsElement("Listen verwalten",
-                new ControlElement.IconData(Material.BOOK_AND_QUILL));
-        messagesSetting.setDescriptionText("Scammerlisten hinzufügen oder entfernen");
-        settings.add(messagesSetting);
+        final ButtonElement listManagerBtn = new ButtonElement("Listenmanager", "Öffnen", new ControlElement.IconData(Material.BOOK_AND_QUILL), new Runnable() {
+            @Override
+            public void run() {
+                Minecraft.getMinecraft().displayGuiScreen(new ListManagerGui(Minecraft.getMinecraft().currentScreen));
+            }
+        });
+        listManagerBtn.setDescriptionText("Scammerlisten hinzufügen oder entfernen");
+        settings.add(listManagerBtn);
 
         final BooleanElement autoUpdateBtn = new BooleanElement("Automatisch aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
             autoUpdate = value;
