@@ -19,8 +19,7 @@ public class ScammerList extends LabyModAddon {
                                PREFIX_LINE = "§7-------------------- §4Scammerliste §7--------------------",
                                COMMAND_PREFIX = ".",
                                VERSION = "1.5.2";
-    public static final int PLAYERS_PER_LIST_PAGE = 15,
-                            UPDATE_INTERVAL = 604800000; // 1 week
+    public static final int PLAYERS_PER_LIST_PAGE = 15;
 
     private static ScammerList scammerList;
     private Gson gson;
@@ -29,7 +28,7 @@ public class ScammerList extends LabyModAddon {
     private Updater updater;
     private ListManager listManager;
     private UpdateQueue updateQueue;
-    private long nextUpdate = 0;
+    private long lastUpdateTime = 0;
     private boolean addClan, removeClan, clanInProcess;
     private Set<ClientCommandEvent> commandListeners = new HashSet<>();
 
@@ -58,15 +57,15 @@ public class ScammerList extends LabyModAddon {
         settings.loadSettings();
         listManager.loadLists();
 
-        if(getConfig().has("nextUpdate")) {
-            nextUpdate = getConfig().get("nextUpdate").getAsLong();
+        if(getConfig().has("lastUpdateTime")) {
+            lastUpdateTime = getConfig().get("lastUpdateTime").getAsLong();
         }
 
         if(settings.isAutoUpdate()) {
-            if(nextUpdate < System.currentTimeMillis()) {
+            if(lastUpdateTime + settings.getUpdateInterval()*86400000L < System.currentTimeMillis()) {
                 listManager.updateLists(() -> {
-                    nextUpdate = System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL;
-                    getConfig().addProperty("nextUpdate", nextUpdate);
+                    lastUpdateTime = System.currentTimeMillis();
+                    getConfig().addProperty("lastUpdateTime", lastUpdateTime);
                     saveConfig();
                     System.out.println("[ScammerList] Updated player names.");
                 });
@@ -136,11 +135,11 @@ public class ScammerList extends LabyModAddon {
         this.clanInProcess = clanInProcess;
     }
 
-    public long getNextUpdate() {
-        return nextUpdate;
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
     }
-    public void setNextUpdate(long nextUpdate) {
-        this.nextUpdate = nextUpdate;
+    public void setLastUpdateTime(long lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
     }
 
     public Set<ClientCommandEvent> getCommandListeners() {

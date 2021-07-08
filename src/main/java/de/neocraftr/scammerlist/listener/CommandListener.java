@@ -261,8 +261,8 @@ public class CommandListener implements ClientCommandEvent {
             if(!sc.getUpdateQueue().isUpdating()) {
                 sc.displayMessage(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
                 sc.getListManager().updateLists(() -> {
-                    sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
-                    sc.getConfig().addProperty("nextUpdate", sc.getNextUpdate());
+                    sc.setLastUpdateTime(System.currentTimeMillis());
+                    sc.getConfig().addProperty("lastUpdateTime", sc.getLastUpdateTime());
                     sc.saveConfig();
                     sc.displayMessage(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
                 });

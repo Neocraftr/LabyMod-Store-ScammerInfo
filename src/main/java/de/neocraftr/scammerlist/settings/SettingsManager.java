@@ -2,6 +2,7 @@ package de.neocraftr.scammerlist.settings;
 
 import de.neocraftr.scammerlist.ScammerList;
 import net.labymod.settings.elements.*;
+import net.labymod.utils.Consumer;
 import net.labymod.utils.Material;
 import net.minecraft.client.Minecraft;
 
@@ -17,6 +18,7 @@ public class SettingsManager {
                     highlightInStartkick = true,
                     autoUpdate = true,
                     autoUpdateAddon = true;
+    private int updateInterval = 7;
     private String scammerPrefix = "&c&l[&4&l!&c&l]";
 
     private ButtonElement updateListsBtn;
@@ -49,6 +51,9 @@ public class SettingsManager {
         }
         if(sc.getConfig().has("scammerPrefix")) {
             scammerPrefix = sc.getConfig().get("scammerPrefix").getAsString();
+        }
+        if(sc.getConfig().has("updateInterval")) {
+            updateInterval = sc.getConfig().get("updateInterval").getAsInt();
         }
     }
 
@@ -103,21 +108,31 @@ public class SettingsManager {
 
         settings.add(new HeaderElement("Listen"));
 
-        final ButtonElement listManagerBtn = new ButtonElement("Listenmanager", "Öffnen", new ControlElement.IconData(Material.BOOK_AND_QUILL), new Runnable() {
-            @Override
-            public void run() {
-                Minecraft.getMinecraft().displayGuiScreen(new ListManagerGui(Minecraft.getMinecraft().currentScreen));
-            }
+        final ButtonElement listManagerBtn = new ButtonElement("Listenmanager", "Öffnen", new ControlElement.IconData("labymod/textures/chat/gui_editor.png"), () -> {
+            Minecraft.getMinecraft().displayGuiScreen(new ListManagerGui(Minecraft.getMinecraft().currentScreen));
         });
         listManagerBtn.setDescriptionText("Scammerlisten hinzufügen oder entfernen");
         settings.add(listManagerBtn);
+
+        final CustomNumberElement updateIntervalSetting = new CustomNumberElement("Update Interval (Tage)", new ControlElement.IconData("labymod/textures/settings/settings/afecplayerinterval.png"), updateInterval);
+        updateIntervalSetting.setRange(2, 30);
+        updateIntervalSetting.addCallback(new Consumer<Integer>() {
+            @Override
+            public void accept(Integer value) {
+                updateInterval = value;
+                sc.getConfig().addProperty("updateInterval", value);
+                sc.saveConfig();
+            }
+        });
+        updateIntervalSetting.setDescriptionText("Interval für die automatische Listenaktualisierung");
+        settings.add(updateIntervalSetting);
 
         final BooleanElement autoUpdateBtn = new BooleanElement("Automatisch aktualisieren", new ControlElement.IconData("labymod/textures/settings/settings/serverlistliveview.png"), value -> {
             autoUpdate = value;
             sc.getConfig().addProperty("autoUpdate", value);
             sc.saveConfig();
         }, autoUpdate);
-        autoUpdateBtn.setDescriptionText("Listen 1mal wöchentlich automatisch aktualisieren");
+        autoUpdateBtn.setDescriptionText("Listen automatisch aktualisieren");
         settings.add(autoUpdateBtn);
 
         updateListsBtn.setClickCallback(() -> {
@@ -128,6 +143,7 @@ public class SettingsManager {
                 sc.getListManager().updateLists(null);
             }
         });
+        updateListsBtn.setDescriptionText("Scammerlisten jetzt aktualisieren");
         settings.add(updateListsBtn);
 
         settings.add(listUpdateStatus);
@@ -170,7 +186,6 @@ public class SettingsManager {
         return highlightInTablist;
     }
 
-
     public boolean isHighlightInStartkick() {
         return highlightInStartkick;
     }
@@ -185,6 +200,10 @@ public class SettingsManager {
 
     public String getScammerPrefix() {
         return scammerPrefix;
+    }
+
+    public int getUpdateInterval() {
+        return updateInterval;
     }
 
     public TextElement getListUpdateStatus() {
