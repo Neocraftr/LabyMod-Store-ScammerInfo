@@ -22,10 +22,11 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class ArraySettingsElementGuiAdd extends GuiScreen {
+public class ListManagerGuiAdd extends GuiScreen {
+    private static final int TEXTFIELD_WIDTH = 200;
     private ScammerList sc = ScammerList.getScammerList();
 
-    private ArraySettingsElementGui lastScreen;
+    private ListManagerGui lastScreen;
     private int editIndex;
     private ModTextField nameField, urlField;
     private CheckBox enableCheckBox;
@@ -34,7 +35,7 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
     private boolean testingUrl;
     private String urlMessage;
 
-    public ArraySettingsElementGuiAdd(ArraySettingsElementGui lastScreen, int editIndex) {
+    public ListManagerGuiAdd(ListManagerGui lastScreen, int editIndex) {
         this.lastScreen = lastScreen;
         this.editIndex = editIndex;
     }
@@ -43,42 +44,44 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
     public void initGui() {
         super.initGui();
         Keyboard.enableRepeatEvents(true);
-        this.nameField = new ModTextField(-1, (LabyMod.getInstance().getDrawUtils()).fontRenderer, this.width / 2 - 100,
-                this.height / 2 - 80, 200, 20);
+
+        this.nameField = new ModTextField(-1, LabyMod.getInstance().getDrawUtils().fontRenderer, this.width/2 - TEXTFIELD_WIDTH/2, this.height/2 - 70, TEXTFIELD_WIDTH, 20);
         this.nameField.setMaxStringLength(100);
         this.nameField.setDisabledTextColour(1);
 
-        this.urlField = new ModTextField(-1, (LabyMod.getInstance().getDrawUtils()).fontRenderer, this.width / 2 - 100,
-                this.height / 2 - 30, 200, 20);
+        this.urlField = new ModTextField(-1, LabyMod.getInstance().getDrawUtils().fontRenderer, this.width/2 - TEXTFIELD_WIDTH/2, this.height/2 - 25, TEXTFIELD_WIDTH, 20);
         this.urlField.setMaxStringLength(100);
         this.urlField.setDisabledTextColour(1);
 
-        this.enableCheckBox = new CheckBox("Aktiviert", CheckBox.EnumCheckBoxValue.ENABLED, null, this.width / 2 - 100,
-                this.height / 2 + 5, 20, 20);
-
-        this.buttonList.add(this.buttonDone = new GuiButton(0, this.width / 2 + 3, this.height / 2 + 35, 98, 20, LanguageManager.translateOrReturnKey("button_save")));
-        this.buttonList.add(new GuiButton(1, this.width / 2 - 101, this.height / 2 + 35, 98, 20, LanguageManager.translateOrReturnKey("button_cancel")));
-        this.buttonDone.enabled = false;
+        this.enableCheckBox = new CheckBox("Aktiviert", CheckBox.EnumCheckBoxValue.ENABLED, null, this.width/2 - TEXTFIELD_WIDTH/2 - 1, this.height/2 + 10, 20, 20);
 
         this.urlMessage = "";
         this.lastUrlCheck = -1;
 
-        if (this.editIndex != -1) {
+        if(this.editIndex != -1) {
             PlayerList list = sc.getListManager().getLists().get(editIndex);
             this.nameField.setText(list.getMeta().getName());
             this.urlField.setText(list.getMeta().getUrl());
             this.enableCheckBox.setCurrentValue(list.getMeta().isEnabled() ? CheckBox.EnumCheckBoxValue.ENABLED : CheckBox.EnumCheckBoxValue.DISABLED);
             this.lastUrlCheck = 0;
         }
+
+        this.nameField.setFocused(true);
+        this.nameField.setCursorPositionEnd();
+
+        this.buttonList.add(this.buttonDone = new GuiButton(0, this.width/2 + 3, this.height/2 + 40, 98, 20, LanguageManager.translateOrReturnKey("button_save")));
+        this.buttonList.add(new GuiButton(1, this.width/2 - 101, this.height/2 + 40, 98, 20, LanguageManager.translateOrReturnKey("button_cancel")));
+        this.buttonDone.enabled = false;
     }
 
     @Override
     public void onGuiClosed() {
+        super.onGuiClosed();
         Keyboard.enableRepeatEvents(false);
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+    protected void keyTyped(char typedChar, int keyCode) {
         this.nameField.textboxKeyTyped(typedChar, keyCode);
         if(this.urlField.textboxKeyTyped(typedChar, keyCode)) {
             if(this.urlField.getText().isEmpty()) {
@@ -90,49 +93,74 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
             }
         }
 
-        this.buttonDone.enabled = !this.nameField.getText().isEmpty() && !this.nameField.getText().equalsIgnoreCase("Privat") && !this.urlField.getText().isEmpty();
-        super.keyTyped(typedChar, keyCode);
+        if(keyCode == Keyboard.KEY_ESCAPE) {
+            goBack();
+        }
+
+        if(keyCode == Keyboard.KEY_RETURN) {
+            if(this.buttonDone.enabled) {
+                saveSettings();
+                goBack();
+            }
+        }
+
+        if(keyCode == Keyboard.KEY_TAB) {
+            if(this.nameField.isFocused()) {
+                this.nameField.setFocused(false);
+                this.urlField.setFocused(true);
+                this.urlField.setCursorPositionEnd();
+            } else {
+                this.urlField.setFocused(false);
+                this.nameField.setFocused(true);
+                this.nameField.setCursorPositionEnd();
+            }
+        }
+
+        this.buttonDone.enabled =
+                !this.nameField.getText().trim().isEmpty() &&
+                !this.nameField.getText().trim().equalsIgnoreCase("Privat") &&
+                !this.urlField.getText().trim().isEmpty();
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
         this.urlField.mouseClicked(mouseX, mouseY, mouseButton);
         this.enableCheckBox.mouseClicked(mouseX, mouseY, mouseButton);
 
-        this.buttonDone.enabled = !this.nameField.getText().isEmpty() && !this.nameField.getText().equalsIgnoreCase("Privat") && !this.urlField.getText().isEmpty();
-        super.mouseClicked(mouseX, mouseY, mouseButton);
+        this.buttonDone.enabled =
+                !this.nameField.getText().trim().isEmpty() &&
+                !this.nameField.getText().trim().equalsIgnoreCase("Privat") &&
+                !this.urlField.getText().trim().isEmpty();
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int mouseButton, long timeSinceLastClick) {
+        super.mouseClickMove(mouseX, mouseY, mouseButton, timeSinceLastClick);
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int mouseButton) {
+        super.mouseReleased(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
     }
 
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         super.actionPerformed(button);
+
         switch (button.id) {
             case 0:
-                PlayerList list;
-                if (this.editIndex != -1) {
-                    list = sc.getListManager().getLists().get(editIndex);
-                    list.getMeta().setEnabled(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED);
-                    list.getMeta().setName(this.nameField.getText());
-                    list.getMeta().setUrl(this.urlField.getText());
-                    if(list.getMeta().isEnabled()) {
-                        sc.getUpdateQueue().addList(list);
-                    } else {
-                        sc.getUpdateQueue().removeList(list);
-                    }
-                } else {
-                    list = sc.getListManager().createList(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED,
-                            this.nameField.getText(), this.urlField.getText());
-                    if(list.getMeta().isEnabled()) sc.getUpdateQueue().addList(list);
-                }
-                lastScreen.selectedIndex = -1;
-                sc.getListManager().saveListSettings();
-
-                Minecraft.getMinecraft().displayGuiScreen(this.lastScreen);
+                saveSettings();
+                goBack();
                 break;
             case 1:
-                lastScreen.selectedIndex = -1;
-                Minecraft.getMinecraft().displayGuiScreen(this.lastScreen);
+                goBack();
                 break;
         }
     }
@@ -182,13 +210,36 @@ public class ArraySettingsElementGuiAdd extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
-        this.nameField.drawTextBox();
-        this.urlField.drawTextBox();
+        super.drawScreen(mouseX, mouseY, partialTicks);
         this.enableCheckBox.drawCheckbox(mouseX, mouseY);
 
-        LabyMod.getInstance().getDrawUtils().drawString("Name:", (this.width / 2 - 100), (this.height / 2 - 95));
-        LabyMod.getInstance().getDrawUtils().drawString("URL: "+this.urlMessage, (this.width / 2 - 100), (this.height / 2 - 45));
+        LabyMod.getInstance().getDrawUtils().drawString("Name:", this.width / 2.0D - TEXTFIELD_WIDTH / 2.0D, this.height / 2.0D - 85.0D);
+        this.nameField.drawTextBox();
 
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        LabyMod.getInstance().getDrawUtils().drawString("URL: "+this.urlMessage, this.width / 2.0D - TEXTFIELD_WIDTH / 2.0D, this.height / 2.0D - 40.0D);
+        this.urlField.drawTextBox();
+    }
+
+    private void saveSettings() {
+        if (this.editIndex != -1) {
+            PlayerList list = sc.getListManager().getLists().get(editIndex);
+            list.getMeta().setEnabled(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED);
+            list.getMeta().setName(this.nameField.getText());
+            list.getMeta().setUrl(this.urlField.getText());
+            if(list.getMeta().isEnabled()) {
+                sc.getUpdateQueue().addList(list);
+            } else {
+                sc.getUpdateQueue().removeList(list);
+            }
+        } else {
+            PlayerList list = sc.getListManager().createList(this.enableCheckBox.getValue() == CheckBox.EnumCheckBoxValue.ENABLED, this.nameField.getText(), this.urlField.getText());
+            if(list.getMeta().isEnabled()) sc.getUpdateQueue().addList(list);
+        }
+        sc.getListManager().saveListSettings();
+    }
+
+    private void goBack() {
+        if(this.lastScreen != null) this.lastScreen.selectedIndex = -1;
+        Minecraft.getMinecraft().displayGuiScreen(this.lastScreen);
     }
 }

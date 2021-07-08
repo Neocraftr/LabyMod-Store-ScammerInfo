@@ -145,7 +145,7 @@ public class PlayerList extends ArrayList<Scammer> {
         updateThread = new Thread(() -> {
             download();
             load();
-            updateNames();;
+            updateNames();
         });
         updateThread.start();
     }

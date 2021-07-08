@@ -2,7 +2,10 @@ package de.neocraftr.scammerlist.listener;
 
 import de.neocraftr.scammerlist.ScammerList;
 import de.neocraftr.scammerlist.utils.Scammer;
+import net.labymod.core.LabyModCore;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.util.ChatComponentText;
 
@@ -177,6 +180,28 @@ public class CommandListener implements ClientCommandEvent {
             }
         } else
 
+       // Check all
+       if(args[0].equalsIgnoreCase("checkall")) {
+           NetHandlerPlayClient handler = LabyModCore.getMinecraft().getPlayer().sendQueue;
+           Collection<NetworkPlayerInfo> players = handler.getPlayerInfoMap();
+           List<String> scammers = new ArrayList<>();
+
+           for(NetworkPlayerInfo player : players) {
+               String playername = player.getGameProfile().getName();
+               if(playername.startsWith("!")) {
+                    if(sc.getListManager().checkName(playername)) {
+                        scammers.add(playername);
+                    }
+               } else {
+                   if(sc.getListManager().checkUUID(player.getGameProfile().getId().toString())) {
+                       scammers.add(playername);
+                   }
+               }
+           }
+
+           sc.displayMessage(ScammerList.PREFIX + "§eScammer auf diesem CityBuild: §c" + String.join("§e, §c", scammers));
+       } else
+
         // List scammers
         if (args[0].equalsIgnoreCase("list")) {
             int listSize = sc.getListManager().getPrivateList().size();
@@ -236,8 +261,8 @@ public class CommandListener implements ClientCommandEvent {
             if(!sc.getUpdateQueue().isUpdating()) {
                 sc.displayMessage(ScammerList.PREFIX + "§aDie Namen der Scammerlisten werden aktualisiert. Dies kann einige Minuten dauern...");
                 sc.getListManager().updateLists(() -> {
-                    sc.setNextUpdate(System.currentTimeMillis()+ScammerList.UPDATE_INTERVAL);
-                    sc.getConfig().addProperty("nextUpdate", sc.getNextUpdate());
+                    sc.setLastUpdateTime(System.currentTimeMillis());
+                    sc.getConfig().addProperty("lastUpdateTime", sc.getLastUpdateTime());
                     sc.saveConfig();
                     sc.displayMessage(ScammerList.PREFIX + "§aAktualisierung abgeschlossen.");
                 });
@@ -287,6 +312,7 @@ public class CommandListener implements ClientCommandEvent {
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer addclan <Name|ClanTag §8- §aFügt die Spieler eines Clans zur Scammerliste hinzu.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer removeclan <Name|ClanTag> §8- §aEntfernt die Spieler eines Clans von der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer check <Name> §8- §aÜberprüft ob sich ein Spieler auf der Scammerliste befindet.");
+        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer checkall §8- §aZeigt alle Scammer auf dem CityBuild an.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer clear §8- §aEntfernt alle Spieler von der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §aZeigt alle Spieler auf der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §aAktualisiert die Namen der Spieler. (Wird automatisch durchgeführt)");

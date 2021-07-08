@@ -2,9 +2,6 @@ buildscript {
     repositories {
         jcenter()
         maven {
-            url = "https://sizableshrimp.me/maven"
-        }
-        maven {
             url = "http://files.minecraftforge.net/maven"
         }
     }
@@ -16,7 +13,7 @@ buildscript {
 apply plugin: "net.minecraftforge.gradle.forge"
 apply plugin: "de.undercouch.download"
 
-group= "de.neocraftr.scammerlist"
+group = "de.neocraftr.scammerlist"
 archivesBaseName = "ScammerList"
 
 minecraft {

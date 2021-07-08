@@ -26,6 +26,7 @@ public class PreRenderListener {
                 tablistUpdated = true;
                 ScoreObjective scoreobjective = LabyModCore.getMinecraft().getWorld().getScoreboard().getObjectiveInDisplaySlot(0);
                 NetHandlerPlayClient handler = LabyModCore.getMinecraft().getPlayer().sendQueue;
+                IChatComponent scammerMessage = new ChatComponentText(sc.getHelper().colorize("§a§a§r"+sc.getSettings().getScammerPrefix())+" §r");
 
                 if(handler.getPlayerInfoMap().size() > 0 || scoreobjective != null) {
                     Collection<NetworkPlayerInfo> players = handler.getPlayerInfoMap();
@@ -33,7 +34,6 @@ public class PreRenderListener {
                     for(NetworkPlayerInfo player : players) {
                         if(player.getDisplayName() != null) {
                             IChatComponent playerName = player.getDisplayName();
-                            IChatComponent scammerMessage = new ChatComponentText(sc.getHelper().colorize("§a§a§r"+sc.getSettings().getScammerPrefix())+" §r");
 
                             if(playerName.getSiblings().size() > 0 && playerName.getSiblings().get(0).getFormattedText().startsWith("§a§a§r")) {
                                 playerName.getSiblings().remove(0);
