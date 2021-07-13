@@ -54,30 +54,30 @@ public class ModifyChatListener implements MessageModifyChatEvent {
         if(sc.getSettings().isHighlightInStartkick()) {
             Matcher m = startkickTargetRegex.matcher(msg.getUnformattedText());
             if(m.find()) {
-                checkAndModify(msg, 4, m.group(1));
+                checkAndModify(msg, 5, m.group(1));
             }
 
             m = startkickCreatorRegex.matcher(msg.getUnformattedText());
             if(m.find()) {
                 // Divide in two sibblings
-                msg.getSiblings().remove(3);
+                msg.getSiblings().remove(4);
                 IChatComponent creator1 = new ChatComponentText("Ersteller: ");
                 IChatComponent creator2 = new ChatComponentText(m.group(1));
                 msg.getSiblings().add(creator1);
                 msg.getSiblings().add(creator2);
 
-                checkAndModify(msg, 4, m.group(1));
+                checkAndModify(msg, 5, m.group(1));
             }
         }
 
         return o;
     }
 
-    private void checkAndModify(IChatComponent msg, int after, String playerName) {
+    private void checkAndModify(IChatComponent msg, int insertIndex, String playerName) {
         if(!sc.getListManager().checkName(playerName)) return;
         IChatComponent scammerPrefix = new ChatComponentText(sc.getHelper().colorize(sc.getSettings().getScammerPrefix())+" §r");
         scammerPrefix.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§4*Weitere Informationen*")));
         scammerPrefix.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ".scammer check "+playerName));
-        msg.getSiblings().add(after, scammerPrefix);
+        msg.getSiblings().add(insertIndex, scammerPrefix);
     }
 }
