@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class ChatReceiveListener implements MessageReceiveEvent {
 
     private ScammerList sc = ScammerList.getScammerList();
-    private Pattern clanMemberRegex = Pattern.compile("^\\u00BB (\\!?\\w{1,16}) \\((online|offline)\\)");
+    private Pattern clanMemberRegex = Pattern.compile("\\u00BB (\\!?\\w{1,16}) \\((online|offline)\\)");
     private List<String> clanMemberList = new ArrayList<>();
     private String clanName;
     private boolean clanMessage;
