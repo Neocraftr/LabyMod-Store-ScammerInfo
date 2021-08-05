@@ -194,13 +194,13 @@ public class ListManagerGuiAdd extends GuiScreen {
                         this.urlMessage = "§2Verbindung möglich";
                     } catch(Exception e) {
                         this.urlMessage = "§4Fehler beim laden der Liste";
-                        System.out.println("[ScammerList] URL check for '"+urlStr+"' failed: "+e);
+                        System.out.println(ScammerList.CONSOLE_PREFIX + "URL check for '"+urlStr+"' failed: "+e);
                     }
                 } catch(MalformedURLException e) {
                     this.urlMessage = "§4Nicht gültig";
                 } catch (Exception e) {
                     this.urlMessage = "§4Verbindung nicht möglich";
-                    System.out.println("[ScammerList] URL check for '"+urlStr+"' failed: "+e);
+                    System.out.println(ScammerList.CONSOLE_PREFIX + "URL check for '"+urlStr+"' failed: "+e);
                 }
                 this.testingUrl = false;
             }).start();

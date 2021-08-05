@@ -69,10 +69,10 @@ public class Updater {
                     }
                 }
             } else {
-                System.out.println("[ScammerList] Could not check for updates: Invalid response.");
+                System.out.println(ScammerList.CONSOLE_PREFIX + "Could not check for updates: Invalid response.");
             }
         } catch (IOException | IllegalStateException | JsonSyntaxException e) {
-            System.out.println("[ScammerList] Could not check for updates: "+e);
+            System.out.println(ScammerList.CONSOLE_PREFIX + "Could not check for updates: "+e);
         }
     }
 
