@@ -196,7 +196,11 @@ public class CommandListener implements ClientCommandEvent {
                }
            }
 
-           sc.displayMessage(ScammerList.PREFIX + "§eScammer auf diesem CityBuild: §c" + String.join("§e, §c", scammers));
+           if(scammers.size() == 0) {
+               sc.displayMessage(ScammerList.PREFIX + "§aKeine Scammer auf diesem CityBuild :D");
+           } else {
+               sc.displayMessage(ScammerList.PREFIX + "§eScammer auf diesem CityBuild: §c" + String.join("§e, §c", scammers));
+           }
        } else
 
         // List scammers
