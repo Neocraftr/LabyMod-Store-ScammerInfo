@@ -170,7 +170,7 @@ public class SettingsManager {
         }
 
         text += "\n§7Ingame Befehle: §a.scammer help";
-        text += "\n§7GitHub: §ahttps://github.com/Neocraftr/LabyMod-Scammerliste";
+        text += "\n§7GitHub: §ahttps://github.com/Neocraftr/LabyMod-ScammerInfo";
         infoText.setText(text);
     }
 

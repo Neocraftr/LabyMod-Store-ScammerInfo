@@ -15,8 +15,8 @@ import java.util.Set;
 
 public class ScammerList extends LabyModAddon {
 
-    public static final String PREFIX = "§8[§4Scammerliste§8] §r",
-                               PREFIX_LINE = "§7-------------------- §4Scammerliste §7--------------------",
+    public static final String PREFIX = "§8[§4ScammerInfo§8] §r",
+                               PREFIX_LINE = "§7-------------------- §4ScammerInfo §7--------------------",
                                COMMAND_PREFIX = ".",
                                VERSION = "1.7.0";
     public static final int PLAYERS_PER_LIST_PAGE = 15;
@@ -67,7 +67,7 @@ public class ScammerList extends LabyModAddon {
                     lastUpdateTime = System.currentTimeMillis();
                     getConfig().addProperty("lastUpdateTime", lastUpdateTime);
                     saveConfig();
-                    System.out.println("[ScammerList] Updated player names.");
+                    System.out.println("[ScammerInfo] Updated player names.");
                 });
             }
         }

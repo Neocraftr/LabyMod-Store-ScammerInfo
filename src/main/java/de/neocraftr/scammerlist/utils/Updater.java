@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 
 public class Updater {
 
-    private static final String UPDATE_URL = "https://api.github.com/repos/Neocraftr/LabyMod-Scammerliste/releases/latest";
+    private static final String UPDATE_URL = "https://api.github.com/repos/Neocraftr/LabyMod-ScammerInfo/releases/latest";
 
     private ScammerList sc = ScammerList.getScammerList();
     private boolean updateAvailable = false;

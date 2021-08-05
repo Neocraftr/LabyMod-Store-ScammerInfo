@@ -1,4 +1,4 @@
-# LabyMod\-Scammerliste
+# LabyMod\-ScammerInfo
 
 Scammerliste für GrieferGames und ähnliche Server.
 
@@ -18,7 +18,7 @@ Spielversion: **LabyMod 1.8.9 Vanilla/Forge**
 \* Auch Dateipfade können in der URL Zeile angegeben werden. Bsp: _file://C:\Pfad\zu\meiner\Liste.json_
 
 ### Installation
-Download: https://github.com/Neocraftr/LabyMod-Scammerliste/releases/latest
+Download: https://github.com/Neocraftr/LabyMod-ScammerInfo/releases/latest
 
 LabyMod Addons Ordner:
 |Betriebssystem |Dateipfad                                                 |
