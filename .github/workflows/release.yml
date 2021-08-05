@@ -30,7 +30,7 @@ jobs:
         run: ./gradlew build
 
       - name: Delete Sources Jar
-        run: rm ./build/libs/ScammerList-sources.jar
+        run: rm ./build/libs/ScammerInfo-sources.jar
 
       - name: Upload jar
         uses: actions/upload-artifact@v1

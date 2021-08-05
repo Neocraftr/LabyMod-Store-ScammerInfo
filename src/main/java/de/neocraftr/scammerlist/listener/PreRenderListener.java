@@ -40,7 +40,11 @@ public class PreRenderListener {
                             }
 
                             if(sc.getSettings().isHighlightInTablist()) {
-                                if(sc.getListManager().checkName(player.getGameProfile().getName())) {
+                                String uuid = player.getGameProfile().getId().toString();
+                                if(player.getGameProfile().getName().startsWith("!"))
+                                    uuid = player.getGameProfile().getName();
+
+                                if(sc.getListManager().checkUUID(uuid)) {
                                     playerName.getSiblings().add(0, scammerMessage);
                                 }
                             }

@@ -141,7 +141,7 @@ public class SettingsManager {
     private void updateInfo() {
         String text = "§7Version: §a"+ScammerList.VERSION;
         text += "\n§7Ingame Befehle: §a.scammer help";
-        text += "\n§7GitHub: §ahttps://github.com/Neocraftr/LabyMod-Scammerliste";
+        text += "\n§7GitHub: §ahttps://github.com/Neocraftr/LabyMod-ScammerInfo";
         infoText.setText(text);
     }
 

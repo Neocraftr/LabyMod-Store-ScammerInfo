@@ -187,19 +187,20 @@ public class CommandListener implements ClientCommandEvent {
            List<String> scammers = new ArrayList<>();
 
            for(NetworkPlayerInfo player : players) {
-               String playername = player.getGameProfile().getName();
-               if(playername.startsWith("!")) {
-                    if(sc.getListManager().checkName(playername)) {
-                        scammers.add(playername);
-                    }
-               } else {
-                   if(sc.getListManager().checkUUID(player.getGameProfile().getId().toString())) {
-                       scammers.add(playername);
-                   }
+               String uuid = player.getGameProfile().getId().toString();
+               if(player.getGameProfile().getName().startsWith("!"))
+                   uuid = player.getGameProfile().getName();
+
+               if(sc.getListManager().checkUUID(uuid)) {
+                   scammers.add(player.getGameProfile().getName());
                }
            }
 
-           sc.displayMessage(ScammerList.PREFIX + "§eScammer auf diesem CityBuild: §c" + String.join("§e, §c", scammers));
+           if(scammers.size() == 0) {
+               sc.displayMessage(ScammerList.PREFIX + "§aKeine Scammer auf diesem CityBuild :D");
+           } else {
+               sc.displayMessage(ScammerList.PREFIX + "§eScammer auf diesem CityBuild: §c" + String.join("§e, §c", scammers));
+           }
        } else
 
         // List scammers

@@ -52,7 +52,7 @@ public class Helper {
                 json.endArray();
             }
         } catch(IOException e) {
-            System.out.println("[ScammerList] Could not get name from mojang api: "+e);
+            System.out.println(ScammerList.CONSOLE_PREFIX + "Could not get name from mojang api: "+e);
         }
         Collections.reverse(names);
         return names;
@@ -70,7 +70,7 @@ public class Helper {
             String uuid = json.get("id").getAsString();
             return Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})").matcher(uuid).replaceAll("$1-$2-$3-$4-$5");
         } catch(IOException e) {
-            System.out.println("[ScammerList] Could not get uuid from mojang api: "+e);
+            System.out.println(ScammerList.CONSOLE_PREFIX + "Could not get uuid from mojang api: "+e);
         }
         return null;
     }

@@ -1,5 +1,5 @@
-# LabyMod\-Store\-Scammerliste
+# LabyMod\-Store\-ScammerInfo
 
-Die LabyMod Store Version meines Scammerliste Addons.
+Die LabyMod Store Version meines ScammerInfo Addons.
 
-Aktuelle Version: https://github.com/Neocraftr/LabyMod-Scammerliste
+Aktuelle Version: https://github.com/Neocraftr/LabyMod-ScammerInfo
