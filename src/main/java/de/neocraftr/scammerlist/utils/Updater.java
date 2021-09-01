@@ -35,11 +35,11 @@ public class Updater {
                 if(updateAvailable) {
                     if(sc.getSettings().isAutoUpdateAddon()) {
                         if(!canDoUpdate()) {
-                            sc.displayMessage(ScammerList.PREFIX+"§3Das Addon konnte nicht auf Version §ev"+latestVersion
-                                    +" §3aktualisiert werden. Manueller Download: §e"+downloadUrl);
+                            sc.displayMessage(ScammerList.PREFIX+"§cDas Addon konnte nicht auf Version §ev"+latestVersion
+                                    +" §caktualisiert werden. Manueller Download: §e"+downloadUrl);
                         }
                     } else {
-                        sc.displayMessage(ScammerList.PREFIX+"§3Update auf Version §ev"+latestVersion+" §3verfügbar. Download: §e"+downloadUrl);
+                        sc.displayMessage(ScammerList.PREFIX+"§7Update auf Version §ev"+latestVersion+" §7verfügbar. Download: §e"+downloadUrl);
                     }
                 }
             }

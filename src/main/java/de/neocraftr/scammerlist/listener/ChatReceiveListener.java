@@ -62,8 +62,8 @@ public class ChatReceiveListener implements MessageReceiveEvent {
 
                         sc.getListManager().getPrivateListScammer().save();
                         sc.getListManager().getPrivateListTrusted().save();
-                        if(addClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §azur Liste hinzugefügt.");
-                        if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §avon der Liste entfernt.");
+                        if(addClan) sc.displayMessage(ScammerList.PREFIX + "§7Es wurden §e"+newPlayers+" §7Spieler des Clans §e"+clanName+" §7zur "+sc.getClanPlayerType().getDisplayName()+" §7hinzugefügt.");
+                        if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§7Es wurden §e"+newPlayers+" §7Spieler des Clans §e"+clanName+" §7von der "+sc.getClanPlayerType().getDisplayName()+" §7entfernt.");
 
                         clanMessage = false;
                         clanMemberList.clear();
@@ -96,6 +96,8 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                 if(m.matches()) {
                     clanMemberList.add(m.group(1));
                 }
+
+                return true;
             }
         }
         return false;

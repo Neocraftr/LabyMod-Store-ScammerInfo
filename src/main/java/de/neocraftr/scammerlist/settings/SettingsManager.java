@@ -179,7 +179,9 @@ public class SettingsManager {
             text += ")";
         }
 
-        text += "\n§7Ingame Befehle: §a.scammer help";
+        text += "\n§7Ingame Befehle:";
+        text += "\n§a.scammer help";
+        text += "\n§a.trusted help";
         text += "\n§7GitHub: §ahttps://github.com/Neocraftr/LabyMod-ScammerInfo";
         infoText.setText(text);
     }

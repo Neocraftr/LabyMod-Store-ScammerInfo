@@ -16,7 +16,7 @@ import java.util.Set;
 public class ScammerList extends LabyModAddon {
 
     public static final String PREFIX = "§8[§4ScammerInfo§8] §r",
-                               PREFIX_LINE = "§7-------------------- §4ScammerInfo §7--------------------",
+                               PREFIX_LINE = "§f-------------------- §4ScammerInfo §f--------------------",
                                CONSOLE_PREFIX = "[ScammerInfo] ",
                                COMMAND_PREFIX = ".",
                                VERSION = "1.7.2";
