@@ -20,11 +20,12 @@ public class PlayerList extends ArrayList<Scammer> {
     private Meta meta = new Meta();
     private Thread updateThread;
 
-    public PlayerList(boolean enabled, String name, String url) {
+    public PlayerList(boolean enabled, String name, String url, PlayerType type) {
         meta.setId(UUID.randomUUID().toString());
         meta.setEnabled(enabled);
         meta.setName(name);
         meta.setUrl(url);
+        meta.setType(type);
     }
 
     public PlayerList(Meta meta) {
@@ -159,11 +160,12 @@ public class PlayerList extends ArrayList<Scammer> {
         return updateThread != null && updateThread.isAlive();
     }
 
-    public class Meta {
+    public static class Meta {
         private String id;
         private boolean enabled;
         private String name;
         private String url;
+        private PlayerType type = PlayerType.SCAMMER;
 
         public String getId() {
             return id;
@@ -197,6 +199,14 @@ public class PlayerList extends ArrayList<Scammer> {
             this.url = url;
         }
 
+        public PlayerType getType() {
+            return type;
+        }
+
+        public void setType(PlayerType type) {
+            this.type = type;
+        }
+
         @Override
         public String toString() {
             return "PlayerListMeta{" +
@@ -204,6 +214,7 @@ public class PlayerList extends ArrayList<Scammer> {
                 ", enabled=" + enabled +
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
+                ", type='" + type + '\'' +
                 '}';
         }
     }

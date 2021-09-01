@@ -31,6 +31,7 @@ public class ScammerList extends LabyModAddon {
     private UpdateQueue updateQueue;
     private long lastUpdateTime = 0;
     private boolean addClan, removeClan, clanInProcess;
+    private PlayerType clanPlayerType;
     private Set<ClientCommandEvent> commandListeners = new HashSet<>();
 
     @Override
@@ -48,7 +49,8 @@ public class ScammerList extends LabyModAddon {
         getApi().getEventManager().register(new ModifyChatListener());
         getApi().registerForgeListener(new PreRenderListener());
         getApi().registerForgeListener(new TickListener());
-        registerEvent(new CommandListener());
+        registerEvent(new ScammerCommandListener());
+        registerEvent(new TrustedCommandListener());
     }
 
     @Override
@@ -134,6 +136,13 @@ public class ScammerList extends LabyModAddon {
     }
     public void setClanInProcess(boolean clanInProcess) {
         this.clanInProcess = clanInProcess;
+    }
+
+    public PlayerType getClanPlayerType() {
+        return clanPlayerType;
+    }
+    public void setClanPlayerType(PlayerType clanPlayerType) {
+        this.clanPlayerType = clanPlayerType;
     }
 
     public long getLastUpdateTime() {

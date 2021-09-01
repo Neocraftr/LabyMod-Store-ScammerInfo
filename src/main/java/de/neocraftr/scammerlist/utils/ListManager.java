@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ListManager {
     private List<PlayerList> lists;
-    private PlayerList privateList;
+    private PlayerList privateListScammer, privateListTrusted;
     private File listDir;
 
     private ScammerList sc = ScammerList.getScammerList();
@@ -23,13 +23,16 @@ public class ListManager {
             listDir.mkdirs();
         }
 
-        privateList = new PlayerList(true, "Private Liste", null);
-        privateList.getMeta().setId("private");
-        privateList.load();
+        privateListScammer = new PlayerList(true, "Private Liste", null, PlayerType.SCAMMER);
+        privateListScammer.getMeta().setId("private");
+        privateListScammer.load();
 
+        privateListTrusted = new PlayerList(true, "Private Trusted Liste", null, PlayerType.TRUSTED);
+        privateListTrusted.getMeta().setId("private-trusted");
+        privateListTrusted.load();
 
         if(!sc.getConfig().has("lists")) {
-            lists.add(new PlayerList(true, "[SCAMMER] Radar", "%scammer-radar%"));
+            lists.add(new PlayerList(true, "[SCAMMER] Radar", "%scammer-radar%", PlayerType.SCAMMER));
             saveListSettings();
         }
 
@@ -50,42 +53,49 @@ public class ListManager {
             sc.getUpdateQueue().registerFinishCallback(callback);
         }
 
-        sc.getUpdateQueue().addList(privateList);
+        sc.getUpdateQueue().addList(privateListScammer);
+        sc.getUpdateQueue().addList(privateListTrusted);
         for(PlayerList list : lists) {
             sc.getUpdateQueue().addList(list);
         }
     }
 
     public void cancelAllUpdates() {
-        sc.getUpdateQueue().removeList(privateList);
+        sc.getUpdateQueue().removeList(privateListScammer);
+        sc.getUpdateQueue().removeList(privateListTrusted);
         for(PlayerList list : lists) {
             sc.getUpdateQueue().removeList(list);
         }
     }
 
-    public boolean checkName(String name) {
-        if(privateList.containsName(name)) return true;
+    public boolean checkName(String name, PlayerType type) {
+        if(type == PlayerType.SCAMMER && privateListScammer.containsName(name)) return true;
+        if(type == PlayerType.TRUSTED && privateListTrusted.containsName(name)) return true;
         for(PlayerList list : lists) {
             if(!list.getMeta().isEnabled()) continue;
+            if(list.getMeta().getType() != type) continue;
             if(list.containsName(name)) return true;
         }
         return false;
     }
 
-    public boolean checkUUID(String uuid) {
-        if(privateList.containsUUID(uuid)) return true;
+    public boolean checkUUID(String uuid, PlayerType type) {
+        if(type == PlayerType.SCAMMER && privateListScammer.containsUUID(uuid)) return true;
+        if(type == PlayerType.TRUSTED && privateListTrusted.containsUUID(uuid)) return true;
         for(PlayerList list : lists) {
             if(!list.getMeta().isEnabled()) continue;
+            if(list.getMeta().getType() != type) continue;
             if(list.containsUUID(uuid)) return true;
         }
         return false;
     }
 
-    public List<String> getContainingLists(String uuid) {
+    public List<String> getContainingLists(String uuid, PlayerType type) {
         List<String> containungLists = new ArrayList<>();
-        if(privateList.containsUUID(uuid)) containungLists.add("Privat");
+        if(privateListScammer.containsUUID(uuid) || privateListTrusted.containsUUID(uuid)) containungLists.add("Privat");
         for(PlayerList list : lists) {
             if(!list.getMeta().isEnabled()) continue;
+            if(list.getMeta().getType() != type) continue;
             if(list.containsUUID(uuid)) containungLists.add(list.getMeta().getName());
         }
         return containungLists;
@@ -100,8 +110,8 @@ public class ListManager {
         sc.saveConfig();
     }
 
-    public PlayerList createList(boolean enabled, String name, String url) {
-        PlayerList list = new PlayerList(enabled, name, url);
+    public PlayerList createList(boolean enabled, String name, String url, PlayerType type) {
+        PlayerList list = new PlayerList(enabled, name, url, type);
         lists.add(list);
         return list;
     }
@@ -115,8 +125,12 @@ public class ListManager {
         return lists;
     }
 
-    public PlayerList getPrivateList() {
-        return privateList;
+    public PlayerList getPrivateListScammer() {
+        return privateListScammer;
+    }
+
+    public PlayerList getPrivateListTrusted() {
+        return privateListTrusted;
     }
 
     public File getListDir() {

@@ -1,5 +1,6 @@
 package de.neocraftr.scammerlist.chat;
 
+import de.neocraftr.scammerlist.utils.PlayerType;
 import net.minecraft.util.IChatComponent;
 
 import java.util.regex.Matcher;
@@ -16,18 +17,19 @@ public class ClanInfo extends ChatModule {
         Matcher clanMatcher = clanMemberRegex.matcher(msg.getUnformattedText());
         if(!clanMatcher.find()) return false;
 
-        if(!sc.getListManager().checkName(clanMatcher.group(1))) return false;
+        PlayerType playerType = checkPlayer(clanMatcher.group(1));
+        if(playerType == null) return false;
 
         for(int i=0; i<msg.getSiblings().size(); i++) {
             IChatComponent sibbling = msg.getSiblings().get(i);
             if (sibbling.getFormattedText().contains("§8» §r") && msg.getSiblings().size() >= i+1) {
-                addPrefix(msg, i+1, clanMatcher.group(1));
+                addPrefix(msg, i+1, clanMatcher.group(1), playerType);
                 return true;
             }
         }
 
         // Invalid message, falling back to default
-        addPrefix(msg, 0, clanMatcher.group(1));
+        addPrefix(msg, 0, clanMatcher.group(1), playerType);
         return false;
     }
 }

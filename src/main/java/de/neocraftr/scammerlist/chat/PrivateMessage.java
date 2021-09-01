@@ -1,5 +1,6 @@
 package de.neocraftr.scammerlist.chat;
 
+import de.neocraftr.scammerlist.utils.PlayerType;
 import net.minecraft.util.IChatComponent;
 
 import java.util.regex.Matcher;
@@ -20,18 +21,19 @@ public class PrivateMessage extends ChatModule {
             if(!pmMatcher.find()) return false;
         }
 
-        if(!sc.getListManager().checkName(pmMatcher.group(1))) return false;
+        PlayerType playerType = checkPlayer(pmMatcher.group(1));
+        if(playerType == null) return false;
 
         for(int i=0; i<msg.getSiblings().size(); i++) {
             IChatComponent sibbling = msg.getSiblings().get(i);
             if (sibbling.getFormattedText().contains("§6[§r")) {
-                addPrefix(msg, i, pmMatcher.group(1));
+                addPrefix(msg, i, pmMatcher.group(1), playerType);
                 return true;
             }
         }
 
         // Invalid message, falling back to default
-        addPrefix(msg, 0, pmMatcher.group(1));
+        addPrefix(msg, 0, pmMatcher.group(1), playerType);
         return true;
     }
 }

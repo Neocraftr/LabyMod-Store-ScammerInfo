@@ -1,6 +1,7 @@
 package de.neocraftr.scammerlist.listener;
 
 import de.neocraftr.scammerlist.ScammerList;
+import de.neocraftr.scammerlist.utils.PlayerType;
 import de.neocraftr.scammerlist.utils.Scammer;
 import net.labymod.api.events.MessageReceiveEvent;
 
@@ -34,8 +35,11 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             if(addClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
-                                    if (!sc.getListManager().getPrivateList().containsUUID(uuid)) {
-                                        sc.getListManager().getPrivateList().add(new Scammer(uuid, name, "Clan Mitglied - "+clanName));
+                                    if (sc.getClanPlayerType() == PlayerType.SCAMMER && !sc.getListManager().getPrivateListScammer().containsUUID(uuid)) {
+                                        sc.getListManager().getPrivateListScammer().add(new Scammer(uuid, name, "Clan Mitglied - "+clanName));
+                                        newPlayers++;
+                                    } else if (sc.getClanPlayerType() == PlayerType.TRUSTED && !sc.getListManager().getPrivateListTrusted().containsUUID(uuid)) {
+                                        sc.getListManager().getPrivateListTrusted().add(new Scammer(uuid, name, "Clan Mitglied - "+clanName));
                                         newPlayers++;
                                     }
                                 } else {
@@ -45,7 +49,9 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             if(removeClan) {
                                 String uuid = sc.getHelper().getUUIDFromName(name);
                                 if (uuid != null) {
-                                    if (sc.getListManager().getPrivateList().removeByUUID(uuid)) {
+                                    if (sc.getClanPlayerType() == PlayerType.SCAMMER && sc.getListManager().getPrivateListScammer().removeByUUID(uuid)) {
+                                        newPlayers++;
+                                    } else if (sc.getClanPlayerType() == PlayerType.TRUSTED && sc.getListManager().getPrivateListTrusted().removeByUUID(uuid)) {
                                         newPlayers++;
                                     }
                                 } else {
@@ -54,9 +60,10 @@ public class ChatReceiveListener implements MessageReceiveEvent {
                             }
                         });
 
-                        sc.getListManager().getPrivateList().save();
-                        if(addClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §azur Scammerliste hinzugefügt.");
-                        if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §avon der Scammerliste entfernt.");
+                        sc.getListManager().getPrivateListScammer().save();
+                        sc.getListManager().getPrivateListTrusted().save();
+                        if(addClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §azur Liste hinzugefügt.");
+                        if(removeClan) sc.displayMessage(ScammerList.PREFIX + "§aEs wurden §e"+newPlayers+" §aSpieler des Clans §e"+clanName+" §avon der Liste entfernt.");
 
                         clanMessage = false;
                         clanMemberList.clear();
