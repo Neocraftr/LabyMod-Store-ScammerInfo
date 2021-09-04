@@ -18,7 +18,8 @@ public class SettingsManager {
                     highlightInStartkick = true,
                     autoUpdate = true;
     private int updateInterval = 7;
-    private String scammerPrefix = "&c&l[&4&l!&c&l]";
+    private String scammerPrefix = "&c&l[&4&l!&c&l]",
+                   trustedPrefix = "&a&l[&2&l✔&a&l]";
 
     private ButtonElement updateListsBtn;
     private TextElement listUpdateStatus;
@@ -47,6 +48,9 @@ public class SettingsManager {
         }
         if(sc.getConfig().has("scammerPrefix")) {
             scammerPrefix = sc.getConfig().get("scammerPrefix").getAsString();
+        }
+        if(sc.getConfig().has("trustedPrefix")) {
+            trustedPrefix = sc.getConfig().get("trustedPrefix").getAsString();
         }
         if(sc.getConfig().has("updateInterval")) {
             updateInterval = sc.getConfig().get("updateInterval").getAsInt();
@@ -90,6 +94,12 @@ public class SettingsManager {
             sc.saveConfig();
         });
         settings.add(scammerPrefixSetting);
+        final StringElement trustedPrefixSetting = new StringElement("Trusted Prefix", new ControlElement.IconData(Material.BOOK_AND_QUILL), trustedPrefix, value -> {
+            trustedPrefix = value;
+            sc.getConfig().addProperty("trustedPrefix", value);
+            sc.saveConfig();
+        });
+        settings.add(trustedPrefixSetting);
 
         settings.add(new HeaderElement("Listen"));
 
@@ -140,7 +150,9 @@ public class SettingsManager {
 
     private void updateInfo() {
         String text = "§7Version: §a"+ScammerList.VERSION+"-laby";
-        text += "\n§7Ingame Befehle: §a.scammer help";
+        text += "\n§7Ingame Befehle:";
+        text += "\n§a.scammer help";
+        text += "\n§a.trusted help";
         text += "\n§7GitHub: §ahttps://github.com/Neocraftr/LabyMod-ScammerInfo";
         infoText.setText(text);
     }
@@ -167,6 +179,10 @@ public class SettingsManager {
 
     public String getScammerPrefix() {
         return scammerPrefix;
+    }
+
+    public String getTrustedPrefix() {
+        return trustedPrefix;
     }
 
     public int getUpdateInterval() {

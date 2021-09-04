@@ -2,6 +2,7 @@ package de.neocraftr.scammerlist.settings;
 
 import de.neocraftr.scammerlist.ScammerList;
 import de.neocraftr.scammerlist.utils.PlayerList;
+import de.neocraftr.scammerlist.utils.PlayerType;
 import net.labymod.gui.elements.Scrollbar;
 import net.labymod.main.LabyMod;
 import net.labymod.main.lang.LanguageManager;
@@ -118,8 +119,11 @@ public class ListManagerGui extends GuiScreen {
         drawRect(x, (int) y, x + ENTRY_WIDTH, (int) y + ENTRY_HEIGHT, backgroundColor);
         LabyMod.getInstance().getDrawUtils().drawRectBorder(x, y, x + ENTRY_WIDTH, (int) (y + ENTRY_HEIGHT), borderColor, 1.0D);
 
-        LabyMod.getInstance().getDrawUtils().drawString(list.getMeta().getName()+" §7("+(list.getMeta().isEnabled() ? "§2Aktiviert" : "§4Deaktiviert")+"§7)",
-                x + 10.0D, y + 11.0D);
+        LabyMod.getInstance().getDrawUtils().drawString(list.getMeta().getName()+" §7("+(list.getMeta().isEnabled() ? "§2Aktiviert" : "§4Deaktiviert")+"§7)", x + 10.0D, y + 11.0D);
+
+        int typeColor = list.getMeta().getType() == PlayerType.SCAMMER ? ModColor.toRGB(255, 85, 85, 60) : ModColor.toRGB(85, 255, 85, 60);
+        drawRect(x + ENTRY_WIDTH - 1, (int) y + ENTRY_HEIGHT - 1, x + ENTRY_WIDTH - 50, (int) y + ENTRY_HEIGHT - 16, typeColor);
+        drawCenteredString(list.getMeta().getType().name(), x + ENTRY_WIDTH - 50.0D / 2.0D, y + ENTRY_HEIGHT - 12.0D, ModColor.toRGB(230, 230, 230, 100));
     }
 
     @Override
@@ -153,5 +157,10 @@ public class ListManagerGui extends GuiScreen {
         if(keyCode == Keyboard.KEY_ESCAPE) {
             Minecraft.getMinecraft().displayGuiScreen(this.lastScreen);
         }
+    }
+
+    private void drawCenteredString(String text, double x, double y, int color) {
+        int width = LabyMod.getInstance().getDrawUtils().getStringWidth(text);
+        LabyMod.getInstance().getDrawUtils().getFontRenderer().drawString(text, (int) x - width / 2, (int) y, color);
     }
 }

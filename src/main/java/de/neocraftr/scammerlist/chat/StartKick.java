@@ -1,5 +1,6 @@
 package de.neocraftr.scammerlist.chat;
 
+import de.neocraftr.scammerlist.utils.PlayerType;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 
@@ -24,7 +25,8 @@ public class StartKick extends ChatModule {
             if(!startkickMatcher.find()) return false;
         }
 
-        if(!sc.getListManager().checkName(startkickMatcher.group(1))) return false;
+        PlayerType playerType = checkPlayer(startkickMatcher.group(1));
+        if(playerType == null) return false;
 
         for(int i=0; i<msg.getSiblings().size(); i++) {
             if(creator) {
@@ -33,18 +35,18 @@ public class StartKick extends ChatModule {
                     msg.getSiblings().remove(i);
                     msg.getSiblings().add(i, new ChatComponentText("§fErsteller: "));
                     msg.getSiblings().add(i+1, new ChatComponentText(startkickMatcher.group(1)));
-                    addPrefix(msg, i+1, startkickMatcher.group(1));
+                    addPrefix(msg, i+1, startkickMatcher.group(1), playerType);
                     return true;
                 }
             } else {
                 if (msg.getSiblings().get(i).getUnformattedText().contains("Soll der Spieler") && msg.getSiblings().size() >= i+1) {
-                    addPrefix(msg, i+1, startkickMatcher.group(1));
+                    addPrefix(msg, i+1, startkickMatcher.group(1), playerType);
                     return true;
                 }
             }
         }
 
-        addPrefix(msg, 0, startkickMatcher.group(1));
+        addPrefix(msg, 0, startkickMatcher.group(1), playerType);
         return false;
     }
 }

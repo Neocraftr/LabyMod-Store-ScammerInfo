@@ -1,6 +1,7 @@
 package de.neocraftr.scammerlist.listener;
 
 import de.neocraftr.scammerlist.ScammerList;
+import de.neocraftr.scammerlist.utils.PlayerType;
 import net.labymod.core.LabyModCore;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
@@ -27,6 +28,7 @@ public class PreRenderListener {
                 ScoreObjective scoreobjective = LabyModCore.getMinecraft().getWorld().getScoreboard().getObjectiveInDisplaySlot(0);
                 NetHandlerPlayClient handler = LabyModCore.getMinecraft().getPlayer().sendQueue;
                 IChatComponent scammerMessage = new ChatComponentText(sc.getHelper().colorize("§a§a§r"+sc.getSettings().getScammerPrefix())+" §r");
+                IChatComponent trustedMessage = new ChatComponentText(sc.getHelper().colorize("§a§a§r"+sc.getSettings().getTrustedPrefix())+" §r");
 
                 if(handler.getPlayerInfoMap().size() > 0 || scoreobjective != null) {
                     Collection<NetworkPlayerInfo> players = handler.getPlayerInfoMap();
@@ -44,8 +46,10 @@ public class PreRenderListener {
                                 if(player.getGameProfile().getName().startsWith("!"))
                                     uuid = player.getGameProfile().getName();
 
-                                if(sc.getListManager().checkUUID(uuid)) {
+                                if(sc.getListManager().checkUUID(uuid, PlayerType.SCAMMER)) {
                                     playerName.getSiblings().add(0, scammerMessage);
+                                } else if(sc.getListManager().checkUUID(uuid, PlayerType.TRUSTED)) {
+                                    playerName.getSiblings().add(0, trustedMessage);
                                 }
                             }
 

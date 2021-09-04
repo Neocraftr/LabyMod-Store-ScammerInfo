@@ -15,10 +15,10 @@ import java.util.Set;
 public class ScammerList extends LabyModAddon {
 
     public static final String PREFIX = "§8[§4ScammerInfo§8] §r",
-                               PREFIX_LINE = "§7-------------------- §4ScammerInfo §7--------------------",
+                               PREFIX_LINE = "§f-------------------- §4ScammerInfo §f--------------------",
                                CONSOLE_PREFIX = "[ScammerInfo] ",
                                COMMAND_PREFIX = ".",
-                               VERSION = "1.7.2";
+                               VERSION = "1.8.0";
     public static final int PLAYERS_PER_LIST_PAGE = 15;
 
     private static ScammerList scammerList;
@@ -29,6 +29,7 @@ public class ScammerList extends LabyModAddon {
     private UpdateQueue updateQueue;
     private long lastUpdateTime = 0;
     private boolean addClan, removeClan, clanInProcess;
+    private PlayerType clanPlayerType;
     private Set<ClientCommandEvent> commandListeners = new HashSet<>();
 
     @Override
@@ -45,7 +46,8 @@ public class ScammerList extends LabyModAddon {
         getApi().getEventManager().register(new ModifyChatListener());
         getApi().registerForgeListener(new PreRenderListener());
         getApi().registerForgeListener(new TickListener());
-        registerEvent(new CommandListener());
+        registerEvent(new ScammerCommandListener());
+        registerEvent(new TrustedCommandListener());
     }
 
     @Override
@@ -125,6 +127,13 @@ public class ScammerList extends LabyModAddon {
     }
     public void setClanInProcess(boolean clanInProcess) {
         this.clanInProcess = clanInProcess;
+    }
+
+    public PlayerType getClanPlayerType() {
+        return clanPlayerType;
+    }
+    public void setClanPlayerType(PlayerType clanPlayerType) {
+        this.clanPlayerType = clanPlayerType;
     }
 
     public long getLastUpdateTime() {
