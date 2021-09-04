@@ -319,7 +319,6 @@ public class ScammerCommandListener implements ClientCommandEvent {
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer clear §8- §7Entfernt alle Spieler von der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer list §8- §7Zeigt alle Spieler auf der Scammerliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer update §8- §7Aktualisiert die Namen der Spieler. (Wird automatisch durchgeführt)");
-        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"scammer version §8- §7Zeigt die Version des Addons an.");
         joiner.add(ScammerList.PREFIX_LINE);
         sc.displayMessage(joiner.toString());
     }

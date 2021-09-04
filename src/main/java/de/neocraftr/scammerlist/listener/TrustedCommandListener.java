@@ -301,16 +301,6 @@ public class TrustedCommandListener implements ClientCommandEvent {
                             + ScammerList.COMMAND_PREFIX + cmd + " clear confirm§7.");
                 }
             }
-        } else
-
-        // Version
-        if(args[0].equalsIgnoreCase("version")) {
-            sc.displayMessage(ScammerList.PREFIX+"§7Installierte Version: §ev"+ScammerList.VERSION);
-
-            String latestVersion = sc.getUpdater().getLatestVersion();
-            if(latestVersion != null) {
-                sc.displayMessage(ScammerList.PREFIX+"§7Neuste Version: §ev"+latestVersion);
-            }
         } else printHelp();
 
         return true;
@@ -329,7 +319,6 @@ public class TrustedCommandListener implements ClientCommandEvent {
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"trusted clear §8- §7Entfernt alle Spieler von der Trustedliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"trusted list §8- §7Zeigt alle Spieler auf der Trustedliste.");
         joiner.add("§e"+ScammerList.COMMAND_PREFIX+"trusted update §8- §7Aktualisiert die Namen der Spieler. (Wird automatisch durchgeführt)");
-        joiner.add("§e"+ScammerList.COMMAND_PREFIX+"trusted version §8- §7Zeigt die Version des Addons an.");
         joiner.add(ScammerList.PREFIX_LINE);
         sc.displayMessage(joiner.toString());
     }
