@@ -2,7 +2,8 @@ name: Release
 
 on:
   push:
-    tags: 'v*-laby'
+    tags:
+      - 'v*-laby'
 
 jobs:
   build:
