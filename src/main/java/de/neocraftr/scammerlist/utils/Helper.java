@@ -19,7 +19,7 @@ public class Helper {
 
     private ScammerList sc = ScammerList.getScammerList();
 
-    public List<String> getNamesFromUUID(String uuid) {
+    public List<String> getNameHistoryFromUUID(String uuid) {
         List<String> names = new ArrayList<>();
 
         if(uuid.startsWith("!")) {
@@ -58,19 +58,44 @@ public class Helper {
         return names;
     }
 
+    public String getNameFromUUID(String uuid) {
+        if(uuid.startsWith("!")) {
+            return uuid;
+        }
+
+        try {
+            uuid = CharMatcher.is('-').removeFrom(uuid);
+            BufferedReader reader = Resources.asCharSource(new URL(String.format("https://api.minetools.eu/uuid/%s", uuid)), StandardCharsets.UTF_8).openBufferedStream();
+            JsonObject json = sc.getGson().fromJson(reader, JsonObject.class);
+
+            if(json == null) throw new Exception("No response for name "+uuid);
+            if(!json.has("name") || !json.has("status") || !json.get("status").getAsString().equals("OK"))
+                throw new Exception("Invalid response: "+json);
+
+            return json.get("name").getAsString();
+        } catch(Exception e) {
+            System.out.println(ScammerList.CONSOLE_PREFIX + "Could not get name from minetools api: "+e);
+        }
+        return null;
+    }
+
     public String getUUIDFromName(String name) {
         if(name.startsWith("!")) {
             return name;
         }
 
         try {
-            BufferedReader reader = Resources.asCharSource(new URL(String.format("https://api.mojang.com/users/profiles/minecraft/%s", name)), StandardCharsets.UTF_8).openBufferedStream();
+            BufferedReader reader = Resources.asCharSource(new URL(String.format("https://api.minetools.eu/uuid/%s", name)), StandardCharsets.UTF_8).openBufferedStream();
             JsonObject json = sc.getGson().fromJson(reader, JsonObject.class);
-            if(json == null || !json.has("id")) return null;
+
+            if(json == null) throw new Exception("No response for name "+name);
+            if(!json.has("id") || !json.has("status") || !json.get("status").getAsString().equals("OK"))
+                throw new Exception("Invalid response: "+json);
+
             String uuid = json.get("id").getAsString();
             return Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})").matcher(uuid).replaceAll("$1-$2-$3-$4-$5");
-        } catch(IOException e) {
-            System.out.println(ScammerList.CONSOLE_PREFIX + "Could not get uuid from mojang api: "+e);
+        } catch(Exception e) {
+            System.out.println(ScammerList.CONSOLE_PREFIX + "Could not get uuid from minetools api: "+e);
         }
         return null;
     }

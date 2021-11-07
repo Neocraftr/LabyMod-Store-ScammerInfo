@@ -85,9 +85,8 @@ public class PlayerList extends ArrayList<Scammer> {
     private void updateNames() {
         if(!meta.isEnabled()) return;
         for(Scammer scammer : this) {
-            List<String> names = sc.getHelper().getNamesFromUUID(scammer.getUUID());
-            if(names.size() == 0) return;
-            scammer.setName(names.get(0));
+            String name = sc.getHelper().getNameFromUUID(scammer.getUUID());
+            scammer.setName(name);
         }
         save();
     }
