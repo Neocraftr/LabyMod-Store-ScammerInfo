@@ -14,7 +14,7 @@ public class Scammer {
     private String originalName;
     private final long date;
 
-    public Scammer(String uuid, String name, String description, String originalName, long date) {
+    public Scammer(String uuid, String name, String originalName, String description, long date) {
         this.uuid = uuid;
         this.name = name;
         this.description = description;
@@ -92,10 +92,19 @@ public class Scammer {
                 } catch(DateTimeParseException e) {}
             }
 
+            String description = null;
+            // Convert notice attribute to description
+            if(object.has("description")) {
+                description = object.get("description").getAsString();
+            } else if(object.has("notice")) {
+                description = object.get("notice").getAsString();
+                if(description.equalsIgnoreCase("No notice provided")) description = null;
+            }
+
+
             String uuid = object.has("uuid") ? object.get("uuid").getAsString() : null;
             String name = object.has("name") ? object.get("name").getAsString() : null;
             String originalName = object.has("originalName") ? object.get("originalName").getAsString() : null;
-            String description = object.has("description") ? object.get("description").getAsString() : null;
 
             return new Scammer(uuid, name, originalName, description, date);
         }

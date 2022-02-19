@@ -1,6 +1,7 @@
 package de.neocraftr.scammerlist.listener;
 
 import de.neocraftr.scammerlist.ScammerList;
+import de.neocraftr.scammerlist.utils.PlayerList;
 import de.neocraftr.scammerlist.utils.PlayerType;
 import de.neocraftr.scammerlist.utils.Scammer;
 import net.labymod.core.LabyModCore;
@@ -159,13 +160,13 @@ public class ScammerCommandListener implements ClientCommandEvent {
                             }
                             joiner.add("§7UUID: §e"+(uuid.equals(nameHistory.get(0)) ? "Nicht verfügbar" : uuid));
 
-                            List<String> containingLists = sc.getListManager().getContainingLists(uuid, PlayerType.SCAMMER);
-                            joiner.add("§7Liste: §e"+formatList(containingLists));
-                            if(containingLists.contains("Privat")) {
-                                Scammer s = sc.getListManager().getPrivateListScammer().getByUUID(uuid);
-                                if(s.getDate() != 0) joiner.add("§7Hinzugefügt am: §e"+new SimpleDateFormat("dd:MM:yyyy HH:mm").format(new Date(s.getDate())));
-                                if(s.getOriginalName() != null) joiner.add("§7Ursprünglicher Name: §e"+s.getOriginalName());
-                                if(s.getDescription() != null) joiner.add("§7Beschreibung: §e"+s.getDescription());
+                            List<PlayerList> containingLists = sc.getListManager().getContainingLists(uuid, PlayerType.SCAMMER);
+                            for(PlayerList list : containingLists) {
+                                joiner.add("§7Liste: §e"+list.getMeta().getName());
+                                Scammer s = list.getByUUID(uuid);
+                                if(s.getDate() != 0) joiner.add("  §7Hinzugefügt am: §e"+new SimpleDateFormat("dd:MM:yyyy HH:mm").format(new Date(s.getDate())));
+                                if(s.getOriginalName() != null) joiner.add("  §7Ursprünglicher Name: §e"+s.getOriginalName());
+                                if(s.getDescription() != null) joiner.add("  §7Beschreibung: §e"+s.getDescription());
                             }
 
                             joiner.add(ScammerList.PREFIX_LINE);

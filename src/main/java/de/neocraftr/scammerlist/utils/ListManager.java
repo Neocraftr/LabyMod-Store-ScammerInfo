@@ -108,15 +108,19 @@ public class ListManager {
         return false;
     }
 
-    public List<String> getContainingLists(String uuid, PlayerType type) {
-        List<String> containungLists = new ArrayList<>();
-        if(privateListScammer.containsUUID(uuid) || privateListTrusted.containsUUID(uuid)) containungLists.add("Privat");
+    public List<PlayerList> getContainingLists(String uuid, PlayerType type) {
+        List<PlayerList> containingLists = new ArrayList<>();
+        if(type == PlayerType.SCAMMER && privateListScammer.containsUUID(uuid)) {
+            containingLists.add(privateListScammer);
+        } else if(type == PlayerType.TRUSTED && privateListTrusted.containsUUID(uuid)) {
+            containingLists.add(privateListTrusted);
+        }
         for(PlayerList list : lists) {
             if(!list.getMeta().isEnabled()) continue;
             if(list.getMeta().getType() != type) continue;
-            if(list.containsUUID(uuid)) containungLists.add(list.getMeta().getName());
+            if(list.containsUUID(uuid)) containingLists.add(list);
         }
-        return containungLists;
+        return containingLists;
     }
 
     public void saveListSettings() {
