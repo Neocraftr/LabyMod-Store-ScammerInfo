@@ -106,8 +106,10 @@ public class Helper {
 
     public String replaceUrlWildcards(String msg) {
         switch(msg.toLowerCase()) {
-            case "%scammer-radar%":
-                return "https://coolertyp.scammer-radar.de/onlineScammer.json";
+            case "%scammer-radar-sc%":
+                return "http://newh1ve.de:8080/scammer/scammers";
+            case "%scammer-radar-mm%":
+                return "http://newh1ve.de:8080/mm/middlemans";
             default:
                 return msg;
         }

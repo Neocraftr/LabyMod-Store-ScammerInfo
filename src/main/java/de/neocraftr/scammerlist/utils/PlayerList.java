@@ -20,8 +20,9 @@ public class PlayerList extends ArrayList<Scammer> {
     private Meta meta = new Meta();
     private Thread updateThread;
 
-    public PlayerList(boolean enabled, String name, String url, PlayerType type) {
-        meta.setId(UUID.randomUUID().toString());
+    public PlayerList(String id, boolean predefined, boolean enabled, String name, String url, PlayerType type) {
+        meta.setId(id);
+        meta.setPredefined(predefined);
         meta.setEnabled(enabled);
         meta.setName(name);
         meta.setUrl(url);
@@ -161,6 +162,7 @@ public class PlayerList extends ArrayList<Scammer> {
 
     public static class Meta {
         private String id;
+        private boolean predefined;
         private boolean enabled;
         private String name;
         private String url;
@@ -172,6 +174,14 @@ public class PlayerList extends ArrayList<Scammer> {
 
         public void setId(String id) {
             this.id = id;
+        }
+
+        public boolean isPredefined() {
+            return predefined;
+        }
+
+        public void setPredefined(boolean predefined) {
+            this.predefined = predefined;
         }
 
         public boolean isEnabled() {
@@ -210,6 +220,7 @@ public class PlayerList extends ArrayList<Scammer> {
         public String toString() {
             return "PlayerListMeta{" +
                 "id='" + id + '\'' +
+                ", predefined=" + predefined +
                 ", enabled=" + enabled +
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
