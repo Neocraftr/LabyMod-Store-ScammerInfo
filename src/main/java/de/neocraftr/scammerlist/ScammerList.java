@@ -37,7 +37,10 @@ public class ScammerList extends LabyModAddon {
     @Override
     public void onEnable() {
         scammerList = this;
-        gson = new GsonBuilder().setPrettyPrinting().create();
+        gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(Scammer.class, new Scammer.ScammerDeserializer())
+                .create();
         settings = new SettingsManager();
         helper = new Helper();
         updater = new Updater();
