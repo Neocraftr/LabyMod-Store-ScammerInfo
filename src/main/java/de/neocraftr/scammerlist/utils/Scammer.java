@@ -94,17 +94,17 @@ public class Scammer {
 
             String description = null;
             // Convert notice attribute to description
-            if(object.has("description")) {
+            if(object.has("description") && !object.get("description").isJsonNull()) {
                 description = object.get("description").getAsString();
-            } else if(object.has("notice")) {
+            } else if(object.has("notice") && !object.get("notice").isJsonNull()) {
                 description = object.get("notice").getAsString();
                 if(description.equalsIgnoreCase("No notice provided")) description = null;
             }
 
 
-            String uuid = object.has("uuid") ? object.get("uuid").getAsString() : null;
-            String name = object.has("name") ? object.get("name").getAsString() : null;
-            String originalName = object.has("originalName") ? object.get("originalName").getAsString() : null;
+            String uuid = object.has("uuid") && !object.get("uuid").isJsonNull() ? object.get("uuid").getAsString() : null;
+            String name = object.has("name") && !object.get("name").isJsonNull() ? object.get("name").getAsString() : null;
+            String originalName = object.has("originalName") && !object.get("originalName").isJsonNull() ? object.get("originalName").getAsString() : null;
 
             return new Scammer(uuid, name, originalName, description, date);
         }
