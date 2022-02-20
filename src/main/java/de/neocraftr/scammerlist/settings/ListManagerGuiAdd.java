@@ -39,6 +39,7 @@ public class ListManagerGuiAdd extends GuiScreen {
     private long lastUrlCheck;
     private boolean testingUrl;
     private String urlMessage;
+    private boolean editable = true;
 
     public ListManagerGuiAdd(ListManagerGui lastScreen, int editIndex) {
         this.lastScreen = lastScreen;
@@ -52,11 +53,9 @@ public class ListManagerGuiAdd extends GuiScreen {
 
         this.nameField = new ModTextField(-1, LabyMod.getInstance().getDrawUtils().fontRenderer, this.width/2 - TEXTFIELD_WIDTH/2, this.height/2 - 90, TEXTFIELD_WIDTH, 20);
         this.nameField.setMaxStringLength(100);
-        this.nameField.setDisabledTextColour(1);
 
         this.urlField = new ModTextField(-1, LabyMod.getInstance().getDrawUtils().fontRenderer, this.width/2 - TEXTFIELD_WIDTH/2, this.height/2 - 45, TEXTFIELD_WIDTH, 20);
         this.urlField.setMaxStringLength(100);
-        this.urlField.setDisabledTextColour(1);
 
         this.enableCheckBox = new CheckBox("Aktiviert", CheckBox.EnumCheckBoxValue.ENABLED, null, this.width/2 - TEXTFIELD_WIDTH/2 - 1, this.height/2 + 30, 20, 20);
 
@@ -70,15 +69,21 @@ public class ListManagerGuiAdd extends GuiScreen {
 
         if(this.editIndex != -1) {
             PlayerList list = sc.getListManager().getLists().get(editIndex);
+            editable = !list.getMeta().isPredefined();
             this.nameField.setText(list.getMeta().getName());
+            this.nameField.setEnabled(editable);
             this.urlField.setText(list.getMeta().getUrl());
+            this.urlField.setEnabled(editable);
             this.enableCheckBox.setCurrentValue(list.getMeta().isEnabled() ? CheckBox.EnumCheckBoxValue.ENABLED : CheckBox.EnumCheckBoxValue.DISABLED);
             this.playerTypeDownMenu.setSelected(list.getMeta().getType());
+            this.playerTypeDownMenu.setEnabled(editable);
             this.lastUrlCheck = 0;
         }
 
-        this.nameField.setFocused(true);
-        this.nameField.setCursorPositionEnd();
+        if(editable) {
+            this.nameField.setFocused(true);
+            this.nameField.setCursorPositionEnd();
+        }
 
         this.buttonList.add(this.buttonDone = new GuiButton(0, this.width/2 + 3, this.height/2 + 55, 98, 20, LanguageManager.translateOrReturnKey("button_save")));
         this.buttonList.add(new GuiButton(1, this.width/2 - 101, this.height/2 + 55, 98, 20, LanguageManager.translateOrReturnKey("button_cancel")));
@@ -94,7 +99,7 @@ public class ListManagerGuiAdd extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         this.nameField.textboxKeyTyped(typedChar, keyCode);
-        if(this.urlField.textboxKeyTyped(typedChar, keyCode)) {
+        if(this.urlField.textboxKeyTyped(typedChar, keyCode) && editable) {
             if(this.urlField.getText().isEmpty()) {
                 this.lastUrlCheck = -1;
                 this.urlMessage = "";
@@ -115,7 +120,7 @@ public class ListManagerGuiAdd extends GuiScreen {
             }
         }
 
-        if(keyCode == Keyboard.KEY_TAB) {
+        if(keyCode == Keyboard.KEY_TAB && editable) {
             if(this.nameField.isFocused()) {
                 this.nameField.setFocused(false);
                 this.urlField.setFocused(true);
@@ -210,13 +215,15 @@ public class ListManagerGuiAdd extends GuiScreen {
                         this.urlMessage = "§2Verbindung möglich";
                     } catch(Exception e) {
                         this.urlMessage = "§4Fehler beim laden der Liste";
-                        System.out.println(ScammerList.CONSOLE_PREFIX + "URL check for '"+urlStr+"' failed: "+e);
+                        System.out.println(ScammerList.CONSOLE_PREFIX + "URL check for '"+urlStr+"' failed: ");
+                        e.printStackTrace();
                     }
                 } catch(MalformedURLException e) {
                     this.urlMessage = "§4Nicht gültig";
                 } catch (Exception e) {
                     this.urlMessage = "§4Verbindung nicht möglich";
-                    System.out.println(ScammerList.CONSOLE_PREFIX + "URL check for '"+urlStr+"' failed: "+e);
+                    System.out.println(ScammerList.CONSOLE_PREFIX + "URL check for '"+urlStr+"' failed: ");
+                    e.printStackTrace();
                 }
                 this.testingUrl = false;
             }).start();

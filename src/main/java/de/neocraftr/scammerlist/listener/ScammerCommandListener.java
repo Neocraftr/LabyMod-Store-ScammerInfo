@@ -1,6 +1,7 @@
 package de.neocraftr.scammerlist.listener;
 
 import de.neocraftr.scammerlist.ScammerList;
+import de.neocraftr.scammerlist.utils.PlayerList;
 import de.neocraftr.scammerlist.utils.PlayerType;
 import de.neocraftr.scammerlist.utils.Scammer;
 import net.labymod.core.LabyModCore;
@@ -33,7 +34,7 @@ public class ScammerCommandListener implements ClientCommandEvent {
                 new Thread(() -> {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
-                        List<String> names = sc.getHelper().getNamesFromUUID(uuid);
+                        String name = sc.getHelper().getNameFromUUID(uuid);
                         if (!sc.getListManager().getPrivateListScammer().containsUUID(uuid)) {
                             String description = null;
                             if(args.length >= 3) {
@@ -43,15 +44,15 @@ public class ScammerCommandListener implements ClientCommandEvent {
                                 }
                                 description = joiner.toString();
                             }
-                            sc.getListManager().getPrivateListScammer().add(new Scammer(uuid, names.get(0), description));
+                            sc.getListManager().getPrivateListScammer().add(new Scammer(uuid, name, description));
                             if(description != null) {
-                                sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + names.get(0) + " §7wurde wegen §e"+description+" §7zu deiner §cScammerliste §7hinzugefügt.");
+                                sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + name + " §7wurde wegen §e"+description+" §7zu deiner §cScammerliste §7hinzugefügt.");
                             } else {
-                                sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + names.get(0) + " §7wurde zu deiner §cScammerliste §7hinzugefügt.");
+                                sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + name + " §7wurde zu deiner §cScammerliste §7hinzugefügt.");
                             }
                             sc.getListManager().getPrivateListScammer().save();
                         } else {
-                            sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + names.get(0) + " §7befindet sich bereits auf deiner §cScammerliste§7.");
+                            sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + name + " §7befindet sich bereits auf deiner §cScammerliste§7.");
                         }
                     } else {
                         sc.displayMessage(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
@@ -66,7 +67,7 @@ public class ScammerCommandListener implements ClientCommandEvent {
         if(args[0].equalsIgnoreCase("addclan")) {
             if (args.length == 2) {
                 if(!sc.isClanInProcess()) {
-                    sc.displayMessage(ScammerList.PREFIX+"§7Bitte warten...");
+                    sc.displayMessage(ScammerList.PREFIX+"§7Bitte warten, dies kann etwas dauern...");
                     sc.setClanPlayerType(PlayerType.SCAMMER);
                     sc.setAddClan(true);
                     sc.setClanInProcess(true);
@@ -96,7 +97,7 @@ public class ScammerCommandListener implements ClientCommandEvent {
                 new Thread(() -> {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
-                        String name = sc.getHelper().getNamesFromUUID(uuid).get(0);
+                        String name = sc.getHelper().getNameFromUUID(uuid);
                         if (sc.getListManager().getPrivateListScammer().removeByUUID(uuid)) {
                             sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + name + " §7wurde von deiner §cScammerliste §7entfernt.");
                             sc.getListManager().getPrivateListScammer().save();
@@ -116,7 +117,7 @@ public class ScammerCommandListener implements ClientCommandEvent {
         if(args[0].equalsIgnoreCase("removeclan")) {
             if (args.length == 2) {
                 if(!sc.isClanInProcess()) {
-                    sc.displayMessage(ScammerList.PREFIX+"§7Bitte warten...");
+                    sc.displayMessage(ScammerList.PREFIX+"§7Bitte warten, dies kann etwas dauern...");
                     sc.setClanPlayerType(PlayerType.SCAMMER);
                     sc.setRemoveClan(true);
                     sc.setClanInProcess(true);
@@ -146,7 +147,7 @@ public class ScammerCommandListener implements ClientCommandEvent {
                 new Thread(() -> {
                     String uuid = sc.getHelper().getUUIDFromName(args[1]);
                     if (uuid != null) {
-                        List<String> nameHistory = sc.getHelper().getNamesFromUUID(uuid);
+                        List<String> nameHistory = sc.getHelper().getNameHistoryFromUUID(uuid);
                         if(sc.getListManager().checkUUID(uuid, PlayerType.SCAMMER)) {
                             StringJoiner joiner = new StringJoiner("\n");
 
@@ -159,13 +160,13 @@ public class ScammerCommandListener implements ClientCommandEvent {
                             }
                             joiner.add("§7UUID: §e"+(uuid.equals(nameHistory.get(0)) ? "Nicht verfügbar" : uuid));
 
-                            List<String> containingLists = sc.getListManager().getContainingLists(uuid, PlayerType.SCAMMER);
-                            joiner.add("§7Liste: §e"+formatList(containingLists));
-                            if(containingLists.contains("Privat")) {
-                                Scammer s = sc.getListManager().getPrivateListScammer().getByUUID(uuid);
-                                if(s.getDate() != 0) joiner.add("§7Hinzugefügt am: §e"+new SimpleDateFormat("dd:MM:yyyy HH:mm").format(new Date(s.getDate())));
-                                if(s.getOriginalName() != null) joiner.add("§7Ursprünglicher Name: §e"+s.getOriginalName());
-                                if(s.getDescription() != null) joiner.add("§7Beschreibung: §e"+s.getDescription());
+                            List<PlayerList> containingLists = sc.getListManager().getContainingLists(uuid, PlayerType.SCAMMER);
+                            for(PlayerList list : containingLists) {
+                                joiner.add("§7Liste: §e"+list.getMeta().getName());
+                                Scammer s = list.getByUUID(uuid);
+                                if(s.getDate() != 0) joiner.add("  §7Hinzugefügt am: §e"+new SimpleDateFormat("dd:MM:yyyy HH:mm").format(new Date(s.getDate())));
+                                if(s.getOriginalName() != null) joiner.add("  §7Ursprünglicher Name: §e"+s.getOriginalName());
+                                if(s.getDescription() != null) joiner.add("  §7Beschreibung: §e"+s.getDescription());
                             }
 
                             joiner.add(ScammerList.PREFIX_LINE);

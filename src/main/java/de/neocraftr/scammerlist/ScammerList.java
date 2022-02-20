@@ -18,7 +18,7 @@ public class ScammerList extends LabyModAddon {
                                PREFIX_LINE = "§f-------------------- §4ScammerInfo §f--------------------",
                                CONSOLE_PREFIX = "[ScammerInfo] ",
                                COMMAND_PREFIX = ".",
-                               VERSION = "1.8.0";
+                               VERSION = "1.9.0";
     public static final int PLAYERS_PER_LIST_PAGE = 15;
 
     private static ScammerList scammerList;
@@ -35,7 +35,10 @@ public class ScammerList extends LabyModAddon {
     @Override
     public void onEnable() {
         scammerList = this;
-        gson = new GsonBuilder().setPrettyPrinting().create();
+        gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(Scammer.class, new Scammer.ScammerDeserializer())
+                .create();
         settings = new SettingsManager();
         helper = new Helper();
         listManager = new ListManager();

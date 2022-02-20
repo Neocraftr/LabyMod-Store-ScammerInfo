@@ -7,6 +7,7 @@ import net.labymod.addon.AddonLoader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ListManager {
     private List<PlayerList> lists;
@@ -23,26 +24,43 @@ public class ListManager {
             listDir.mkdirs();
         }
 
-        privateListScammer = new PlayerList(true, "Private Liste", null, PlayerType.SCAMMER);
-        privateListScammer.getMeta().setId("private");
+        // Local lists
+        privateListScammer = new PlayerList("private", true, true, "Private Scammer Liste", null, PlayerType.SCAMMER);
         privateListScammer.load();
 
-        privateListTrusted = new PlayerList(true, "Private Trusted Liste", null, PlayerType.TRUSTED);
-        privateListTrusted.getMeta().setId("private-trusted");
+        privateListTrusted = new PlayerList("private-trusted", true, true, "Private Trusted Liste", null, PlayerType.TRUSTED);
         privateListTrusted.load();
 
-        if(!sc.getConfig().has("lists")) {
-            lists.add(new PlayerList(true, "[SCAMMER] Radar", "%scammer-radar%", PlayerType.SCAMMER));
-            saveListSettings();
+        // Load configured lists
+        boolean hasScammerRadarSC = false, hasScammerRadarMM = false;
+        if(sc.getConfig().has("lists")) {
+            for(JsonElement element : sc.getConfig().get("lists").getAsJsonArray()) {
+                JsonObject list = element.getAsJsonObject();
+                PlayerList playerList = new PlayerList(sc.getGson().fromJson(list, PlayerList.Meta.class));
+
+                // Remove old list from previous versions
+                if(playerList.getMeta().getName().equalsIgnoreCase("[SCAMMER] Radar") || playerList.getMeta().getUrl().equalsIgnoreCase("%scammer-radar%")) continue;
+
+                if(playerList.getMeta().getId().equals("scammer-radar-sc")) hasScammerRadarSC = true;
+                if(playerList.getMeta().getId().equals("scammer-radar-mm")) hasScammerRadarMM = true;
+
+                playerList.load();
+                lists.add(playerList);
+            }
         }
 
-        lists.clear();
-        for(JsonElement element : sc.getConfig().get("lists").getAsJsonArray()) {
-            JsonObject list = element.getAsJsonObject();
-            PlayerList playerList = new PlayerList(sc.getGson().fromJson(list, PlayerList.Meta.class));
-
-            playerList.load();
-            lists.add(playerList);
+        // Add default lists
+        if(!hasScammerRadarSC) {
+            PlayerList list = new PlayerList("scammer-radar-sc", true, true, "[SCAMMER] Radar SC", "%scammer-radar-sc%", PlayerType.SCAMMER);
+            list.load();
+            sc.getUpdateQueue().addList(list);
+            lists.add(list);
+        }
+        if(!hasScammerRadarMM) {
+            PlayerList list = new PlayerList("scammer-radar-mm", true, true, "[SCAMMER] Radar MM", "%scammer-radar-mm%", PlayerType.TRUSTED);
+            list.load();
+            sc.getUpdateQueue().addList(list);
+            lists.add(list);
         }
 
         saveListSettings();
@@ -90,15 +108,19 @@ public class ListManager {
         return false;
     }
 
-    public List<String> getContainingLists(String uuid, PlayerType type) {
-        List<String> containungLists = new ArrayList<>();
-        if(privateListScammer.containsUUID(uuid) || privateListTrusted.containsUUID(uuid)) containungLists.add("Privat");
+    public List<PlayerList> getContainingLists(String uuid, PlayerType type) {
+        List<PlayerList> containingLists = new ArrayList<>();
+        if(type == PlayerType.SCAMMER && privateListScammer.containsUUID(uuid)) {
+            containingLists.add(privateListScammer);
+        } else if(type == PlayerType.TRUSTED && privateListTrusted.containsUUID(uuid)) {
+            containingLists.add(privateListTrusted);
+        }
         for(PlayerList list : lists) {
             if(!list.getMeta().isEnabled()) continue;
             if(list.getMeta().getType() != type) continue;
-            if(list.containsUUID(uuid)) containungLists.add(list.getMeta().getName());
+            if(list.containsUUID(uuid)) containingLists.add(list);
         }
-        return containungLists;
+        return containingLists;
     }
 
     public void saveListSettings() {
@@ -111,7 +133,7 @@ public class ListManager {
     }
 
     public PlayerList createList(boolean enabled, String name, String url, PlayerType type) {
-        PlayerList list = new PlayerList(enabled, name, url, type);
+        PlayerList list = new PlayerList(UUID.randomUUID().toString(), false, enabled, name, url, type);
         lists.add(list);
         return list;
     }

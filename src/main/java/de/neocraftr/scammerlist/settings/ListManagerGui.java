@@ -5,7 +5,9 @@ import de.neocraftr.scammerlist.utils.PlayerList;
 import de.neocraftr.scammerlist.utils.PlayerType;
 import net.labymod.gui.elements.Scrollbar;
 import net.labymod.main.LabyMod;
+import net.labymod.main.ModTextures;
 import net.labymod.main.lang.LanguageManager;
+import net.labymod.utils.DrawUtils;
 import net.labymod.utils.ModColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -18,8 +20,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class ListManagerGui extends GuiScreen {
-    private static final int ENTRY_HEIGHT = 30, ENTRY_WIDTH = 220;
+    private static final int ENTRY_HEIGHT = 30, ENTRY_WIDTH = 240;
     private ScammerList sc = ScammerList.getScammerList();
+    private DrawUtils draw = LabyMod.getInstance().getDrawUtils();
 
     private Scrollbar scrollbar;
     private GuiScreen lastScreen;
@@ -52,18 +55,26 @@ public class ListManagerGui extends GuiScreen {
         super.actionPerformed(button);
         switch (button.id) {
             case 1:
-                final GuiScreen lastScreen = (Minecraft.getMinecraft()).currentScreen;;
+                final GuiScreen lastScreen = (Minecraft.getMinecraft()).currentScreen;
+
+                PlayerList currentList = sc.getListManager().getLists().get(this.selectedIndex);
+                boolean predefined = currentList.getMeta().isPredefined();
+
                 Minecraft.getMinecraft().displayGuiScreen(new GuiYesNo(new GuiYesNoCallback() {
                     @Override
                     public void confirmClicked(boolean result, int id) {
                         if (result) {
-                            sc.getListManager().deleteList(sc.getListManager().getLists().get(selectedIndex));
+                            if(predefined) {
+                                currentList.getMeta().setEnabled(false);
+                            } else {
+                                sc.getListManager().deleteList(currentList);
+                            }
                             sc.getListManager().saveListSettings();
                         }
                         Minecraft.getMinecraft().displayGuiScreen(lastScreen);
                         selectedIndex = -1;
                     }
-                }, "Soll die Liste wirklich gelöscht werden?", "§c"+sc.getListManager().getLists().get(this.selectedIndex).getMeta().getName(), 1));
+                }, predefined ? "Voreingestellte Listen können nicht gelöscht werden. Soll sie stattdessen deaktiviert werden?" : "Soll die Liste wirklich gelöscht werden?", "§c"+currentList.getMeta().getName(), 1));
                 break;
             case 2:
                 Minecraft.getMinecraft().displayGuiScreen(new ListManagerGuiAdd(this, this.selectedIndex));
@@ -78,27 +89,27 @@ public class ListManagerGui extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        LabyMod.getInstance().getDrawUtils().drawAutoDimmedBackground(this.scrollbar.getScrollY());
-        List<PlayerList> scammerLists = sc.getListManager().getLists();
+        draw.drawAutoDimmedBackground(this.scrollbar.getScrollY());
+        List<PlayerList> list = sc.getListManager().getLists();
         this.hoveredIndex = -1;
 
         double entryHeight = 0;
-        for (int i = 0; i < scammerLists.size(); i++) {
-            drawEntry(i, scammerLists.get(i), (entryHeight + 45.0D + this.scrollbar.getScrollY()), mouseX, mouseY);
+        for (int i = 0; i < list.size(); i++) {
+            drawEntry(i, list.get(i), (entryHeight + 45.0D + this.scrollbar.getScrollY()), mouseX, mouseY);
             entryHeight += 1.0D + ENTRY_HEIGHT;
         }
-        if(scammerLists.isEmpty()) {
-            LabyMod.getInstance().getDrawUtils().drawCenteredString("§7Keine Listen vorhanden", this.width / 2.0D, 60.0D);
+        if(list.isEmpty()) {
+            draw.drawCenteredString("§7Keine Listen vorhanden", this.width / 2.0D, 60.0D);
         }
 
-        LabyMod.getInstance().getDrawUtils().drawOverlayBackground(0, 41);
-        LabyMod.getInstance().getDrawUtils().drawOverlayBackground(this.height - 32, this.height);
-        LabyMod.getInstance().getDrawUtils().drawGradientShadowTop(41.0D, 0.0D, this.width);
-        LabyMod.getInstance().getDrawUtils().drawGradientShadowBottom(this.height - 32.0D, 0.0D, this.width);
-        LabyMod.getInstance().getDrawUtils().drawCenteredString("Listen verwalten", this.width / 2.0D, 25.0D);
+        draw.drawOverlayBackground(0, 41);
+        draw.drawOverlayBackground(this.height - 32, this.height);
+        draw.drawGradientShadowTop(41.0D, 0.0D, this.width);
+        draw.drawGradientShadowBottom(this.height - 32.0D, 0.0D, this.width);
+        draw.drawCenteredString("Listen verwalten", this.width / 2.0D, 25.0D);
 
-        this.scrollbar.setEntryHeight(entryHeight / scammerLists.size());
-        this.scrollbar.update(scammerLists.size());
+        this.scrollbar.setEntryHeight(entryHeight / list.size());
+        this.scrollbar.update(list.size());
         this.scrollbar.draw();
 
         this.buttonEdit.enabled = (this.selectedIndex != -1);
@@ -117,13 +128,18 @@ public class ListManagerGui extends GuiScreen {
         int backgroundColor = hovered ? ModColor.toRGB(50, 50, 50, 120) : ModColor.toRGB(40, 40, 40, 120);
 
         drawRect(x, (int) y, x + ENTRY_WIDTH, (int) y + ENTRY_HEIGHT, backgroundColor);
-        LabyMod.getInstance().getDrawUtils().drawRectBorder(x, y, x + ENTRY_WIDTH, (int) (y + ENTRY_HEIGHT), borderColor, 1.0D);
+        draw.drawRectBorder(x, y, x + ENTRY_WIDTH, (int) (y + ENTRY_HEIGHT), borderColor, 1.0D);
 
-        LabyMod.getInstance().getDrawUtils().drawString(list.getMeta().getName()+" §7("+(list.getMeta().isEnabled() ? "§2Aktiviert" : "§4Deaktiviert")+"§7)", x + 10.0D, y + 11.0D);
+        draw.drawString(list.getMeta().getName()+" §7("+(list.getMeta().isEnabled() ? "§2Aktiviert" : "§4Deaktiviert")+"§7)", x + 10.0D, y + 11.0D);
 
         int typeColor = list.getMeta().getType() == PlayerType.SCAMMER ? ModColor.toRGB(255, 85, 85, 60) : ModColor.toRGB(85, 255, 85, 60);
         drawRect(x + ENTRY_WIDTH - 1, (int) y + ENTRY_HEIGHT - 1, x + ENTRY_WIDTH - 50, (int) y + ENTRY_HEIGHT - 16, typeColor);
         drawCenteredString(list.getMeta().getType().name(), x + ENTRY_WIDTH - 50.0D / 2.0D, y + ENTRY_HEIGHT - 12.0D, ModColor.toRGB(230, 230, 230, 100));
+
+        if(list.getMeta().isPredefined()) {
+            Minecraft.getMinecraft().getTextureManager().bindTexture(ModTextures.MISC_FEATURED);
+            draw.drawTexture(x + ENTRY_WIDTH - 11, y + 3, 0.0D, 0.0D, 255.0D, 255.0D, 8.0D, 8.0D);
+        }
     }
 
     @Override
@@ -160,7 +176,7 @@ public class ListManagerGui extends GuiScreen {
     }
 
     private void drawCenteredString(String text, double x, double y, int color) {
-        int width = LabyMod.getInstance().getDrawUtils().getStringWidth(text);
-        LabyMod.getInstance().getDrawUtils().getFontRenderer().drawString(text, (int) x - width / 2, (int) y, color);
+        int width = draw.getStringWidth(text);
+        draw.getFontRenderer().drawString(text, (int) x - width / 2, (int) y, color);
     }
 }
