@@ -172,7 +172,8 @@ public class ScammerCommandListener implements ClientCommandEvent {
                             joiner.add(ScammerList.PREFIX_LINE);
                             sc.displayMessage(joiner.toString());
                         } else {
-                            sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + nameHistory.get(0) + " §7befindet sich nicht auf der §cScammerliste§7.");
+                            boolean trusted = sc.getListManager().checkUUID(uuid, PlayerType.TRUSTED);
+                            sc.displayMessage(ScammerList.PREFIX + "§7Der Spieler §e" + nameHistory.get(0) + " §7befindet sich nicht auf der §cScammerliste"+(trusted ? " §7und wurde als §aTrusted §7hinterlegt." : "§7."));
                         }
                     } else {
                         sc.displayMessage(ScammerList.PREFIX + "§cEs gibt keinen Spieler mit diesem Namen.");
