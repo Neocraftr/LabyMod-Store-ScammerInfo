@@ -120,8 +120,9 @@ public class PlayerList extends ArrayList<Scammer> {
             this.clear();
             this.addAll(list);
             return true;
-        } catch (IOException | JsonSyntaxException e) {
-            System.err.println(ScammerList.CONSOLE_PREFIX + "Error while loading list "+meta.getName()+": "+e);
+        } catch (Exception e) {
+            System.err.println(ScammerList.CONSOLE_PREFIX + "Error while loading list "+meta.getName()+": ");
+            e.printStackTrace();
         }
         return false;
     }
